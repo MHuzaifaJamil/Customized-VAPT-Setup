@@ -42,12 +42,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+from tools.prompt_safety import delimit_untrusted
+from memory.audit_log import AutopilotGuard  # noqa: E402
+from tools.scope_checker import ScopeChecker, _split_patterns  # noqa: E402
 
 # ── LangGraph optional import ──────────────────────────────────────────────────
 try:
@@ -83,7 +88,7 @@ def _h():
     if _hunt is None:
         import importlib.util, sys as _sys
         _here = os.path.dirname(os.path.abspath(__file__))
-        spec = importlib.util.spec_from_file_location("hunt", os.path.join(_here, "hunt.py"))
+        spec = importlib.util.spec_from_file_location("hunt", os.path.join(_here, "tools", "hunt.py"))
         _hunt = importlib.util.module_from_spec(spec)
         _sys.modules.setdefault("hunt", _hunt)
         spec.loader.exec_module(_hunt)
@@ -496,7 +501,8 @@ class HuntMemory:
             return "No tool outputs yet."
         parts = []
         for obs in recents:
-            parts.append(f"[{obs['tool']}]\n{obs['text']}")
+            wrapped = delimit_untrusted(f"prior observation: {obs['tool']}", obs['text'])
+            parts.append(f"[{obs['tool']}]\n{wrapped}")
         return "\n\n".join(parts)
 
 
@@ -507,14 +513,114 @@ class HuntMemory:
 class ToolDispatcher:
     """Execute tool calls and return plain-text observations."""
 
+    # Tool names that send traffic toward `domain` (directly or via
+    # subprocess-driven scanners) and therefore must clear the scope guard
+    # before running. Local/bookkeeping tools are excluded — they touch only
+    # session state on disk, never the network.
+    NETWORK_TOOLS = {
+        "run_recon", "run_vuln_scan", "run_js_analysis", "run_secret_hunt",
+        "run_param_discovery", "run_post_param_discovery", "run_api_fuzz",
+        "run_cors_check", "run_cms_exploit", "run_rce_scan",
+        "run_sqlmap_targeted", "run_sqlmap_on_file", "run_jwt_audit",
+    }
+
+    # Real HTTP-method semantics per tool, so AutopilotGuard's method policy
+    # (unsafe methods require human approval) actually fires instead of
+    # every call being hardcoded GET. Read/recon-only tools stay GET; tools
+    # that submit data, mutate state, or run active exploitation map to
+    # their real verb. See SECURITY-REVIEW-2026-08-22.md finding #7.
+    TOOL_METHODS = {
+        "run_recon": "GET",
+        "run_vuln_scan": "GET",
+        "run_js_analysis": "GET",
+        "run_secret_hunt": "GET",
+        "run_param_discovery": "GET",
+        "run_cors_check": "GET",
+        "run_post_param_discovery": "POST",
+        "run_api_fuzz": "POST",
+        "run_cms_exploit": "POST",
+        "run_rce_scan": "POST",
+        "run_sqlmap_targeted": "POST",
+        "run_sqlmap_on_file": "POST",
+        "run_jwt_audit": "GET",
+    }
+
     def __init__(self, domain: str, memory: HuntMemory,
                  scope_lock: bool = False, max_urls: int = 100,
-                 default_cookies: str = ""):
+                 default_cookies: str = "", scope_checker: "ScopeChecker | None" = None,
+                 circuit_threshold: int = 5,
+                 time_budget_hours: float = 2.0,
+                 start_time: float | None = None):
         self.domain          = domain
         self.memory          = memory
         self.scope_lock      = scope_lock
         self.max_urls        = max_urls
         self.default_cookies = default_cookies
+        # fail_closed default: with no scope_checker, every network tool call
+        # below is blocked rather than silently allowed. See run_agent_hunt()
+        # for where scope_checker gets built from --domain/--exclude-domain.
+        self._guard = AutopilotGuard(scope_checker=scope_checker,
+                                      circuit_threshold=circuit_threshold)
+        # Mirrors ReActAgent's own time_budget_hours/time_start so dispatch()
+        # can refuse to start a new network-facing tool once the budget is
+        # nearly gone. Defaults to "plenty of time remaining" so callers that
+        # don't pass these see no behavior change.
+        self._time_budget_hours = time_budget_hours
+        self._start_time        = start_time if start_time is not None else time.time()
+
+    def _time_remaining_fraction(self) -> float:
+        """Fraction (0.0-1.0) of `time_budget_hours` left, based on when
+        this dispatcher was constructed."""
+        total_secs = self._time_budget_hours * 3600
+        if total_secs <= 0:
+            return 0.0
+        elapsed = time.time() - self._start_time
+        remaining = total_secs - elapsed
+        return max(0.0, remaining / total_secs)
+
+    @staticmethod
+    def _parse_request_file_host(request_file: str) -> str | None:
+        """Parse the target host out of a raw HTTP request file (sqlmap/
+        Burp style) by scanning for a `Host:` header line. Deliberately not
+        a full HTTP parser. Returns the host (with port, if present), or
+        None if the file couldn't be read or no Host header was found —
+        callers must treat None as "refuse", not "assume in scope"."""
+        try:
+            with open(request_file, "r", errors="replace") as f:
+                for line in f:
+                    m = re.match(r"^\s*Host:\s*(.+?)\s*$", line, re.IGNORECASE)
+                    if m:
+                        return m.group(1).strip()
+        except OSError:
+            return None
+        return None
+
+    def _filter_recon_urls_to_scope(self, domain: str) -> None:
+        """Drop out-of-scope URLs from recon output files IN PLACE before
+        any scanner reads them. The base-domain check in dispatch() only
+        validates self.domain; scanners then read whatever recon
+        discovered (subdomains, crawled URLs) with no further scope check
+        — this closes that gap. Filters every file scanners actually read
+        that's derived from recon, not just urls/all.txt."""
+        if self._guard._scope_checker is None:
+            return  # fail_closed already blocked dispatch entirely in this case
+        h = _h()
+        try:
+            recon_dir = h._resolve_recon_dir(domain)
+        except Exception:
+            return
+        relative_paths = (
+            os.path.join("urls", "all.txt"),
+            os.path.join("urls", "with_params.txt"),
+            os.path.join("urls", "js_files.txt"),
+            os.path.join("urls", "api_endpoints.txt"),
+            os.path.join("live", "urls.txt"),
+        )
+        for rel_path in relative_paths:
+            urls_file = os.path.join(recon_dir, rel_path)
+            if not os.path.isfile(urls_file):
+                continue
+            self._guard._scope_checker.filter_file(urls_file)
 
     def dispatch(self, name: str, args: dict) -> str:
         """Execute named tool and return text observation."""
@@ -522,20 +628,82 @@ class ToolDispatcher:
         domain = self.domain
         t0 = time.time()
 
+        # Time-budget gate: refuse to *start* any new network-facing tool
+        # once under 10% of the time budget remains. Can't preempt an
+        # in-flight subprocess (a single scanner could still overrun the
+        # budget by its own internal timeout), but reduces the blast radius.
+        if name in self.NETWORK_TOOLS:
+            remaining_fraction = self._time_remaining_fraction()
+            if remaining_fraction < 0.10:
+                return (f"BLOCKED: time budget nearly exhausted "
+                        f"({remaining_fraction*100:.0f}% remaining) — "
+                        f"refusing to start a new long-running tool this late in the budget.")
+
+        # run_sqlmap_on_file's actual target is data-driven from a request
+        # file, not self.domain — self.domain passing scope says nothing
+        # about what host the file itself targets. Parse the file's Host:
+        # header and hard-block on it BEFORE the generic method-policy gate
+        # below, so an out-of-scope request file can never merely
+        # "require_approval" (a warning, not a block).
+        sqlmap_file_host = None
+        if name == "run_sqlmap_on_file":
+            req_file = args.get("request_file", "")
+            if not req_file or not os.path.isfile(req_file):
+                return f"ERROR: request_file not found: {req_file}"
+            sqlmap_file_host = self._parse_request_file_host(req_file)
+            if self._guard._scope_checker is not None:
+                if sqlmap_file_host is None:
+                    return ("BLOCKED by scope guard: could not determine target "
+                             f"host from request_file ({req_file}) — refusing "
+                             "rather than assuming in-scope")
+                if not self._guard._scope_checker.is_in_scope(f"https://{sqlmap_file_host}"):
+                    return (f"BLOCKED by scope guard: Out of scope: "
+                             f"{sqlmap_file_host} is not on the program "
+                             f"allowlist (target host parsed from request_file "
+                             f"{req_file})")
+
+        # Scope gate: checked ahead of everything except the time-budget gate
+        # above, for any tool that actually sends traffic. `method` reflects
+        # the tool's real HTTP-method semantics (TOOL_METHODS) so
+        # AutopilotGuard's method policy can require human approval for
+        # state-changing tools instead of every call being nominally "safe" GET.
+        if name in self.NETWORK_TOOLS:
+            method = self.TOOL_METHODS.get(name, "GET")
+            gate = self._guard.check_request(method, f"https://{domain}")
+            if gate["decision"] == "block":
+                return f"BLOCKED by scope guard: {gate['reason']}"
+            if gate["decision"] == "require_approval":
+                if sqlmap_file_host is not None:
+                    target_desc = f"targets {sqlmap_file_host} via request_file"
+                else:
+                    target_desc = f"issues a state-changing request ({method})"
+                return (f"REQUIRES APPROVAL: {name} {target_desc} — a human "
+                         f"must review and run this manually before it "
+                         f"proceeds. Not executed.")
+            # Scope check above only validated the base --target domain;
+            # recon may have discovered subdomains/URLs outside that scope.
+            # Filter recon output in place before any scanner reads it.
+            self._filter_recon_urls_to_scope(domain)
+
         try:
             if name == "run_recon":
+                # NOTE: tools/hunt.py's run_recon() takes (domain, quick, scope_lock) —
+                # it has no URL-count-limiting concept, so max_urls isn't passed through.
+                # self.max_urls / the CLI --max-urls flag are accepted but currently
+                # unused by the underlying recon pipeline; wiring that through
+                # recon_engine.sh is a separate feature change, not done here.
                 ok = h.run_recon(
                     domain,
                     scope_lock=args.get("scope_lock", self.scope_lock),
-                    max_urls=int(args.get("max_urls", self.max_urls)),
                 )
                 obs = self._summarize_recon(domain, ok)
 
             elif name == "run_vuln_scan":
+                # NOTE: tools/hunt.py's run_vuln_scan() takes (domain, quick) only —
+                # no "full" mode exists in vuln_scanner.sh today, so it isn't passed through.
                 ok = h.run_vuln_scan(
                     domain,
                     quick=bool(args.get("quick", False)),
-                    full=bool(args.get("full", False)),
                 )
                 obs = self._summarize_findings(domain, "scan", ok)
 
@@ -610,8 +778,13 @@ class ToolDispatcher:
                 return f"Unknown tool: {name}"
 
         except Exception as exc:
+            if name in self.NETWORK_TOOLS:
+                self._guard.record_failure(domain)
             tb = traceback.format_exc()
             return f"Tool {name} raised exception: {exc}\n{tb[:500]}"
+
+        if name in self.NETWORK_TOOLS:
+            self._guard.record_success(domain)
 
         elapsed = round(time.time() - t0, 1)
         obs_full = f"{obs}\n\n[{name} completed in {elapsed}s]"
@@ -686,7 +859,7 @@ class ToolDispatcher:
                                ("critical", "high", "vulnerable", "injectable",
                                 "rce", "sqli", "open redirect", "exposed", "default cred")):
                             head = content[:400].replace("\n", " ")
-                            lines.append(f"  [{fn}] {head}")
+                            lines.append(f"  [{fn}] {delimit_untrusted(f'findings:{fn}', head)}")
                     except Exception:
                         pass
 
@@ -717,7 +890,7 @@ class ToolDispatcher:
                 data = json.loads(Path(fp).read_text())
                 for url, info in list(data.items())[:8]:
                     params = ", ".join(info.get("params", [])[:6])
-                    lines.append(f"  POST {url}  →  [{params}]")
+                    lines.append(f"  POST {delimit_untrusted('post param endpoint', f'{url}  →  [{params}]')}")
             except Exception:
                 pass
         return "\n".join(lines)
@@ -738,7 +911,8 @@ class ToolDispatcher:
                 lines = [l.strip() for l in open(fp) if l.strip()]
                 count = len(lines)
                 sample = lines[:20]
-                parts.append(f"=== {label} ({count} total) ===\n" + "\n".join(sample))
+                wrapped = delimit_untrusted(f"recon:{fn}", "\n".join(sample))
+                parts.append(f"=== {label} ({count} total) ===\n{wrapped}")
 
         return "\n\n".join(parts) if parts else "No recon data found. Run run_recon first."
 
@@ -758,7 +932,7 @@ class ToolDispatcher:
                     content = Path(fp).read_text(errors="replace")
                     if content.strip():
                         rel = os.path.relpath(fp, findings_dir)
-                        parts.append(f"=== {rel} ===\n{content[:800]}")
+                        parts.append(f"=== {rel} ===\n{delimit_untrusted(f'findings:{rel}', content[:800])}")
                 except Exception:
                     pass
 
@@ -844,6 +1018,10 @@ class AgentTracer:
     `tail -f session.jsonl` gives live stream of what the agent is doing.
     """
 
+    # Arg keys whose values must never be written to disk or stdout in
+    # plaintext (cookies/tokens/passwords). Compared case-insensitively.
+    _REDACT_KEYS = {"cookies", "cookie", "authorization", "token", "password"}
+
     def __init__(self, log_path: str):
         self.log_path = log_path
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
@@ -854,8 +1032,17 @@ class AgentTracer:
         self._f.write(json.dumps(event) + "\n")
         self._f.flush()
 
-    def tool_call(self, tool: str, args: dict, step: int) -> None:
-        self._write({"event": "tool_call", "step": step, "tool": tool, "args": args})
+    @classmethod
+    def redact_args(cls, args: dict) -> dict:
+        """Return a copy of args with sensitive values replaced by 'REDACTED'."""
+        return {
+            k: ("REDACTED" if k.lower() in cls._REDACT_KEYS else v)
+            for k, v in args.items()
+        }
+
+    def tool_call(self, tool: str, args: dict, step: int = 0) -> None:
+        safe_args = self.redact_args(args)
+        self._write({"event": "tool_call", "step": step, "tool": tool, "args": safe_args})
 
     def tool_result(self, tool: str, result: str, elapsed: float, step: int) -> None:
         self._write({"event": "tool_result", "step": step, "tool": tool,
@@ -1174,7 +1361,8 @@ class ReActAgent:
                     if self.tracer:
                         self.tracer.loop_warn(name, LoopDetector.WARN_AT, self.memory.step_count)
 
-                print(f"{MAGENTA}[Agent] Tool: {BOLD}{name}{NC}{MAGENTA}  args={json.dumps(args)}{NC}",
+                safe_args = AgentTracer.redact_args(args)
+                print(f"{MAGENTA}[Agent] Tool: {BOLD}{name}{NC}{MAGENTA}  args={json.dumps(safe_args)}{NC}",
                       flush=True)
                 if self.tracer:
                     self.tracer.tool_call(name, args, self.memory.step_count)
@@ -1426,6 +1614,7 @@ def run_agent_hunt(
     model: str | None = None,
     resume_session_id: str | None = None,
     use_langgraph: bool = False,
+    scope_checker: "ScopeChecker | None" = None,
 ) -> dict:
     """
     Main entry point for agent-driven autonomous hunting.
@@ -1439,18 +1628,30 @@ def run_agent_hunt(
         requested_session_id=resume_session_id or "latest",
         create=True,
     )
-    session_dir  = os.path.dirname(recon_dir)
+    # recon_dir from _activate_recon_session is already the correct full
+    # path — do NOT os.path.dirname() it (that strips the last path
+    # component and, on this hunt.py's flat RECON_DIR/<domain>/ layout,
+    # would land agent_session.json in the shared RECON_DIR itself,
+    # mixing state across every domain ever hunted).
+    session_dir  = recon_dir
     session_file = os.path.join(session_dir, "agent_session.json")
 
     print(f"{GREEN}[Agent] Session: {session_id} → {recon_dir}{NC}", flush=True)
 
     # ── Init memory + dispatcher ──────────────────────────────────────────
+    # start_time captured here, shared with ToolDispatcher, so its
+    # time-budget gate tracks the same clock ReActAgent.time_start is about
+    # to be set to just below — both mark "now" at hunt start.
+    hunt_start_time = time.time()
     memory     = HuntMemory(session_file)
     dispatcher = ToolDispatcher(
         domain, memory,
         scope_lock=scope_lock,
         max_urls=max_urls,
         default_cookies=cookies,
+        scope_checker=scope_checker,
+        time_budget_hours=time_budget_hours,
+        start_time=hunt_start_time,
     )
 
     # ── Run ───────────────────────────────────────────────────────────────
@@ -1536,6 +1737,11 @@ Examples:
     parser.add_argument("--model",       type=str,   default=None, help="Ollama model override")
     parser.add_argument("--langgraph",   action="store_true",     help="Use real LangGraph backend")
     parser.add_argument("--resume",      type=str,   default=None, help="Resume session ID")
+    parser.add_argument("-d", "--domain", action="append", default=[],
+                        help="In-scope domain pattern (repeatable, comma-separated), "
+                             "e.g. -d target.com -d '*.target.com'")
+    parser.add_argument("--exclude-domain", action="append", default=[],
+                        help="Out-of-scope domain pattern (repeatable, comma-separated)")
     parser.add_argument("--list-models", action="store_true",     help="List available Ollama models")
     parser.add_argument("--bump",        type=str,   default=None,
                         help="Inject operator guidance mid-run: --bump SESSION_DIR 'message'",
@@ -1572,6 +1778,18 @@ Examples:
         parser.print_help()
         sys.exit(1)
 
+    domains = _split_patterns(args.domain)
+    scope_checker = ScopeChecker(
+        domains=domains,
+        excluded_domains=_split_patterns(args.exclude_domain),
+    ) if domains else None
+
+    if scope_checker is None:
+        print(f"{YELLOW}[Agent] No --domain given — every tool that sends traffic "
+              f"will be blocked (fail-closed).{NC}")
+        print(f"{YELLOW}[Agent] Pass scope explicitly, e.g.: "
+              f"-d {args.target} -d '*.{args.target}'{NC}")
+
     result = run_agent_hunt(
         args.target,
         scope_lock=args.scope_lock,
@@ -1582,6 +1800,7 @@ Examples:
         model=args.model,
         resume_session_id=args.resume,
         use_langgraph=args.langgraph,
+        scope_checker=scope_checker,
     )
 
     print(f"\n{BOLD}{'═'*60}{NC}")

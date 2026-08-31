@@ -23,9 +23,15 @@ import time
 BASE = "https://hackerone.com"
 
 def make_ctx():
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    try:
+        import certifi
+        ctx = ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        # certifi isn't installed — fall back to the system CA store via
+        # ssl.create_default_context(), which is already a verifying context.
+        # Never disable verification: this talks to hackerone.com itself,
+        # not a target with a self-signed staging cert.
+        ctx = ssl.create_default_context()
     return ctx
 
 def get_csrf(cookie: str) -> str:

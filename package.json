@@ -12,16 +12,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shuvonsec/claude-bug-bounty.git"
+    "url": "git+https://github.com/Awarexone/Agentic-Bug-Hunter.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/shuvonsec/claude-bug-bounty/issues"
+    "url": "https://github.com/Awarexone/Agentic-Bug-Hunter/issues"
   },
-  "homepage": "https://github.com/shuvonsec/claude-bug-bounty#readme",
+  "homepage": "https://github.com/Awarexone/Agentic-Bug-Hunter#readme",
   "dependencies": {
     "@anthropic-ai/claude-code": "^2.1.202"
   },

@@ -10,19 +10,19 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/shuvonsec/claude-bug-bounty/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT License"></a>
+  <a href="https://github.com/Awarexone/Agentic-Bug-Hunter/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/Python-3.9+-3776AB.svg?style=flat-square&logo=python&logoColor=white" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/Standalone-Free-brightgreen.svg?style=flat-square" alt="Free Standalone Mode">
   <a href="https://claude.ai/claude-code"><img src="https://img.shields.io/badge/Claude_Code-Plugin-D97706.svg?style=flat-square" alt="Claude Code Plugin"></a>
-  <a href="https://star-history.com/#shuvonsec/claude-bug-bounty"><img src="https://img.shields.io/github/stars/shuvonsec/claude-bug-bounty?style=flat-square&color=yellow" alt="GitHub Stars"></a>
+  <a href="https://star-history.com/#Awarexone/Agentic-Bug-Hunter"><img src="https://img.shields.io/github/stars/Awarexone/Agentic-Bug-Hunter?style=flat-square&color=yellow" alt="GitHub Stars"></a>
 </p>
 
 <p align="center">
-  <a href="https://www.star-history.com/?repos=shuvonsec%2Fclaude-bug-bounty&type=date&legend=top-left">
+  <a href="https://www.star-history.com/?repos=Awarexone%2FAgentic-Bug-Hunter&type=date&legend=top-left">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=shuvonsec/claude-bug-bounty&type=date&theme=dark&legend=top-left" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=shuvonsec/claude-bug-bounty&type=date&legend=top-left" />
-      <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=shuvonsec/claude-bug-bounty&type=date&legend=top-left" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Awarexone/Agentic-Bug-Hunter&type=date&theme=dark&legend=top-left" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Awarexone/Agentic-Bug-Hunter&type=date&legend=top-left" />
+      <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Awarexone/Agentic-Bug-Hunter&type=date&legend=top-left" />
     </picture>
   </a>
 </p>
@@ -86,7 +86,7 @@ Works as a [Claude Code](https://claude.ai/claude-code) plugin **or** as a fully
 Install once, use the `bughunter` command from any terminal on your machine:
 
 ```bash
-git clone https://github.com/shuvonsec/claude-bug-bounty.git
+git clone https://github.com/Awarexone/Agentic-Bug-Hunter.git
 cd claude-bug-bounty
 ./install.sh --agent standalone
 ```
@@ -128,7 +128,7 @@ curl -fsSL https://ollama.ai/install.sh | sh
 ollama pull qwen2.5:14b          # ~9 GB, one-time download
 
 # 2. Install BugHunter
-git clone https://github.com/shuvonsec/claude-bug-bounty.git
+git clone https://github.com/Awarexone/Agentic-Bug-Hunter.git
 cd claude-bug-bounty
 ./install.sh --agent standalone   # creates system-wide 'bughunter' command
 
@@ -153,7 +153,7 @@ bughunter hunt target.com
 **Option A — standalone (no subscription, works for everyone)**
 
 ```bash
-git clone https://github.com/shuvonsec/claude-bug-bounty.git
+git clone https://github.com/Awarexone/Agentic-Bug-Hunter.git
 cd claude-bug-bounty
 ./install.sh --agent standalone   # creates system-wide 'bughunter' command
 bughunter setup                   # pick a free AI provider
@@ -166,7 +166,7 @@ bughunter report
 **Option B — Claude Code plugin** *(requires Claude Code)*
 
 ```bash
-git clone https://github.com/shuvonsec/claude-bug-bounty.git
+git clone https://github.com/Awarexone/Agentic-Bug-Hunter.git
 cd claude-bug-bounty
 chmod +x install_tools.sh && ./install_tools.sh   # subfinder · httpx · nuclei · katana · ffuf
 chmod +x install.sh      && ./install.sh          # skills + commands → ~/.claude/
@@ -185,7 +185,7 @@ claude
 Open your terminal, run `claude`, then paste:
 
 ```text
-Install the Claude Bug Bounty toolkit from https://github.com/shuvonsec/claude-bug-bounty
+Install the Claude Bug Bounty toolkit from https://github.com/Awarexone/Agentic-Bug-Hunter
 into ~/tools/. Clone the repo, run ./install_tools.sh then ./install.sh.
 Verify /recon /hunt /validate /report are available.
 ```

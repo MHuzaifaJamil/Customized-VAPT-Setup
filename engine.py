@@ -84,6 +84,17 @@ def load_config() -> dict:
 def save_config(cfg: dict):
     CONFIG.parent.mkdir(parents=True, exist_ok=True)
     CONFIG.write_text(json.dumps(cfg, indent=2))
+    os.chmod(CONFIG, 0o600)
+
+
+def _configured_model(cfg: dict, provider: str) -> str | None:
+    """Resolve the model to use for `provider`: BRAIN_MODEL env overrides
+    the per-provider choice saved in config; each provider's saved model
+    is isolated under cfg["models"][provider]."""
+    env_model = os.environ.get("BRAIN_MODEL")
+    if env_model:
+        return env_model
+    return (cfg.get("models") or {}).get(provider)
 
 
 COMMAND_ALIASES = {
@@ -173,11 +184,13 @@ def _get_brain(provider: str | None = None):
     return Brain()
 
 
-def _run_shell(cmd: str, cwd: str | None = None, timeout: int = 3600) -> tuple[bool, str]:
-    """Run a shell command with live output, return (success, combined_output)."""
+def _run_shell(cmd: list[str], cwd: str | None = None, timeout: int = 3600) -> tuple[bool, str]:
+    """Run a command with live output, return (success, combined_output).
+    Takes an argv list, not a shell string — shell=True with
+    f-string-interpolated targets is a command injection bug."""
     try:
         proc = subprocess.Popen(
-            cmd, shell=True, cwd=cwd or str(HERE),
+            cmd, shell=False, cwd=cwd or str(HERE),
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
         )
         lines = []
@@ -196,7 +209,8 @@ def _run_shell(cmd: str, cwd: str | None = None, timeout: int = 3600) -> tuple[b
 # ── Commands ───────────────────────────────────────────────────────────────────
 
 def cmd_setup(args):
-    """Interactive setup wizard."""
+    """Setup wizard — interactive by default, non-interactive when
+    --setup-provider/--setup-model (or --provider/--model) are given."""
     header("BugHunter Setup")
 
     providers = {
@@ -208,13 +222,18 @@ def cmd_setup(args):
         "6": ("grok",     "Grok/xAI (paid)             — needs XAI_API_KEY"),
     }
 
-    print("Choose your AI backend:\n")
-    for k, (_, desc) in providers.items():
-        print(f"  {k}) {desc}")
-    print()
+    explicit_provider = getattr(args, "setup_provider", None) or getattr(args, "provider", None)
+    explicit_model = getattr(args, "setup_model", None) or getattr(args, "model", None)
 
-    choice = input("Enter number [1]: ").strip() or "1"
-    provider = providers.get(choice, ("ollama", ""))[0]
+    if explicit_provider:
+        provider = explicit_provider
+    else:
+        print("Choose your AI backend:\n")
+        for k, (_, desc) in providers.items():
+            print(f"  {k}) {desc}")
+        print()
+        choice = input("Enter number [1]: ").strip() or "1"
+        provider = providers.get(choice, ("ollama", ""))[0]
 
     cfg = load_config()
     cfg["provider"] = provider
@@ -230,18 +249,18 @@ def cmd_setup(args):
     if provider in env_map:
         env_var = env_map[provider]
         existing = os.environ.get(env_var, "")
-        print(f"\nEnter {env_var} (blank = keep existing): ", end="")
-        api_key = input().strip()
-        if api_key:
-            cfg[env_var] = api_key
-            os.environ[env_var] = api_key
-        elif existing:
-            info(f"Using existing {env_var} from environment")
-        else:
+        if not explicit_provider:
+            print(f"\nEnter {env_var} (blank = keep existing): ", end="")
+            api_key = input().strip()
+            if api_key:
+                cfg[env_var] = api_key
+                os.environ[env_var] = api_key
+            elif existing:
+                info(f"Using existing {env_var} from environment")
+            else:
+                warn(f"No {env_var} set — provider may not work")
+        elif not existing and not cfg.get(env_var):
             warn(f"No {env_var} set — provider may not work")
-
-    save_config(cfg)
-    ok(f"Config saved to {CONFIG}")
 
     # Test connection
     info("Testing connection...")
@@ -252,10 +271,25 @@ def cmd_setup(args):
     client = LLMClient(provider)
     if client.available:
         ok(f"Connected: {client.description}")
-        reply = client.chat(None, "You are a helpful assistant.",
+
+        model = explicit_model
+        if model:
+            available = client.list_models() if hasattr(client, "list_models") else []
+            if available and model not in available:
+                err(f"Model '{model}' is not available for provider '{provider}'")
+                info(f"Available: {', '.join(available)}")
+                return
+            cfg.setdefault("models", {})[provider] = model
+
+        save_config(cfg)
+        ok(f"Config saved to {CONFIG}")
+
+        reply = client.chat(model, "You are a helpful assistant.",
                             "Reply with exactly: READY", max_tokens=10)
         ok(f"Model responded: {reply.strip()}" if reply else "Connected (no reply — pull a model if using Ollama)")
     else:
+        save_config(cfg)
+        ok(f"Config saved to {CONFIG}")
         err(f"Provider '{provider}' not available")
         if provider == "ollama":
             print(f"\n  {YELLOW}Install Ollama:{NC}")
@@ -337,7 +371,7 @@ def cmd_recon(args):
     script = TOOLS / "recon_engine.sh"
     if script.exists():
         info("Running recon pipeline...")
-        success, _ = _run_shell(f'bash "{script}" "{target}"')
+        success, _ = _run_shell(["bash", str(script), target])
         if not success:
             warn("Recon had issues — continuing with AI analysis")
     else:
@@ -362,14 +396,14 @@ def cmd_hunt(args):
     script = TOOLS / "recon_engine.sh"
     if script.exists():
         info("Phase 1: Recon...")
-        _run_shell(f'bash "{script}" "{target}"')
+        _run_shell(["bash", str(script), target])
 
     # Run vuln scan
     vuln_script = TOOLS / "vuln_scanner.sh"
     recon_dir = RECON / target
     if vuln_script.exists() and recon_dir.exists():
         info("Phase 2: Vuln scan...")
-        _run_shell(f'bash "{vuln_script}" "{recon_dir}"')
+        _run_shell(["bash", str(vuln_script), str(recon_dir)])
 
     # AI analysis
     info("Phase 3: AI analysis...")

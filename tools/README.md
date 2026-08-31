@@ -1,6 +1,6 @@
 # Tools
 
-Python and shell scanner pipeline (~35 tools). Every tool checks whether its external dependency is installed — missing tools are skipped, never errors.
+Python and shell scanner pipeline (~50 tools). Every tool checks whether its external dependency is installed — missing tools are skipped, never errors.
 
 ## Core Pipeline
 | Tool | Purpose |
@@ -10,6 +10,22 @@ Python and shell scanner pipeline (~35 tools). Every tool checks whether its ext
 | `vuln_scanner.sh` | XSS · SQLi · SSTI · SSRF · MFA · SAML probe pipeline |
 | `validate.py` | 4-gate finding validator with identity checks and curl PoC requirement |
 | `scope_checker.py` | Deterministic scope safety check before any request |
+| `lead_board.py` | Persistent recon→skill lead ledger (`ingest` / `show` / `next` / `touch` / `add`) |
+
+## Vulnerability Scanners
+| Tool | Purpose |
+|:---|:---|
+| `cors_scanner.py` | CORS misconfig — origin reflection, null-origin, credentialed read, suffix/prefix regex bypass |
+| `crlf_scanner.py` | CRLF / response-splitting + host-header injection (Set-Cookie canary) |
+| `nosqli_scanner.py` | NoSQL injection — operator auth-bypass, `$where` time-based blind |
+| `jwt_scanner.py` | JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline) |
+| `oob_listener.py` | Out-of-band confirm of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh) |
+| `llm_redteam.py` | LLM red-team corpus — injection, jailbreak, prompt leak, exfil |
+| `dom_xss_harness.py` | Headless-browser DOM XSS confirmation — only reports when a canary actually executes |
+| `port_scanner.py` | Non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP) |
+| `sast_scan.py` | Semgrep rulesets over fetched JS/source, mapped into this toolkit's severity/confidence model |
+| `visual_triage.py` | Self-contained HTML screenshot gallery for fast visual triage across live hosts |
+| `eol_check.py` | End-of-life / lifecycle intel from endoflife.date for fingerprint pairs |
 
 ## Recon & Discovery
 | Tool | Purpose |

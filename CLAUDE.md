@@ -4,14 +4,14 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 
 ## What's Here
 
-### Skills (17 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+### Skills (19 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
 
 | Skill | Domain |
 |---|---|
 | `skills/bug-bounty/` | Master workflow — recon to report, all vuln classes, LLM testing, chains |
 | `skills/bb-methodology/` | **Hunting mindset + 5-phase non-linear workflow + tool routing + session discipline** |
 | `skills/web2-recon/` | Subdomain enum, live host discovery, URL crawling, nuclei |
-| `skills/web2-vuln-classes/` | 30 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI, BFLA, NoSQLi, semantic confusion, header injection, XXE, WebSocket security) |
+| `skills/web2-vuln-classes/` | 32 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI, BFLA, NoSQLi, semantic confusion, header injection, XXE, WebSocket security, dependency confusion, padding oracle/crypto misuse) |
 | `skills/security-arsenal/` | Payloads, bypass tables, gf patterns, always-rejected list |
 | `skills/web3-audit/` | 10 smart contract bug classes, closure discipline for ruling candidates in/out, Foundry PoC template, pre-dive kill signals |
 | `skills/meme-coin-audit/` | Meme coin rug pull detection, token authority checks, bonding curve exploits, LP attacks |
@@ -25,8 +25,10 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 | `skills/whitebox-code-recon/` | Source-first recon for engagements with code access — architecture/entry-point/schema mapping, then backward taint-hunts per vuln class before live testing |
 | `skills/capability-chaining/` | Derive novel exploit chains when no known pattern fits — capability primitives (read/write/exec/ssrf/cred/idor), RCE-as-equation table, forward/backward state-space search |
 | `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
+| `skills/argus/` | Six automated scanners for high-value web + LLM bug classes — CORS, CRLF/host-header, NoSQLi, JWT attacks, OOB confirmation (blind SSRF/XXE/SQLi/RCE/Log4Shell), LLM red-team corpus |
+| `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, JS deobfuscation basics |
 
-### Commands (29 slash commands)
+### Commands (39 slash commands)
 
 > **Note:** All commands are prefixed to avoid conflicts with Claude Code's built-in commands.
 > `/resume` is a reserved Claude Code command — use `/pickup` to continue a previous hunt.
@@ -62,6 +64,16 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 | `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards (typed-host confirm, lockout warn, audit log) |
 | `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit: introspection, batching DoS, IDOR, injection, alias bomb, graphw00f fingerprint |
 | `/diff-review` | `/diff-review [PR#\|sha\|base...head]` — diff-scoped security review of a PR/commit/branch, not a full repo audit |
+| `/cors` | `/cors <url>` — CORS misconfig: origin reflection, null-origin, credentialed read, regex bypass |
+| `/crlf` | `/crlf <url>` — CRLF/response-splitting + host-header injection (Set-Cookie canary) |
+| `/nosqli` | `/nosqli <url>` — NoSQL injection: operator auth-bypass, `$where` time-based blind |
+| `/jwt-scan` | `/jwt-scan <token>` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline) |
+| `/oob` | `/oob <url>` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh) |
+| `/llm-redteam` | `/llm-redteam <endpoint>` — LLM red-team corpus: injection, jailbreak, prompt leak, exfil |
+| `/domxss` | `/domxss "<url>" [--params q,name]` — headless-browser DOM XSS confirmation, only reports on actual execution |
+| `/portscan` | `/portscan <host>` — non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP) |
+| `/sast` | `/sast <path>` — Semgrep rulesets over fetched JS/source |
+| `/screenshot` | `/screenshot -l urls.txt -o shots/` — self-contained HTML screenshot gallery for visual triage |
 
 ### Agents (9 specialized agents)
 
@@ -105,6 +117,18 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 - `tools/breach_checker.py` — HIBP k-anonymity wordlist enrichment; ranks passwords by breach count (no API key, free)
 - `tools/spray_orchestrator.sh` — password spray with typed-hostname guard + lockout warning + audit log; modes: http-form / oauth / o365 / okta (TREVOR); requires `--with-credential-attack` for TREVOR modes
 - `tools/graphql_audit.sh` — 7-phase GraphQL audit: introspection + schema dump, graphw00f fingerprint, clairvoyance field discovery, batching DoS, alias bomb, gqlmap injection, graphql-cop checklist
+- `tools/lead_board.py` — persistent recon→skill lead ledger (`ingest`/`show`/`next`/`touch`/`add`)
+- `tools/cors_scanner.py` — CORS misconfig: origin reflection, null-origin, credentialed read, regex bypass
+- `tools/crlf_scanner.py` — CRLF/response-splitting + host-header injection (Set-Cookie canary)
+- `tools/nosqli_scanner.py` — NoSQL injection: operator auth-bypass, `$where` time-based blind
+- `tools/jwt_scanner.py` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline)
+- `tools/oob_listener.py` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh)
+- `tools/llm_redteam.py` — LLM red-team corpus: injection, jailbreak, prompt leak, exfil
+- `tools/dom_xss_harness.py` — headless-browser DOM XSS confirmation, only reports on actual execution
+- `tools/port_scanner.py` — non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP)
+- `tools/sast_scan.py` — Semgrep rulesets over fetched JS/source, mapped into this toolkit's severity/confidence model
+- `tools/visual_triage.py` — self-contained HTML screenshot gallery for visual triage
+- `tools/eol_check.py` — end-of-life/lifecycle intel from endoflife.date for fingerprint pairs
 
 ### External tool references
 

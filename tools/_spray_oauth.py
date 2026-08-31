@@ -40,9 +40,15 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-SSL_CTX = ssl.create_default_context()
-SSL_CTX.check_hostname = False
-SSL_CTX.verify_mode = ssl.CERT_NONE
+try:
+    import certifi
+    SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    # certifi isn't installed — fall back to the system CA store via
+    # ssl.create_default_context(), which is already a verifying context.
+    # Never disable verification: this file previously disabled it
+    # unconditionally, silently exposing every sprayed credential to MITM.
+    SSL_CTX = ssl.create_default_context()
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Bug-Bounty-Research"
 

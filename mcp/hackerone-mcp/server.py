@@ -20,6 +20,7 @@ MCP integration:
 """
 
 import json
+import os
 import ssl
 import sys
 import urllib.request
@@ -27,15 +28,25 @@ import urllib.error
 import urllib.parse
 from datetime import datetime, timezone
 
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _REPO not in sys.path:
+    sys.path.insert(0, _REPO)
+from tools.safe_http import safe_urlopen  # noqa: E402
+
 
 # ─── SSL context ─────────────────────────────────────────────────────────────
+# Prefer certifi's CA bundle when available; otherwise fall back to the
+# system CA store via ssl.create_default_context(), which is already a
+# verifying context. Never disable verification (see
+# SECURITY-REVIEW-2026-08-22.md finding #9) — that fallback used to
+# disable verification outright, silently exposing every request to MITM
+# on any stock install, since certifi is not a declared dependency.
 _SSL_CTX = ssl.create_default_context()
 try:
     import certifi
     _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 except ImportError:
-    _SSL_CTX.check_hostname = False
-    _SSL_CTX.verify_mode = ssl.CERT_NONE
+    _SSL_CTX = ssl.create_default_context()
 
 H1_GRAPHQL = "https://hackerone.com/graphql"
 DEFAULT_TIMEOUT = 15
@@ -60,7 +71,7 @@ def _graphql_request(query: str, timeout: int = DEFAULT_TIMEOUT) -> dict:
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=_SSL_CTX) as resp:
+        with safe_urlopen(req, timeout=timeout, context=_SSL_CTX) as resp:
             body = resp.read().decode("utf-8", errors="replace")
             data = json.loads(body)
             if "errors" in data:
