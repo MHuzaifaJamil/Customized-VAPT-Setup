@@ -1,6 +1,6 @@
 ---
 name: report-writing
-description: Bug bounty report writing for H1/Bugcrowd/Intigriti/Immunefi — report templates, human tone guidelines, impact-first writing, CVSS 3.1 scoring, title formula, impact statement formula, severity decision guide, downgrade counters, pre-submit checklist. Use after validating a finding and before submitting. Never use "could potentially" — prove it or don't report.
+description: Bug bounty report writing for H1/Bugcrowd/Intigriti/Immunefi — report templates, human tone guidelines, impact-first writing, CVSS 3.1 scoring, title formula, impact statement formula, severity decision guide, downgrade counters, pre-submit checklist, and the reproduction-capsule convention (a runnable replay.sh shipped with the evidence folder so the recipient can re-run the PoC themselves). Use after validating a finding and before submitting. Never use "could potentially" — prove it or don't report.
 ---
 
 # REPORT WRITING
@@ -35,11 +35,42 @@ Minimum files:
 findings/<target-or-program>-<bug-class>/
 ├── hackerone-report.md       # or bugcrowd-report.md / intigriti-report.md / immunefi-report.md
 ├── submission-notes.md       # final checklist, references, caveats, next action
-└── evidence/                 # screenshots, curl output, response bodies when available
+└── evidence/                 # screenshots, curl output, response bodies, replay.sh when available
 ```
 
 If `tools/validate.py` already wrote `submission-notes.md`, append/update it
 instead of creating a duplicate.
+
+### Reproduction Capsule (evidence/replay.sh)
+
+Prose "Steps to Reproduce" asks the reader to trust your narration of what
+happened. Alongside it, drop a standalone, runnable reproduction script into
+`evidence/replay.sh` (or `.http`/Postman-collection equivalent when that fits
+the target better) — the exact request(s) that prove the finding, plus a
+check of the response against what proves impact, so the recipient can
+literally run it and watch it pass/fail without re-deriving your steps from
+prose:
+
+```bash
+#!/usr/bin/env bash
+# replay.sh — IDOR: GET /api/users/{id}/orders returns another user's data
+# Expects: victim's email in the response body, using only the attacker's token
+set -euo pipefail
+RESP=$(curl -s -H "Authorization: Bearer $ATTACKER_TOKEN" \
+  "https://target.com/api/users/456/orders")
+echo "$RESP" | grep -q "victim@test.com" \
+  && echo "CONFIRMED: attacker token retrieved victim's order data" \
+  || echo "NOT REPRODUCED: expected victim email not found in response"
+```
+
+This is the same standard `triage-validation`'s baseline/attack/diff
+procedure already holds you to — the capsule is just that same evidence
+packaged as something the recipient can execute themselves instead of
+reading. It also becomes the fastest way to confirm a fix during retest:
+re-run the same script post-patch and expect `NOT REPRODUCED`. Never ship a
+capsule for a finding you haven't actually run it against — the script has
+to be the real reproduction, not a plausible-looking one written from
+memory.
 
 ---
 

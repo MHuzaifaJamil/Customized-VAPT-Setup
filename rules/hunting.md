@@ -76,6 +76,11 @@ Automation: recon (subfinder, httpx, katana, nuclei)
 Manual: IDOR testing, auth bypass, business logic, race conditions
 ```
 
+A nuclei/nikto/zap/wapiti hit is a lead, not a finding — it stays
+unverified until you independently reproduce it by hand per
+`triage-validation`'s baseline/attack/diff procedure. Don't let a scanner's
+severity label become your severity claim.
+
 ## 7. IMPACT-FIRST HUNTING
 
 Ask: "What's the worst thing that could happen if auth was broken here?"
@@ -147,6 +152,17 @@ Proving what the key accesses (S3 read, database, admin panel) = Medium/High.
 
 Always call the API as the leaked key. Enumerate permissions.
 
+**A single 200 with the real key doesn't prove the key is live** — plenty
+of endpoints answer 200 regardless of what's in the auth header. Prove it
+with a matched-twin control: send the real key, then send a deliberately
+corrupted twin of the SAME key (rotate a few characters in the *middle*,
+never the prefix a provider uses for routing like `sk-`/`ghp_`/`AKIA`, so
+the twin still reaches the same validation path). Real-key-accepted AND
+corrupted-twin-rejected is what proves the credential is actually being
+checked, not just that the endpoint doesn't care. See
+`triage-validation`'s "matched twin" note for the general version of this
+construction.
+
 ## 18. MOBILE = DIFFERENT ATTACK SURFACE
 
 Mobile apps expose endpoints that the web app doesn't. Always decompile the APK/IPA when in scope:
@@ -204,3 +220,36 @@ echo "SAMLResponse_VALUE" | base64 -d | xmllint --format -
 ```
 
 > SAML bugs frequently pay High–Critical because they enable SSO bypass across the entire platform.
+
+## 21. CHANGE LEDGER FOR STATE-MODIFYING ACTIONS (VAPT/whitebox engagements)
+
+This applies to client VAPT/whitebox engagements where state-modifying
+proof-of-concept actions are authorized — not to public bug-bounty hunting,
+where Rule 0 already limits you to what a PoC strictly requires and nothing
+persisted beyond that.
+
+Any action on a client engagement that changes state on their
+infrastructure — a webshell dropped, a test account created, a config value
+changed, a persistence mechanism set, a privilege/role modified — gets
+logged in real time, not reconstructed from memory at the end:
+
+```
+# | timestamp | host | action type | location | content | rollback command
+```
+
+Before changing a config value, capture the original (a `.bak` copy or the
+exact original value) so the rollback command is real, not aspirational.
+The final deliverable to the client includes the complete ledger plus a
+one-command rollback script generated in reverse order — this toolkit never
+auto-cleans a client environment on its own; cleanup is the client's
+informed choice, made from a complete list of what changed.
+
+## 22. SEARCH RESULTS ARE LEADS, NOT FINDINGS
+
+A CVE database hit, a public PoC, or someone else's writeup describing the
+same framework/version tells you where to look — it does not confirm the
+bug exists on *this* target. Treat it as `tentative` per `triage-validation`
+until the PoC actually runs against the live target and produces real
+evidence (see that skill's "search result is not a vulnerability" note).
+Never report a match to a public CVE as a finding without having actually
+fired it against the target and captured the result.

@@ -1,6 +1,6 @@
 ---
 name: credential-attack
-description: Password spray methodology for bug bounty — when to do it vs web-vuln hunting, the wordlist-gen + breach-check + osint-employees + spray pipeline, mode selection (http-form / oauth / o365 / okta), rate-limit + lockout tactics, BBP legal guardrails, success detection, and the spray → authenticated /hunt chain pattern. Use when assessing whether credential attack is worth running on a target, picking the right mode, or recovering from common pitfalls.
+description: Password spray methodology for bug bounty — when to do it vs web-vuln hunting, the wordlist-gen + breach-check + osint-employees + spray pipeline, mode selection (http-form / oauth / o365 / okta), rate-limit + lockout tactics, BBP legal guardrails, success detection, the spray → authenticated /hunt chain pattern, and phishing-based MFA-bypass techniques (AiTM reverse-proxy, OAuth device-code) that require separate authorization beyond a spray-only scope. Use when assessing whether credential attack is worth running on a target, picking the right mode, or recovering from common pitfalls.
 ---
 
 # CREDENTIAL ATTACK PIPELINE
@@ -219,6 +219,41 @@ The spray-only finding alone is **usually rejected** by mature BBPs (they treat 
 **Not yet wired in this branch:** `/hunt --authenticated-session <cookie>` is a future PR. For now, after spray finds creds, manually feed the session into Burp / curl-based probing.
 
 ---
+
+## BEYOND SPRAY: PHISHING-BASED MFA BYPASS (Separate Authorization Required)
+
+Password spray stops at MFA — a correct password with a live 2FA prompt is
+a dead end for spray alone. Two techniques exist for going further, and
+**both require authorization language distinct from a spray-permits clause**
+(spray is automated login attempts against accounts you don't control;
+these involve actively deceiving a real employee) — do not run either
+without an explicit, separate written go-ahead covering phishing simulation
+specifically, ideally with the client's security/legal team informed of the
+timing:
+
+**AiTM (adversary-in-the-middle) reverse-proxy phishing** — a
+reverse-proxy phishing kit (evilginx3, Modlishka) fronts the real login
+page, so the victim authenticates normally including MFA, and the proxy
+captures the resulting session cookie/token in transit — this defeats MFA
+because it steals the *already-authenticated* session, not the password.
+Requires standing up phishing infrastructure (domain, cert, phishlet
+config) — this is a much larger operational lift than spray and carries
+real deception of a real person, which is why it needs its own sign-off.
+
+**OAuth device-code phishing** — abuses the OAuth device authorization
+grant (designed for input-constrained devices like TVs/CLIs): the attacker
+initiates a device-code flow, sends the victim the resulting short code
+with a pretext, the victim enters it on the real Microsoft/Google login
+page, and the attacker's waiting client receives a valid access/refresh
+token — again with no password or MFA prompt shown to the attacker at all.
+Same authorization requirement as AiTM above.
+
+Both are **initial-access techniques for engagements that specifically
+scope phishing/social-engineering**, not an escalation path to add onto a
+spray-only authorization. If the engagement doesn't explicitly cover
+phishing, treat "spray hit MFA" as the end of that branch and report the
+MFA-protected account as the finding (or lack of one) — don't improvise
+into phishing because spray alone didn't get through.
 
 ## LEGAL GUARDRAILS
 

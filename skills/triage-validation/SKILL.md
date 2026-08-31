@@ -1,6 +1,6 @@
 ---
 name: triage-validation
-description: Finding validation before writing any report — 7-Question Gate (all 7 questions), 4 pre-submission gates, always-rejected list, conditionally valid with chain table, CVSS 3.1 quick reference, severity decision guide, report title formula, 60-second pre-submit checklist. Use BEFORE writing any report. One wrong answer = kill the finding and move on. Saves N/A ratio.
+description: Finding validation before writing any report — closure discipline (confirmed/ruled_out/open_proof_gap) for mid-hunt candidates including the baseline/attack/diff confirmation procedure, the control-vs-constraint test, and a 4-level confidence ladder for blocked exploit attempts, 7-Question Gate (all 7 questions), 4 pre-submission gates, always-rejected list, conditionally valid with chain table, CVSS 3.1 quick reference, severity calibration ("usually NOT high/critical" list + acceptance checklist), severity decision guide, report title formula, 60-second pre-submit checklist. Use DURING the hunt to close out candidates honestly, and BEFORE writing any report. One wrong answer = kill the finding and move on. Saves N/A ratio.
 ---
 
 # TRIAGE & VALIDATION
@@ -8,6 +8,176 @@ description: Finding validation before writing any report — 7-Question Gate (a
 One wrong answer = STOP. Kill it. Move on.
 
 > "N/A hurts your validity ratio. Informative is neutral. Only submit what passes all 7 questions."
+
+---
+
+## CLOSURE DISCIPLINE — WHILE YOU HUNT, NOT JUST AT REPORT TIME
+
+Every lead you open — a scanner hit, a hunch, a grep match, a weird response —
+ends in exactly one of three states. "I moved on" is not one of them.
+
+**`confirmed`** — you have a working PoC, or (source-available work) a complete
+source → broken-control → sink → impact trace you've verified is reachable.
+This is what goes to the 7-Question Gate below.
+
+**`ruled_out`** — you can name the *specific* control that makes it safe, at a
+specific location, and you've checked that control actually runs on the
+attacker's path. Test: complete this sentence with real detail — *"This is
+safe because `<control>` at `<endpoint/file:line>` `<does what>` before
+`<the thing I was worried about>`, on every path I can reach it from."* If you
+can't fill that in, you are not in `ruled_out` — you're in the next state.
+
+**`open_proof_gap`** — plausible, you couldn't confirm it, and you also
+couldn't name a control that rules it out. This is a normal, legitimate
+outcome. Write it down (a note, a todo, a line in your hunt log) and come
+back to it if time allows — do not silently drop it just because it's easier
+to feel done. An `open_proof_gap` quietly relabeled as "probably fine" is
+exactly how real bugs get missed.
+
+### What does NOT count as ruling something out
+
+Each of these *feels* like a reason to stop looking. None of them is one:
+
+- **"The framework/ORM/library handles that."** Confirm the specific call,
+  with the specific arguments, in the specific context — an HTML escaper does
+  nothing in a JS-string context; a SQL identifier quoter isn't a value
+  quoter; a path-join isn't a containment check.
+- **"There's a check on the normal flow."** A guard on the UI button, the
+  common route, or the web flow says nothing about the mobile API, the
+  legacy endpoint, the admin alias, or the batch/webhook path that reaches
+  the same backend action.
+- **"The check runs... somewhere."** Validation *after* a redirect,
+  canonicalization *after* a path is already used, an ownership check *after*
+  the object was already fetched — these are ordering bugs, not controls.
+  The control has to run before the dangerous effect, not just exist.
+- **"It's behind a WAF/CAPTCHA/rate limit."** Those are speed bumps, not
+  proof of safety — note them as friction, keep testing for a bypass before
+  you rule anything out because of them.
+- **"I couldn't find where this is called from."** Missing information is
+  missing information, not evidence of safety. That's an `open_proof_gap`.
+- **"It would take too long to set up."** A hard environment (need creds you
+  don't have, service won't start) is a reason to write it down and move to
+  the next candidate — not a reason to mark it clean.
+- **One safe sibling.** If `/api/v1/orders/:id` checks ownership and
+  `/api/v2/orders/:id` doesn't, the v1 check proves nothing about v2. Every
+  reachable instance stands or falls on its own — don't let a correctly
+  guarded sibling talk you out of testing the others.
+
+### What DOES rule something out
+
+- You sent the exact payload that should work if the bug were real, and it
+  demonstrably failed — and you understand *why*, not just that you got a 403.
+- You can point at the control, at a location, and show it runs on every path
+  you can reach the sink from, before the effect happens, with no bypass.
+- Send a negative control alongside it: the payload that *should* be blocked,
+  and a benign variant that *should* succeed. Two data points beat one.
+
+**Build the negative control as a matched twin, not an unrelated benign
+example.** The strongest negative control is the real payload/credential/
+header with exactly one property changed — not a completely different,
+obviously-safe request. Modify the smallest part that makes the difference
+matter, and preserve everything else (format, prefix, length) so the twin
+travels the identical code path and only the property under test differs:
+a SQL boolean-bypass payload's twin flips `'1'='1'` to `'1'='2'` (same
+syntax, opposite truth value); a leaked-credential's twin rotates a few
+characters in the *middle* of the secret, not the prefix a provider uses
+for routing (`sk-`, `ghp_`), so it still reaches the same validation
+endpoint; a trusted-header bypass's twin is the identical request with that
+one header removed. An unrelated "obviously benign" request proves much
+less than a twin that differs in only the one property you're testing.
+
+### Confirming a Candidate — Baseline / Attack / Diff
+
+The mirror procedure for moving a candidate INTO `confirmed` (the negative
+control above is for ruling one OUT): send a **baseline** request (normal,
+unmodified — establishes what "expected" looks like for this endpoint),
+then the **attack** request (your actual payload/identity swap/bypass), then
+**diff** the two responses. A candidate is only `confirmed` when the diff
+shows a concrete, reproducible difference that maps directly to the claimed
+impact — a different status code alone is not enough; the response body,
+not just the code, has to show the other user's data, the privileged action
+succeeding, or the payload executing.
+
+This is the same discipline as Q1's "exact HTTP request" requirement in the
+7-Question Gate below — baseline/attack/diff is how you get the evidence
+Q1 asks you to write down, not a separate step you do afterward.
+
+**Name the check that earned `confirmed`, don't just assert it.** Writing
+"confirmed" in your notes or a report without saying *which* diff/control
+proved it is the same failure mode as a scanner flagging something with no
+way to tell if it's real. State it in one line: "confirmed via baseline/
+attack/diff — attack request returned victim's email+address, baseline
+returned attacker's own" or "confirmed via matched-twin control — real key
+authenticated, corrupted twin got 401." If you can't write that sentence,
+you don't have a confirmation yet, you have a candidate.
+
+**Reproduce N/N before calling anything confirmed that could be flaky** —
+race conditions, timing-based oracles (blind SQLi/SSRF via response delay),
+and anything relying on a network callback (OAST/DNS) get a false positive
+from network jitter or a lucky race far more easily than a plain request/
+response diff does. Re-run 2-3 times and report the ratio (e.g. "reproduced
+3/3") rather than treating one successful attempt as proof. A candidate
+that worked once and failed on retry is an `open_proof_gap`, not
+`confirmed` — write down what you saw, don't round a flaky result up.
+
+Before writing up a confirmed candidate, dedupe against your own hunt log:
+same endpoint + same attack vector you already logged as `confirmed` or
+`ruled_out` is not a second finding — update the existing entry instead of
+creating a near-duplicate.
+
+**A search result is not a vulnerability.** This applies specifically to
+CVE/PoC/writeup lookups (`/intel`, a public exploit-db entry, a blog post
+describing the same framework/version): finding that a component matches a
+known CVE, or that someone else's writeup describes this exact class of
+bug, is a lead — `tentative`, not `confirmed`. The public PoC has to
+actually run against *this* target and produce the baseline/attack/diff
+evidence above before it counts. The same applies to a variant found via
+`whitebox-code-recon`'s pattern-matching against one of the target's own
+past CVEs — matching the pattern tells you where to look, it doesn't
+substitute for firing the exploit.
+
+### The Control-vs-Constraint Test
+
+When an attempt gets blocked, ask one sharp question before you write it off:
+**is this a security control designed to stop the attack, or an external
+operational constraint that happens to be in the way right now?**
+
+The difference decides whether you can mark something `ruled_out`:
+
+- **A security control** (auth check, ownership filter, allowlist, WAF rule
+  actually built to catch this class) blocking the exact attack you tried is
+  real evidence — this is what `ruled_out` requires above.
+- **An external operational constraint** (a firewall rule scoped to your
+  current IP but not the class of attacker who'd actually exploit this, a
+  test environment with a feature disabled that's live in prod, a rate limit
+  that only slows you down, your own tooling failing to reach an endpoint) is
+  not evidence the *vulnerability* is safe — it's evidence your *current
+  attempt* didn't get through. That's an `open_proof_gap`, not `ruled_out`.
+
+Use a 4-level confidence ladder to describe how far you actually got, instead
+of collapsing everything into a binary pass/fail:
+
+```
+1. Weakness Identified  — the flaw exists in theory (source trace, missing
+                           check found), no exploitation attempted yet
+2. Partial Bypass        — some part of the defense fails, but you haven't
+                           reached the actual impact (e.g. filter bypassed,
+                           but the sink itself hasn't fired yet)
+3. Confirmed             — full path proven, sink fired, impact demonstrated
+4. Critical              — impact demonstrated AND it's severe/broad
+                           (cross-tenant, admin-equivalent, mass data)
+```
+
+Report the ladder level honestly. A `Partial Bypass` that stalls because of
+an operational constraint (not a real control) stays an `open_proof_gap` at
+that level — don't round it up to `Confirmed` because you're confident it
+*would* work, and don't round it down to `ruled_out` because you personally
+couldn't push it further right now.
+
+Bring the honest state into the 7-Question Gate: `confirmed` candidates go to
+Q1 below, `open_proof_gap` candidates are your "needs more time" list — don't
+let them silently disappear, and don't let them get written up as if they were
+`confirmed`.
 
 ---
 
@@ -280,6 +450,67 @@ Build the chain first, prove it works end to end, THEN report.
 | Crashes service | A | High (H) |
 | Affects only app | S | Unchanged (U) |
 | Affects browser/OS/cloud | S | Changed (C) |
+
+---
+
+## SEVERITY CALIBRATION
+
+CVSS gives you a number once you've picked the metrics. This is about
+picking them honestly, before you fill in the vector — severity is a
+conclusion you reach after validation, not an opening bid.
+
+**The test that matters:** would a triager at a program that pays real bounties
+accept this as High/Critical, or would they need to accept a chain of
+assumptions first? If it's the second one, it isn't High. Rate the weakness
+you actually proved, not the worst case you can imagine chaining it into.
+
+### Usually NOT High/Critical — even though they look scary
+
+Each of these gets over-claimed constantly. They need unusual, *demonstrated*
+circumstances to clear Medium:
+
+- Self-XSS and clickjacking on non-sensitive actions
+- Missing security headers, cookie attribute nits, TLS configuration issues
+- Open redirect on its own (no OAuth/token theft chain)
+- "Could matter if chained with several unproven assumptions"
+- Anything that already requires admin/shell/physical access to trigger — if
+  the attacker already has that, the finding adds little
+- Session weaknesses that require the attacker to already hold a victim
+  secret (a stolen cookie, an intercepted link) — unless the *same* finding
+  shows how to obtain that secret, this is usually Low/Medium
+- Enumeration that only confirms an account/domain/version exists
+
+### Acceptance checklist for High/Critical
+
+All of these must be true. If any one isn't, drop a severity level:
+
+```
+[ ] Attack path is realistic and in scope — not lab-only, not dependent on
+    an unproven prior compromise
+[ ] The attacker position required (auth level, preconditions) is one an
+    attacker can actually reach — PR/AC in your CVSS vector reflect that
+    honestly, not optimistically
+[ ] Impact is demonstrated, not asserted — C:H/I:H means proven broad
+    read/write, not one record
+[ ] You ran the closure-discipline pass above and found no constraint that
+    meaningfully limits exploitation (or you can explain why it doesn't hold)
+[ ] You have concrete reachability evidence, not an assumption about how the
+    app is deployed
+[ ] You would defend this exact rating to the program's triager, not just to
+    yourself
+```
+
+### Downgrade, don't delete
+
+A finding that turns out to be constrained (internal-only reachability, a
+narrow precondition, requires a privileged role) gets a *lower severity* — not
+a silent drop. Say so explicitly in the report. Missing evidence about
+deployment/exposure lowers your **confidence**, not the severity floor — don't
+treat "I couldn't confirm this is internet-facing" as if it were "this is
+internal-only." When your gut severity and the computed CVSS disagree,
+re-check `privileges_required`, `attack_complexity`, and the impact triad —
+usually one of those was set optimistically. Fix the metric; don't override
+the score.
 
 ---
 

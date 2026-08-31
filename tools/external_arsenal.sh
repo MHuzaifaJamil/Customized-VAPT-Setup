@@ -28,7 +28,7 @@ ARSENAL_TOOLS=(
   "massdns|recon|brew install massdns|github.com/blechschmidt/massdns"
   "puredns|recon|GOBIN=\$HOME/go/bin go install github.com/d3mondev/puredns/v2@latest|github.com/d3mondev/puredns"
   "shuffledns|recon|GOBIN=\$HOME/go/bin go install github.com/projectdiscovery/shuffledns/cmd/shuffledns@latest|github.com/projectdiscovery/shuffledns"
-  "knockpy|recon|pipx install knockpy|github.com/guelfoweb/knockpy"
+  "knockpy|recon|git clone https://github.com/guelfoweb/knockpy  # PyPI 'knockpy' is an unrelated stats package, do not pipx install it|github.com/guelfoweb/knockpy"
   # ── Live host probing ───────────────────────────────────────────────────
   "httpx|probe|GOBIN=\$HOME/go/bin go install github.com/projectdiscovery/httpx/cmd/httpx@latest|github.com/projectdiscovery/httpx"
   "dnsx|probe|GOBIN=\$HOME/go/bin go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest|github.com/projectdiscovery/dnsx"
@@ -54,7 +54,7 @@ ARSENAL_TOOLS=(
   "nuclei|scan|GOBIN=\$HOME/go/bin go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest|github.com/projectdiscovery/nuclei"
   "dalfox|xss|GOBIN=\$HOME/go/bin go install github.com/hahwul/dalfox/v2@latest|github.com/hahwul/dalfox"
   "xsstrike|xss|pipx install XSStrike  # or git clone|github.com/s0md3v/XSStrike"
-  "ghauri|sqli|pipx install ghauri|github.com/r0oth3x49/ghauri"
+  "ghauri|sqli|pipx install git+https://github.com/r0oth3x49/ghauri.git|github.com/r0oth3x49/ghauri"
   "sqlmap|sqli|brew install sqlmap|github.com/sqlmapproject/sqlmap"
   "fuxploider|upload|git clone https://github.com/almandin/fuxploider|github.com/almandin/fuxploider"
   "log4j-scan|cve|git clone https://github.com/fullhunt/log4j-scan|github.com/fullhunt/log4j-scan"
@@ -67,11 +67,11 @@ ARSENAL_TOOLS=(
   "git-hound|secrets|GOBIN=\$HOME/go/bin go install github.com/tillson/git-hound@latest|github.com/tillson/git-hound"
   # ── Cloud / S3 ──────────────────────────────────────────────────────────
   "s3scanner|cloud|GOBIN=\$HOME/go/bin go install github.com/sa7mon/s3scanner@latest|github.com/sa7mon/S3Scanner"
-  "cloud_enum|cloud|pipx install cloud-enum|github.com/initstring/cloud_enum"
+  "cloud_enum|cloud|git clone https://github.com/initstring/cloud_enum  # PyPI 'cloud-enum' is a reserved placeholder, do not pipx install it|github.com/initstring/cloud_enum"
   "cloudfail|cloud|git clone https://github.com/m0rtem/CloudFail|github.com/m0rtem/CloudFail"
-  "scoutsuite|cloud|pipx install scoutsuite|github.com/nccgroup/ScoutSuite"
+  "scout|cloud|pipx install scoutsuite  # binary is 'scout', not 'scoutsuite'|github.com/nccgroup/ScoutSuite"
   # ── Subdomain takeover ──────────────────────────────────────────────────
-  "dnsreaper|takeover|pipx install dnsreaper  # or docker|github.com/punk-security/dnsReaper"
+  "dnsreaper|takeover|git clone https://github.com/punk-security/dnsReaper  # not on PyPI, run main.py|github.com/punk-security/dnsReaper"
   "subjack|takeover|GOBIN=\$HOME/go/bin go install github.com/haccer/subjack@latest|github.com/haccer/subjack"
   # ── 403 / WAF bypass ────────────────────────────────────────────────────
   "byp4xx|bypass|GOBIN=\$HOME/go/bin go install github.com/lobuhi/byp4xx@latest|github.com/lobuhi/byp4xx"
@@ -89,7 +89,7 @@ ARSENAL_TOOLS=(
   "gqlmap|graphql|pip install gqlmap|github.com/nicola-inchingolo/gqlmap"
   "graphql-cop|graphql|pip install graphql-cop|github.com/dolevf/graphql-cop"
   # ── JWT / auth ──────────────────────────────────────────────────────────
-  "jwt_tool|jwt|pipx install jwt-tool|github.com/ticarpi/jwt_tool"
+  "jwt_tool|jwt|git clone https://github.com/ticarpi/jwt_tool  # not on PyPI, run jwt_tool.py|github.com/ticarpi/jwt_tool"
   # ── Bug bounty scope tooling ────────────────────────────────────────────
   "bbscope|scope|GOBIN=\$HOME/go/bin go install github.com/sw33tLie/bbscope@latest|github.com/sw33tLie/bbscope"
   # ── Mobile ──────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ ARSENAL_TOOLS=(
   "maigret|osint|pipx install maigret|github.com/soxoj/maigret"
   "pywhat|osint|pipx install pywhat|github.com/bee-san/pyWhat"
   # ── DNS history / origin IP ─────────────────────────────────────────────
-  "sublert|recon|pipx install sublert|github.com/yassineaboukir/sublert"
+  "sublert|recon|git clone https://github.com/yassineaboukir/sublert  # not on PyPI, run sublert.py|github.com/yassineaboukir/sublert"
   # ── Misc ────────────────────────────────────────────────────────────────
   "gf|filter|GOBIN=\$HOME/go/bin go install github.com/tomnomnom/gf@latest|github.com/tomnomnom/gf"
   "qsreplace|filter|GOBIN=\$HOME/go/bin go install github.com/tomnomnom/qsreplace@latest|github.com/tomnomnom/qsreplace"

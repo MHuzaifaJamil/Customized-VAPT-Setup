@@ -341,13 +341,14 @@ claude-bug-bounty/
 │   ├── bug-bounty/            # Master workflow — all vuln classes, LLM testing, chains
 │   ├── bb-methodology/        # Hunting mindset · 5-phase workflow · session discipline
 │   ├── web2-recon/            # Subdomain enum · live host discovery · URL crawl
-│   ├── web2-vuln-classes/     # 21 bug classes with bypass tables
+│   ├── web2-vuln-classes/     # 28 bug classes with bypass tables
 │   ├── security-arsenal/      # Payloads · bypass tables · gf patterns
-│   ├── triage-validation/     # 7-Question Gate · 4 gates · never-submit list
+│   ├── triage-validation/     # Closure discipline · 7-Question Gate · 4 gates · never-submit list
 │   ├── report-writing/        # Templates for H1 · Bugcrowd · Intigriti · Immunefi
 │   ├── web3-audit/            # Smart contract bugs · Foundry PoC · 10 bug classes
 │   ├── meme-coin-audit/       # Rug pull detection · LP attacks · bonding curve
-│   └── credential-attack/     # Password spray methodology · legal guardrails
+│   ├── credential-attack/     # Password spray methodology · legal guardrails
+│   └── diff-review/           # Diff-scoped PR/commit security review
 │
 ├── commands/                  # 26 slash commands (/recon /hunt /validate /report …)
 ├── agents/                    # 9 specialized AI agents (recon, validator, reporter …)

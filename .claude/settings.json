@@ -1,6 +1,24 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f tools/bootstrap_arsenal.sh ] && bash tools/bootstrap_arsenal.sh > /tmp/arsenal_bootstrap.log 2>&1 || true",
+            "timeout": 300,
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "[ -f tools/bootstrap_plugins.sh ] && bash tools/bootstrap_plugins.sh > /tmp/plugin_bootstrap.log 2>&1 || true",
+            "timeout": 60,
+            "async": true
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
@@ -15,6 +33,15 @@
     ]
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "cybersecurity-skills@anthropic-cybersecurity-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-cybersecurity-skills": {
+      "source": {
+        "source": "github",
+        "repo": "mukul975/Anthropic-Cybersecurity-Skills"
+      }
+    }
   }
 }

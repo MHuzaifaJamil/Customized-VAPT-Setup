@@ -251,6 +251,42 @@ else
     [ "$QUICK_MODE" = "--quick" ] && log_warn "Skipping amass (quick mode)"
 fi
 
+# theHarvester (OSINT — pulls hosts from CT logs, OTX, urlscan, rapiddns; no API keys required)
+if command -v theHarvester &>/dev/null && [ "$QUICK_MODE" != "--quick" ]; then
+    log_step "Running theHarvester (passive OSINT, 3min timeout)..."
+    timeout 180 theHarvester -d "$TARGET" -b otx,urlscan,rapiddns,hackertarget,dnsdumpster,subdomaincenter \
+        -f "$RECON_DIR/subdomains/.theharvester" >/dev/null 2>&1 || true
+    python3 -c "
+import json
+try:
+    with open('$RECON_DIR/subdomains/.theharvester.json') as f:
+        data = json.load(f)
+    hosts = set()
+    for h in data.get('hosts', []):
+        name = h.split(':')[0].strip().lower()
+        if name.endswith('.$TARGET') or name == '$TARGET':
+            hosts.add(name)
+    with open('$RECON_DIR/subdomains/theharvester.txt', 'w') as f:
+        f.write('\n'.join(sorted(hosts)))
+except Exception:
+    open('$RECON_DIR/subdomains/theharvester.txt', 'w').close()
+" 2>/dev/null || touch "$RECON_DIR/subdomains/theharvester.txt"
+    rm -f "$RECON_DIR/subdomains/.theharvester.json" "$RECON_DIR/subdomains/.theharvester.xml"
+    log_done "theHarvester: $(wc -l < "$RECON_DIR/subdomains/theharvester.txt" 2>/dev/null || echo 0) subdomains"
+else
+    [ "$QUICK_MODE" = "--quick" ] && log_warn "Skipping theHarvester (quick mode)"
+fi
+
+# dnsrecon (DNS hygiene — SPF/DMARC/zone-transfer/record dump; not merged into
+# the subdomain list since most of its output is records, not hostnames)
+if command -v dnsrecon &>/dev/null; then
+    log_step "Running dnsrecon (DNS hygiene check)..."
+    mkdir -p "$RECON_DIR/dns_hygiene"
+    timeout 60 dnsrecon -d "$TARGET" -t std --lifetime 6 -j "$RECON_DIR/dns_hygiene/dnsrecon.json" >/dev/null 2>&1 || true
+    [ ! -f "$RECON_DIR/dns_hygiene/dnsrecon.json" ] && touch "$RECON_DIR/dns_hygiene/dnsrecon.json"
+    log_done "dnsrecon: hygiene report written to dns_hygiene/dnsrecon.json"
+fi
+
 # crt.sh (certificate transparency)
 log_step "Querying crt.sh..."
 curl -s "https://crt.sh/?q=%25.$TARGET&output=json" 2>/dev/null \

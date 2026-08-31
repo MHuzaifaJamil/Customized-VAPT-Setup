@@ -4,25 +4,29 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 
 ## What's Here
 
-### Skills (10 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+### Skills (17 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
 
 | Skill | Domain |
 |---|---|
 | `skills/bug-bounty/` | Master workflow — recon to report, all vuln classes, LLM testing, chains |
 | `skills/bb-methodology/` | **Hunting mindset + 5-phase non-linear workflow + tool routing + session discipline** |
 | `skills/web2-recon/` | Subdomain enum, live host discovery, URL crawling, nuclei |
-| `skills/web2-vuln-classes/` | 21 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI) |
+| `skills/web2-vuln-classes/` | 30 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI, BFLA, NoSQLi, semantic confusion, header injection, XXE, WebSocket security) |
 | `skills/security-arsenal/` | Payloads, bypass tables, gf patterns, always-rejected list |
-| `skills/web3-audit/` | 10 smart contract bug classes, Foundry PoC template, pre-dive kill signals |
+| `skills/web3-audit/` | 10 smart contract bug classes, closure discipline for ruling candidates in/out, Foundry PoC template, pre-dive kill signals |
 | `skills/meme-coin-audit/` | Meme coin rug pull detection, token authority checks, bonding curve exploits, LP attacks |
 | `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi report templates, CVSS 3.1, human tone |
-| `skills/triage-validation/` | 7-Question Gate, 4 gates, never-submit list, conditionally valid table |
+| `skills/triage-validation/` | Closure discipline (confirmed/ruled_out/open_proof_gap), 7-Question Gate, 4 gates, never-submit list, conditionally valid table, severity calibration |
 | `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails, pitfalls learned from live tests |
 | `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile for hidden endpoints + secrets, deeplink/exported-activity injection, WebView bridge, SSL pinning bypass |
 | `skills/cicd-security/` | CI/CD pipeline hunting — GitHub Actions injection, secret exfil, self-hosted runner poisoning, OIDC abuse, supply chain attacks |
 | `skills/graphql-audit/` | GraphQL hunting — introspection, field suggestions (clairvoyance), batching DoS, IDOR via aliasing, injection, auth bypass, depth bombs |
+| `skills/diff-review/` | Diff-scoped PR/commit review — in-scope vs out-of-scope rules, how far to follow a change, validation without a live target |
+| `skills/whitebox-code-recon/` | Source-first recon for engagements with code access — architecture/entry-point/schema mapping, then backward taint-hunts per vuln class before live testing |
+| `skills/capability-chaining/` | Derive novel exploit chains when no known pattern fits — capability primitives (read/write/exec/ssrf/cred/idor), RCE-as-equation table, forward/backward state-space search |
+| `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
 
-### Commands (21 slash commands)
+### Commands (29 slash commands)
 
 > **Note:** All commands are prefixed to avoid conflicts with Claude Code's built-in commands.
 > `/resume` is a reserved Claude Code command — use `/pickup` to continue a previous hunt.
@@ -57,6 +61,7 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 | `/breach-check` | `/breach-check <wordlist>` — HIBP k-anonymity rank wordlist by real-world breach count |
 | `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards (typed-host confirm, lockout warn, audit log) |
 | `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit: introspection, batching DoS, IDOR, injection, alias bomb, graphw00f fingerprint |
+| `/diff-review` | `/diff-review [PR#\|sha\|base...head]` — diff-scoped security review of a PR/commit/branch, not a full repo audit |
 
 ### Agents (9 specialized agents)
 
@@ -74,6 +79,7 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 
 - `rules/hunting.md` — 17 critical hunting rules
 - `rules/reporting.md` — report quality rules
+- `rules/vapt_report_format.md` — mandatory VAPT client PDF report format (cover page, sections, code blocks, prohibited content)
 
 ### Tools (Python/shell — in `tools/`)
 
@@ -141,3 +147,10 @@ chmod +x install.sh && ./install.sh
 3. Run 7-Question Gate BEFORE writing any report
 4. KILL weak findings fast — N/A hurts your validity ratio
 5. 5-minute rule — nothing after 5 min = move on
+6. NEVER redact evidence in a report, no matter how sensitive — see VAPT Standard §1.5
+
+## VAPT Client Report Formatting Standard (Mandatory for All Future Reports)
+
+Full spec: `rules/vapt_report_format.md` — the enforced format for every client-facing VAPT PDF report (myco.io, buypass.ai, and any future engagement): tone/typography, cover page + footer HTML/CSS, running footer, section/page-break rules, the six section playbooks, prohibited content, legacy formats to avoid, the informational-findings register, HTML retention, dark code-evidence-block spec, pre-render grep checks, and the canonical reference template. Read it in full before generating or editing any client VAPT report — do not improvise report formatting from memory.
+
+Critical Rule #6 above (never redact evidence) is §1.5 of that file.

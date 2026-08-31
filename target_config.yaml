@@ -1,0 +1,13 @@
+plugins:
+  generators:
+    rest:
+      RestGenerator:
+        name: "Generic AI Target"
+        uri: "http://187.127.112.163:5173/api/ai/chat"
+        method: "post"
+        response_json: true
+        response_json_field: "text"
+        req_template_json_object:
+          question: "$INPUT"
+        headers:
+          Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0NGIyMzRiOC0xMDZiLTRlNTYtODdhNy1iYzZmOTljMmVlYzciLCJlbWFpbCI6ImFkbWluQGFlbW9uLmNvbSIsInJvbGUiOiJTVVBFUl9BRE1JTiIsImRpc3BsYXlOYW1lIjoiU3VwZXIgQWRtaW4iLCJiaWQiOiIyZDI4MWI5Ny1iMWZlLTRlM2YtYmZhMy0wZmJlNGZmNTMzMzUiLCJpYXQiOjE3ODM1ODM0NTAsImV4cCI6MTc4MzU4NDM1MH0.nkkPl8v81ZDgX0ziRohGd53mw0OYY2nEduZFcJ4FiUQ"
