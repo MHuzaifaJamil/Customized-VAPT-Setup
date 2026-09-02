@@ -1,0 +1,374 @@
+- generic [ref=f4e2]:
+  - banner [ref=f4e3]:
+    - generic [ref=f4e4]:
+      - link [ref=f4e5] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd logo" [ref=f4e6]
+      - list [ref=f4e8]:
+        - listitem [ref=f4e9]:
+          - link "Hacker Login" [ref=f4e10] [cursor=pointer]:
+            - /url: https://bugcrowd.com/user/sign_in
+        - listitem [ref=f4e11]:
+          - link "Customer Login" [ref=f4e12] [cursor=pointer]:
+            - /url: https://tracker.bugcrowd.com/user/sign_in
+  - main [ref=f4e13]:
+    - generic [ref=f4e14]:
+      - navigation "Breadcrumb navigation" [ref=f4e15]:
+        - list [ref=f4e16]:
+          - listitem [ref=f4e17]:
+            - link "CrowdStream" [ref=f4e18] [cursor=pointer]:
+              - /url: https://bugcrowd.com/crowdstream
+          - listitem [ref=f4e19]: Unauthenticated SSRF in NASA Trek addManifest allows internal network access from the Trek server
+      - generic [ref=f4e23]:
+        - heading "Unauthenticated SSRF in NASA Trek addManifest allows internal network access from the Trek server" [level=1] [ref=f4e24]
+        - generic [ref=f4e25]:
+          - text: Disclosed by
+          - img "n0RollBack's avatar" [ref=f4e27]
+          - link "n0RollBack" [ref=f4e28] [cursor=pointer]:
+            - /url: /h/n0RollBack
+      - list [ref=f4e29]:
+        - listitem [ref=f4e30]:
+          - generic [ref=f4e31]: Engagement
+          - link "National Aeronautics and Space Administration (NASA) - Vulnerability Disclosure Program" [ref=f4e33] [cursor=pointer]:
+            - /url: /engagements/nasa-vdp
+        - listitem [ref=f4e34]:
+          - generic [ref=f4e35]: Disclosed date
+          - time [ref=f4e37]: 20 Aug 2026
+          - generic [ref=f4e38]: 13 days ago
+        - listitem [ref=f4e39]:
+          - generic [ref=f4e40]: Priority
+          - generic [ref=f4e41]: P2
+          - generic [ref=f4e43]: Bugcrowd's VRT priority rating
+        - listitem [ref=f4e44]:
+          - generic [ref=f4e45]: Status
+          - generic [ref=f4e46]: Resolved
+          - generic [ref=f4e48]: This vulnerability has been accepted and fixed
+      - generic [ref=f4e49]:
+        - generic [ref=f4e50]:
+          - article [ref=f4e51]:
+            - heading "Summary by n0RollBack" [level=5] [ref=f4e52]
+            - paragraph [ref=f4e53]: Unauthenticated Server-Side Request Forgery (SSRF) in the NASA Trek addManifest web service.
+            - paragraph [ref=f4e54]: Summary An unauthenticated endpoint in the Trek outreach web service accepted a user-controlled URL parameter and made the server issue an HTTP request to that URL and parse the response. No authentication, allowlist, or network egress restriction was enforced, so an external, unauthenticated requester could make the Trek server reach services on its own loopback interface and on the internal network segment behind it.
+            - paragraph [ref=f4e55]: Endpoint GET /moon/TrekServices/ws/outreach/eq/addManifest with an attacker-controlled manifestURL parameter. The request required no authentication.
+            - paragraph [ref=f4e56]: Impact confirmed during testing
+            - list [ref=f4e57]:
+              - listitem [ref=f4e58]: The server was made to reach an internal search service bound to its loopback interface, an administrative interface that should only be reachable from the host itself.
+              - listitem [ref=f4e59]: The server was made to reach an internal-only backend host that is not routable from the public Internet.
+            - paragraph [ref=f4e60]: Together these confirmed that the Trek server could be used as a proxy to interact with internal, non-public services, which is the core risk of an internal-facing SSRF.
+            - paragraph [ref=f4e61]: Severity P2 (High). CVSS 3.1 base score 8.6 (AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N).
+            - paragraph [ref=f4e62]: Remediation NASA remediated the endpoint so that it no longer performs the unrestricted server-side fetch. The submission was validated, accepted, and marked as resolved.
+            - paragraph [ref=f4e63]: Testing statement Reported under the NASA Vulnerability Disclosure Program. No data was exfiltrated. Testing was strictly limited to proving reachability of internal services, using a single source address.
+          - article [ref=f4e64]:
+            - heading "Activity" [level=5] [ref=f4e65]
+            - list [ref=f4e68]:
+              - listitem [ref=f4e69]:
+                - generic [ref=f4e70]:
+                  - img "Martin_NASA’s avatar" [ref=f4e72]
+                  - generic [ref=f4e73]:
+                    - generic [ref=f4e74]:
+                      - text: Martin_NASA
+                      - generic [ref=f4e75]: Customer
+                      - text: published the disclosure report
+                    - paragraph [ref=f4e76]:
+                      - generic [ref=f4e77]:
+                        - time [ref=f4e79]: 13 days ago
+                        - generic [ref=f4e80]:
+                          - text: (
+                          - time [ref=f4e81]: 20 Aug 2026 20:32:11 GMT+0
+                          - text: )
+              - listitem [ref=f4e82]:
+                - generic [ref=f4e83]:
+                  - img "n0RollBack’s avatar" [ref=f4e85]
+                  - generic [ref=f4e86]:
+                    - generic [ref=f4e87]: n0RollBack updated the disclosure summary
+                    - paragraph [ref=f4e88]:
+                      - generic [ref=f4e89]:
+                        - time [ref=f4e91]: 17 days ago
+                        - generic [ref=f4e92]:
+                          - text: (
+                          - time [ref=f4e93]: 16 Aug 2026 00:18:43 GMT+0
+                          - text: )
+              - listitem [ref=f4e94]:
+                - generic [ref=f4e95]:
+                  - img "n0RollBack’s avatar" [ref=f4e97]
+                  - generic [ref=f4e98]:
+                    - generic [ref=f4e99]: n0RollBack requested disclosure
+                    - paragraph [ref=f4e100]:
+                      - generic [ref=f4e101]:
+                        - time [ref=f4e103]: 17 days ago
+                        - generic [ref=f4e104]:
+                          - text: (
+                          - time [ref=f4e105]: 16 Aug 2026 00:15:20 GMT+0
+                          - text: )
+              - listitem [ref=f4e106]:
+                - generic [ref=f4e107]:
+                  - img "n0RollBack’s avatar" [ref=f4e109]
+                  - generic [ref=f4e110]:
+                    - generic [ref=f4e111]: n0RollBack sent a message
+                    - paragraph [ref=f4e112]:
+                      - generic [ref=f4e113]:
+                        - time [ref=f4e115]: 29 days ago
+                        - generic [ref=f4e116]:
+                          - text: (
+                          - time [ref=f4e117]: 04 Aug 2026 22:21:36 GMT+0
+                          - text: )
+              - listitem [ref=f4e118]:
+                - generic [ref=f4e119]:
+                  - img "Martin_NASA’s avatar" [ref=f4e121]
+                  - generic [ref=f4e122]:
+                    - generic [ref=f4e123]:
+                      - text: Martin_NASA
+                      - generic [ref=f4e124]: Customer
+                      - text: marked the response request as resolved
+                    - paragraph [ref=f4e125]:
+                      - generic [ref=f4e126]:
+                        - time [ref=f4e128]: 29 days ago
+                        - generic [ref=f4e129]:
+                          - text: (
+                          - time [ref=f4e130]: 04 Aug 2026 14:07:47 GMT+0
+                          - text: )
+              - listitem [ref=f4e131]:
+                - generic [ref=f4e132]:
+                  - img "Martin_NASA’s avatar" [ref=f4e134]
+                  - generic [ref=f4e135]:
+                    - generic [ref=f4e136]:
+                      - text: Martin_NASA
+                      - generic [ref=f4e137]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f4e138]:
+                      - generic [ref=f4e139]:
+                        - time [ref=f4e141]: 29 days ago
+                        - generic [ref=f4e142]:
+                          - text: (
+                          - time [ref=f4e143]: 04 Aug 2026 14:07:47 GMT+0
+                          - text: )
+              - listitem [ref=f4e144]:
+                - generic [ref=f4e145]:
+                  - img "n0RollBack’s avatar" [ref=f4e147]
+                  - generic [ref=f4e148]:
+                    - generic [ref=f4e149]: "n0RollBack submitted a response request from Customer with reason: Other"
+                    - paragraph [ref=f4e150]:
+                      - generic [ref=f4e151]:
+                        - time [ref=f4e153]: 30 days ago
+                        - generic [ref=f4e154]:
+                          - text: (
+                          - time [ref=f4e155]: 03 Aug 2026 20:33:15 GMT+0
+                          - text: )
+              - listitem [ref=f4e156]:
+                - generic [ref=f4e157]:
+                  - img "n0RollBack’s avatar" [ref=f4e159]
+                  - generic [ref=f4e160]:
+                    - generic [ref=f4e161]: n0RollBack sent a message
+                    - paragraph [ref=f4e162]:
+                      - generic [ref=f4e163]:
+                        - time [ref=f4e165]: 30 days ago
+                        - generic [ref=f4e166]:
+                          - text: (
+                          - time [ref=f4e167]: 03 Aug 2026 20:26:08 GMT+0
+                          - text: )
+              - listitem [ref=f4e168]:
+                - generic [ref=f4e169]:
+                  - generic [ref=f4e170]:
+                    - img "Glitch_Bugcrowd’s avatar" [ref=f4e171]
+                    - img "bugcrowd logo" [ref=f4e172]
+                  - generic [ref=f4e173]:
+                    - generic [ref=f4e174]:
+                      - text: Glitch_Bugcrowd changed the state to
+                      - generic [ref=f4e175]: Resolved
+                    - paragraph [ref=f4e178]:
+                      - generic [ref=f4e179]:
+                        - time [ref=f4e181]: 30 days ago
+                        - generic [ref=f4e182]:
+                          - text: (
+                          - time [ref=f4e183]: 03 Aug 2026 20:18:09 GMT+0
+                          - text: )
+              - listitem [ref=f4e184]:
+                - generic [ref=f4e185]:
+                  - generic [ref=f4e186]:
+                    - img "Glitch_Bugcrowd’s avatar" [ref=f4e187]
+                    - img "bugcrowd logo" [ref=f4e188]
+                  - generic [ref=f4e189]:
+                    - generic [ref=f4e190]: Glitch_Bugcrowd marked the response request as resolved
+                    - paragraph [ref=f4e191]:
+                      - generic [ref=f4e192]:
+                        - time [ref=f4e194]: 30 days ago
+                        - generic [ref=f4e195]:
+                          - text: (
+                          - time [ref=f4e196]: 03 Aug 2026 20:18:02 GMT+0
+                          - text: )
+              - listitem [ref=f4e197]:
+                - generic [ref=f4e198]:
+                  - img "n0RollBack’s avatar" [ref=f4e200]
+                  - generic [ref=f4e201]:
+                    - generic [ref=f4e202]: "n0RollBack submitted a response request from Customer with reason: Requesting Update"
+                    - paragraph [ref=f4e203]:
+                      - generic [ref=f4e204]:
+                        - time [ref=f4e206]: about 1 month ago
+                        - generic [ref=f4e207]:
+                          - text: (
+                          - time [ref=f4e208]: 27 Jul 2026 11:09:33 GMT+0
+                          - text: )
+              - listitem [ref=f4e209]:
+                - generic [ref=f4e210]:
+                  - img "n0RollBack’s avatar" [ref=f4e212]
+                  - generic [ref=f4e213]:
+                    - generic [ref=f4e214]: n0RollBack sent a message
+                    - paragraph [ref=f4e215]:
+                      - generic [ref=f4e216]:
+                        - time [ref=f4e218]: about 2 months ago
+                        - generic [ref=f4e219]:
+                          - text: (
+                          - time [ref=f4e220]: 18 Jul 2026 00:28:29 GMT+0
+                          - text: )
+              - listitem [ref=f4e221]:
+                - generic [ref=f4e222]:
+                  - img "System’s avatar" [ref=f4e224]
+                  - generic [ref=f4e225]:
+                    - generic [ref=f4e226]: System marked the request for response as expired
+                    - paragraph [ref=f4e227]:
+                      - generic [ref=f4e228]:
+                        - time [ref=f4e230]: about 2 months ago
+                        - generic [ref=f4e231]:
+                          - text: (
+                          - time [ref=f4e232]: 18 Jul 2026 00:07:44 GMT+0
+                          - text: )
+              - listitem [ref=f4e233]:
+                - generic [ref=f4e234]:
+                  - img "n0RollBack’s avatar" [ref=f4e236]
+                  - generic [ref=f4e237]:
+                    - generic [ref=f4e238]: "n0RollBack submitted a response request from Customer with reason: Requesting Update"
+                    - paragraph [ref=f4e239]:
+                      - generic [ref=f4e240]:
+                        - time [ref=f4e242]: about 2 months ago
+                        - generic [ref=f4e243]:
+                          - text: (
+                          - time [ref=f4e244]: 06 Jul 2026 07:40:00 GMT+0
+                          - text: )
+              - listitem [ref=f4e245]:
+                - generic [ref=f4e246]:
+                  - img "Martin_NASA’s avatar" [ref=f4e248]
+                  - generic [ref=f4e249]:
+                    - generic [ref=f4e250]:
+                      - text: Martin_NASA
+                      - generic [ref=f4e251]: Customer
+                      - text: changed the state to
+                      - generic [ref=f4e252]: Unresolved
+                    - paragraph [ref=f4e255]:
+                      - generic [ref=f4e256]:
+                        - time [ref=f4e258]: 3 months ago
+                        - generic [ref=f4e259]:
+                          - text: (
+                          - time [ref=f4e260]: 28 May 2026 20:37:18 GMT+0
+                          - text: )
+              - listitem [ref=f4e261]:
+                - generic [ref=f4e262]:
+                  - generic [ref=f4e263]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f4e264]
+                    - img "bugcrowd logo" [ref=f4e265]
+                  - generic [ref=f4e266]:
+                    - generic [ref=f4e267]: Mason357_Bugcrowd sent a message
+                    - paragraph [ref=f4e268]:
+                      - generic [ref=f4e269]:
+                        - time [ref=f4e271]: 3 months ago
+                        - generic [ref=f4e272]:
+                          - text: (
+                          - time [ref=f4e273]: 28 May 2026 20:25:27 GMT+0
+                          - text: )
+              - listitem [ref=f4e274]:
+                - generic [ref=f4e275]:
+                  - generic [ref=f4e276]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f4e277]
+                    - img "bugcrowd logo" [ref=f4e278]
+                  - generic [ref=f4e279]:
+                    - generic [ref=f4e280]:
+                      - text: Mason357_Bugcrowd changed the state to
+                      - generic [ref=f4e281]: Triaged
+                    - paragraph [ref=f4e284]:
+                      - generic [ref=f4e285]:
+                        - time [ref=f4e287]: 3 months ago
+                        - generic [ref=f4e288]:
+                          - text: (
+                          - time [ref=f4e289]: 28 May 2026 20:25:24 GMT+0
+                          - text: )
+              - listitem [ref=f4e290]:
+                - generic [ref=f4e291]:
+                  - img "n0RollBack’s avatar" [ref=f4e293]
+                  - generic [ref=f4e294]:
+                    - generic [ref=f4e295]: n0RollBack created the submission
+                    - paragraph [ref=f4e296]:
+                      - generic [ref=f4e297]:
+                        - time [ref=f4e299]: 3 months ago
+                        - generic [ref=f4e300]:
+                          - text: (
+                          - time [ref=f4e301]: 27 May 2026 17:42:31 GMT+0
+                          - text: )
+        - complementary [ref=f4e302]:
+          - generic [ref=f4e303]:
+            - generic [ref=f4e306]:
+              - img "n0RollBack's avatar" [ref=f4e308]
+              - strong [ref=f4e310]:
+                - link "n0RollBack" [ref=f4e311] [cursor=pointer]:
+                  - /url: /h/n0RollBack
+            - list [ref=f4e313]:
+              - listitem [ref=f4e314]:
+                - generic [ref=f4e315]: All-time points
+                - generic [ref=f4e316]: "0"
+              - listitem [ref=f4e317]:
+                - generic [ref=f4e318]: Accuracy
+                - generic [ref=f4e319]: 100.0%
+              - listitem [ref=f4e320]:
+                - generic [ref=f4e321]: Current rank
+                - generic [ref=f4e322]: 592183rd
+              - listitem [ref=f4e323]:
+                - generic [ref=f4e324]: Priority percentile
+                - generic [ref=f4e327]:
+                  - term [ref=f4e328]: Submission priority percentiles
+                  - definition [ref=f4e329]:
+                    - generic [ref=f4e330]: P1 - 0th
+                  - definition [ref=f4e331]:
+                    - generic [ref=f4e332]: P2 - 51st
+                  - definition [ref=f4e333]:
+                    - generic [ref=f4e334]: P3 - 0th
+                  - definition [ref=f4e335]:
+                    - generic [ref=f4e336]: P4 - 0th
+                  - definition [ref=f4e337]:
+                    - generic [ref=f4e338]: P5 - 0th
+  - contentinfo [ref=f4e342]:
+    - navigation "Footer navigation" [ref=f4e343]:
+      - list [ref=f4e344]:
+        - listitem [ref=f4e345]:
+          - link "Terms & Conditions" [ref=f4e346] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/terms-and-conditions/
+        - listitem [ref=f4e347]:
+          - link "Privacy Policy" [ref=f4e348] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/
+        - listitem [ref=f4e349]:
+          - link "Security" [ref=f4e350] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/solutions/security-companies
+        - listitem [ref=f4e351]:
+          - link "Do Not Sell My Information" [ref=f4e352] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/do-not-sell-my-information/
+      - list [ref=f4e353]:
+        - listitem [ref=f4e354]:
+          - link "Docs" [ref=f4e355] [cursor=pointer]:
+            - /url: https://docs.bugcrowd.com/researchers/onboarding/welcome
+        - listitem [ref=f4e356]:
+          - link "FAQ" [ref=f4e357] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/hackers/faqs/
+        - listitem [ref=f4e358]:
+          - link "Resources" [ref=f4e359] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/resources
+        - listitem [ref=f4e360]:
+          - link "Blog" [ref=f4e361] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/blog
+        - listitem [ref=f4e362]:
+          - link "Contact" [ref=f4e363] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/about/contact
+        - listitem [ref=f4e364]:
+          - link "Get Help" [ref=f4e365] [cursor=pointer]:
+            - /url: https://bugcrowd-support.freshdesk.com/support/login
+    - generic [ref=f4e366]:
+      - link [ref=f4e367] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd Logo" [ref=f4e369]
+      - generic [ref=f4e372]: Copyright © 2014 – 2026 Bugcrowd, Inc. All rights reserved.

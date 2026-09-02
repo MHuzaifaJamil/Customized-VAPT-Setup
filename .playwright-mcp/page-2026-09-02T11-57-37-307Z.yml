@@ -1,0 +1,255 @@
+- generic [ref=f3e2]:
+  - banner [ref=f3e3]:
+    - generic [ref=f3e4]:
+      - link [ref=f3e5] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd logo" [ref=f3e6]
+      - list [ref=f3e8]:
+        - listitem [ref=f3e9]:
+          - link "Hacker Login" [ref=f3e10] [cursor=pointer]:
+            - /url: https://bugcrowd.com/user/sign_in
+        - listitem [ref=f3e11]:
+          - link "Customer Login" [ref=f3e12] [cursor=pointer]:
+            - /url: https://tracker.bugcrowd.com/user/sign_in
+  - main [ref=f3e13]:
+    - generic [ref=f3e14]:
+      - navigation "Breadcrumb navigation" [ref=f3e15]:
+        - list [ref=f3e16]:
+          - listitem [ref=f3e17]:
+            - link "CrowdStream" [ref=f3e18] [cursor=pointer]:
+              - /url: https://bugcrowd.com/crowdstream
+          - listitem [ref=f3e19]: Unauthenticated Create, Read, and Delete of Any User's Data + Email Relay on JPL Hurricane Watch
+      - generic [ref=f3e23]:
+        - heading "Unauthenticated Create, Read, and Delete of Any User's Data + Email Relay on JPL Hurricane Watch" [level=1] [ref=f3e24]
+        - generic [ref=f3e25]:
+          - text: Disclosed by
+          - img "Aman12321's avatar" [ref=f3e27]
+          - link "Aman12321" [ref=f3e28] [cursor=pointer]:
+            - /url: /h/Aman12321
+      - list [ref=f3e29]:
+        - listitem [ref=f3e30]:
+          - generic [ref=f3e31]: Engagement
+          - link "National Aeronautics and Space Administration (NASA) - Vulnerability Disclosure Program" [ref=f3e33] [cursor=pointer]:
+            - /url: /engagements/nasa-vdp
+        - listitem [ref=f3e34]:
+          - generic [ref=f3e35]: Disclosed date
+          - time [ref=f3e37]: 1 Sep 2026
+          - generic [ref=f3e38]: about 16 hours ago
+        - listitem [ref=f3e39]:
+          - generic [ref=f3e40]: Priority
+          - generic [ref=f3e41]: P1
+          - generic [ref=f3e43]: Bugcrowd's VRT priority rating
+        - listitem [ref=f3e44]:
+          - generic [ref=f3e45]: Status
+          - generic [ref=f3e46]: Resolved
+          - generic [ref=f3e48]: This vulnerability has been accepted and fixed
+      - generic [ref=f3e49]:
+        - generic [ref=f3e50]:
+          - article [ref=f3e51]:
+            - heading "Summary by Aman12321" [level=5] [ref=f3e52]
+            - paragraph [ref=f3e53]: Identified a broken access control vulnerability (P1/Critical) on a NASA/JPL production web application. The application's API allowed unauthenticated users to create, read, and delete any user's saved data using only a name as the identifier - with no session, cookie, or token required. Additionally, an unauthenticated email relay endpoint was discovered. The issue was triaged, confirmed, and resolved by NASA's security team.
+          - article [ref=f3e54]:
+            - heading "Activity" [level=5] [ref=f3e55]
+            - list [ref=f3e58]:
+              - listitem [ref=f3e59]:
+                - generic [ref=f3e60]:
+                  - img "Martin_NASA’s avatar" [ref=f3e62]
+                  - generic [ref=f3e63]:
+                    - generic [ref=f3e64]:
+                      - text: Martin_NASA
+                      - generic [ref=f3e65]: Customer
+                      - text: published the disclosure report
+                    - paragraph [ref=f3e66]:
+                      - generic [ref=f3e67]:
+                        - time [ref=f3e69]: about 16 hours ago
+                        - generic [ref=f3e70]:
+                          - text: (
+                          - time [ref=f3e71]: 01 Sep 2026 19:52:57 GMT+0
+                          - text: )
+              - listitem [ref=f3e72]:
+                - generic [ref=f3e73]:
+                  - img "Aman12321’s avatar" [ref=f3e75]
+                  - generic [ref=f3e76]:
+                    - generic [ref=f3e77]: Aman12321 requested disclosure
+                    - paragraph [ref=f3e78]:
+                      - generic [ref=f3e79]:
+                        - time [ref=f3e81]: 1 day ago
+                        - generic [ref=f3e82]:
+                          - text: (
+                          - time [ref=f3e83]: 01 Sep 2026 03:59:10 GMT+0
+                          - text: )
+              - listitem [ref=f3e84]:
+                - generic [ref=f3e85]:
+                  - img "Martin_NASA’s avatar" [ref=f3e87]
+                  - generic [ref=f3e88]:
+                    - generic [ref=f3e89]:
+                      - text: Martin_NASA
+                      - generic [ref=f3e90]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f3e91]:
+                      - generic [ref=f3e92]:
+                        - time [ref=f3e94]: 1 day ago
+                        - generic [ref=f3e95]:
+                          - text: (
+                          - time [ref=f3e96]: 31 Aug 2026 20:14:08 GMT+0
+                          - text: )
+              - listitem [ref=f3e97]:
+                - generic [ref=f3e98]:
+                  - generic [ref=f3e99]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f3e100]
+                    - img "bugcrowd logo" [ref=f3e101]
+                  - generic [ref=f3e102]:
+                    - generic [ref=f3e103]:
+                      - text: Mason357_Bugcrowd changed the state to
+                      - generic [ref=f3e104]: Resolved
+                    - paragraph [ref=f3e107]:
+                      - generic [ref=f3e108]:
+                        - time [ref=f3e110]: 6 days ago
+                        - generic [ref=f3e111]:
+                          - text: (
+                          - time [ref=f3e112]: 27 Aug 2026 20:46:43 GMT+0
+                          - text: )
+              - listitem [ref=f3e113]:
+                - generic [ref=f3e114]:
+                  - img "Martin_NASA’s avatar" [ref=f3e116]
+                  - generic [ref=f3e117]:
+                    - generic [ref=f3e118]:
+                      - text: Martin_NASA
+                      - generic [ref=f3e119]: Customer
+                      - text: changed the state to
+                      - generic [ref=f3e120]: Unresolved
+                    - paragraph [ref=f3e123]:
+                      - generic [ref=f3e124]:
+                        - time [ref=f3e126]: 14 days ago
+                        - generic [ref=f3e127]:
+                          - text: (
+                          - time [ref=f3e128]: 19 Aug 2026 20:31:15 GMT+0
+                          - text: )
+              - listitem [ref=f3e129]:
+                - generic [ref=f3e130]:
+                  - generic [ref=f3e131]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f3e132]
+                    - img "bugcrowd logo" [ref=f3e133]
+                  - generic [ref=f3e134]:
+                    - generic [ref=f3e135]: Mason357_Bugcrowd sent a message
+                    - paragraph [ref=f3e136]:
+                      - generic [ref=f3e137]:
+                        - time [ref=f3e139]: 14 days ago
+                        - generic [ref=f3e140]:
+                          - text: (
+                          - time [ref=f3e141]: 19 Aug 2026 18:54:34 GMT+0
+                          - text: )
+              - listitem [ref=f3e142]:
+                - generic [ref=f3e143]:
+                  - generic [ref=f3e144]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f3e145]
+                    - img "bugcrowd logo" [ref=f3e146]
+                  - generic [ref=f3e147]:
+                    - generic [ref=f3e148]:
+                      - text: Mason357_Bugcrowd changed the state to
+                      - generic [ref=f3e149]: Triaged
+                    - paragraph [ref=f3e152]:
+                      - generic [ref=f3e153]:
+                        - time [ref=f3e155]: 14 days ago
+                        - generic [ref=f3e156]:
+                          - text: (
+                          - time [ref=f3e157]: 19 Aug 2026 18:54:31 GMT+0
+                          - text: )
+              - listitem [ref=f3e158]:
+                - generic [ref=f3e159]:
+                  - generic [ref=f3e160]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f3e161]
+                    - img "bugcrowd logo" [ref=f3e162]
+                  - generic [ref=f3e163]:
+                    - generic [ref=f3e164]:
+                      - text: Mason357_Bugcrowd changed the severity to
+                      - generic [ref=f3e165]: P1
+                    - paragraph [ref=f3e168]:
+                      - generic [ref=f3e169]:
+                        - time [ref=f3e171]: 14 days ago
+                        - generic [ref=f3e172]:
+                          - text: (
+                          - time [ref=f3e173]: 19 Aug 2026 18:54:30 GMT+0
+                          - text: )
+              - listitem [ref=f3e174]:
+                - generic [ref=f3e175]:
+                  - img "Aman12321’s avatar" [ref=f3e177]
+                  - generic [ref=f3e178]:
+                    - generic [ref=f3e179]: Aman12321 created the submission
+                    - paragraph [ref=f3e180]:
+                      - generic [ref=f3e181]:
+                        - time [ref=f3e183]: 17 days ago
+                        - generic [ref=f3e184]:
+                          - text: (
+                          - time [ref=f3e185]: 15 Aug 2026 23:58:47 GMT+0
+                          - text: )
+        - complementary [ref=f3e186]:
+          - generic [ref=f3e187]:
+            - generic [ref=f3e190]:
+              - img "Aman12321's avatar" [ref=f3e192]
+              - strong [ref=f3e194]:
+                - link "Aman12321" [ref=f3e195] [cursor=pointer]:
+                  - /url: /h/Aman12321
+            - list [ref=f3e197]:
+              - listitem [ref=f3e198]:
+                - generic [ref=f3e199]: All-time points
+                - generic [ref=f3e200]: "0"
+              - listitem [ref=f3e201]:
+                - generic [ref=f3e202]: Accuracy
+                - generic [ref=f3e203]: 71.4%
+              - listitem [ref=f3e204]:
+                - generic [ref=f3e205]: Current rank
+                - generic [ref=f3e206]: N/A
+              - listitem [ref=f3e207]:
+                - generic [ref=f3e208]: Priority percentile
+                - generic [ref=f3e211]:
+                  - term [ref=f3e212]: Submission priority percentiles
+                  - definition [ref=f3e213]:
+                    - generic [ref=f3e214]: P1 - 50th
+                  - definition [ref=f3e215]:
+                    - generic [ref=f3e216]: P2 - 0th
+                  - definition [ref=f3e217]:
+                    - generic [ref=f3e218]: P3 - 0th
+                  - definition [ref=f3e219]:
+                    - generic [ref=f3e220]: P4 - 0th
+                  - definition [ref=f3e221]:
+                    - generic [ref=f3e222]: P5 - 80th
+  - contentinfo [ref=f3e226]:
+    - navigation "Footer navigation" [ref=f3e227]:
+      - list [ref=f3e228]:
+        - listitem [ref=f3e229]:
+          - link "Terms & Conditions" [ref=f3e230] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/terms-and-conditions/
+        - listitem [ref=f3e231]:
+          - link "Privacy Policy" [ref=f3e232] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/
+        - listitem [ref=f3e233]:
+          - link "Security" [ref=f3e234] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/solutions/security-companies
+        - listitem [ref=f3e235]:
+          - link "Do Not Sell My Information" [ref=f3e236] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/do-not-sell-my-information/
+      - list [ref=f3e237]:
+        - listitem [ref=f3e238]:
+          - link "Docs" [ref=f3e239] [cursor=pointer]:
+            - /url: https://docs.bugcrowd.com/researchers/onboarding/welcome
+        - listitem [ref=f3e240]:
+          - link "FAQ" [ref=f3e241] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/hackers/faqs/
+        - listitem [ref=f3e242]:
+          - link "Resources" [ref=f3e243] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/resources
+        - listitem [ref=f3e244]:
+          - link "Blog" [ref=f3e245] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/blog
+        - listitem [ref=f3e246]:
+          - link "Contact" [ref=f3e247] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/about/contact
+        - listitem [ref=f3e248]:
+          - link "Get Help" [ref=f3e249] [cursor=pointer]:
+            - /url: https://bugcrowd-support.freshdesk.com/support/login
+    - generic [ref=f3e250]:
+      - link [ref=f3e251] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd Logo" [ref=f3e253]
+      - generic [ref=f3e256]: Copyright © 2014 – 2026 Bugcrowd, Inc. All rights reserved.

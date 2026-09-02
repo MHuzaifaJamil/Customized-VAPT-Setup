@@ -1,0 +1,334 @@
+- generic [ref=f2e2]:
+  - banner [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - link [ref=f2e5] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd logo" [ref=f2e6]
+      - list [ref=f2e8]:
+        - listitem [ref=f2e9]:
+          - link "Hacker Login" [ref=f2e10] [cursor=pointer]:
+            - /url: https://bugcrowd.com/user/sign_in
+        - listitem [ref=f2e11]:
+          - link "Customer Login" [ref=f2e12] [cursor=pointer]:
+            - /url: https://tracker.bugcrowd.com/user/sign_in
+  - main [ref=f2e13]:
+    - generic [ref=f2e14]:
+      - navigation "Breadcrumb navigation" [ref=f2e15]:
+        - list [ref=f2e16]:
+          - listitem [ref=f2e17]:
+            - link "CrowdStream" [ref=f2e18] [cursor=pointer]:
+              - /url: https://bugcrowd.com/crowdstream
+          - listitem [ref=f2e19]: Publicly Accessible Administrative Configuration File Exposes Authentication Hashes and Internal Configuration
+      - generic [ref=f2e23]:
+        - heading "Publicly Accessible Administrative Configuration File Exposes Authentication Hashes and Internal Configuration" [level=1] [ref=f2e24]
+        - generic [ref=f2e25]:
+          - text: Disclosed by
+          - img "JulienZgh's avatar" [ref=f2e27]
+          - link "JulienZgh" [ref=f2e28] [cursor=pointer]:
+            - /url: /h/JulienZgh
+      - list [ref=f2e29]:
+        - listitem [ref=f2e30]:
+          - generic [ref=f2e31]: Engagement
+          - link "National Aeronautics and Space Administration (NASA) - Vulnerability Disclosure Program" [ref=f2e33] [cursor=pointer]:
+            - /url: /engagements/nasa-vdp
+        - listitem [ref=f2e34]:
+          - generic [ref=f2e35]: Disclosed date
+          - time [ref=f2e37]: 1 Sep 2026
+          - generic [ref=f2e38]: about 16 hours ago
+        - listitem [ref=f2e39]:
+          - generic [ref=f2e40]: Priority
+          - generic [ref=f2e41]: P3
+          - generic [ref=f2e43]: Bugcrowd's VRT priority rating
+        - listitem [ref=f2e44]:
+          - generic [ref=f2e45]: Status
+          - generic [ref=f2e46]: Resolved
+          - generic [ref=f2e48]: This vulnerability has been accepted and fixed
+      - generic [ref=f2e49]:
+        - generic [ref=f2e50]:
+          - article [ref=f2e51]:
+            - heading "Summary by JulienZgh" [level=5] [ref=f2e52]
+            - heading "Public Disclosure Summary" [level=2] [ref=f2e53]
+            - paragraph [ref=f2e54]: An unauthenticated administrative configuration file was publicly accessible through the web application. The exposed file disclosed sensitive internal configuration information, including server filesystem paths, CGI endpoints, application template locations, and Unix DES-style authentication password hashes.
+            - paragraph [ref=f2e55]: The exposed authentication material was sufficient to perform offline password-cracking attempts, and the associated credentials were successfully recovered during security testing. The recovered credentials are not included in this public disclosure.
+            - paragraph [ref=f2e56]: This issue could allow an unauthenticated attacker to obtain sensitive administrative information, conduct targeted reconnaissance, and potentially compromise administrative functionality if the exposed credentials remain valid.
+            - paragraph [ref=f2e57]: The vulnerability was reported to NASA through its vulnerability disclosure process, and the sensitive credential material has been intentionally redacted from this public summary.
+          - article [ref=f2e58]:
+            - heading "Activity" [level=5] [ref=f2e59]
+            - list [ref=f2e62]:
+              - listitem [ref=f2e63]:
+                - generic [ref=f2e64]:
+                  - img "Martin_NASA’s avatar" [ref=f2e66]
+                  - generic [ref=f2e67]:
+                    - generic [ref=f2e68]:
+                      - text: Martin_NASA
+                      - generic [ref=f2e69]: Customer
+                      - text: published the disclosure report
+                    - paragraph [ref=f2e70]:
+                      - generic [ref=f2e71]:
+                        - time [ref=f2e73]: about 16 hours ago
+                        - generic [ref=f2e74]:
+                          - text: (
+                          - time [ref=f2e75]: 01 Sep 2026 19:49:16 GMT+0
+                          - text: )
+              - listitem [ref=f2e76]:
+                - generic [ref=f2e77]:
+                  - img "JulienZgh’s avatar" [ref=f2e79]
+                  - generic [ref=f2e80]:
+                    - generic [ref=f2e81]: JulienZgh requested disclosure
+                    - paragraph [ref=f2e82]:
+                      - generic [ref=f2e83]:
+                        - time [ref=f2e85]: 12 days ago
+                        - generic [ref=f2e86]:
+                          - text: (
+                          - time [ref=f2e87]: 21 Aug 2026 04:52:22 GMT+0
+                          - text: )
+              - listitem [ref=f2e88]:
+                - generic [ref=f2e89]:
+                  - img "JulienZgh’s avatar" [ref=f2e91]
+                  - generic [ref=f2e92]:
+                    - generic [ref=f2e93]: JulienZgh sent a message
+                    - paragraph [ref=f2e94]:
+                      - generic [ref=f2e95]:
+                        - time [ref=f2e97]: 16 days ago
+                        - generic [ref=f2e98]:
+                          - text: (
+                          - time [ref=f2e99]: 17 Aug 2026 15:50:44 GMT+0
+                          - text: )
+              - listitem [ref=f2e100]:
+                - generic [ref=f2e101]:
+                  - img "Martin_NASA’s avatar" [ref=f2e103]
+                  - generic [ref=f2e104]:
+                    - generic [ref=f2e105]:
+                      - text: Martin_NASA
+                      - generic [ref=f2e106]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f2e107]:
+                      - generic [ref=f2e108]:
+                        - time [ref=f2e110]: 16 days ago
+                        - generic [ref=f2e111]:
+                          - text: (
+                          - time [ref=f2e112]: 17 Aug 2026 15:35:25 GMT+0
+                          - text: )
+              - listitem [ref=f2e113]:
+                - generic [ref=f2e114]:
+                  - img "JulienZgh’s avatar" [ref=f2e116]
+                  - generic [ref=f2e117]:
+                    - generic [ref=f2e118]: JulienZgh sent a message
+                    - paragraph [ref=f2e119]:
+                      - generic [ref=f2e120]:
+                        - time [ref=f2e122]: 18 days ago
+                        - generic [ref=f2e123]:
+                          - text: (
+                          - time [ref=f2e124]: 15 Aug 2026 09:29:02 GMT+0
+                          - text: )
+              - listitem [ref=f2e125]:
+                - generic [ref=f2e126]:
+                  - generic [ref=f2e127]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f2e128]
+                    - img "bugcrowd logo" [ref=f2e129]
+                  - generic [ref=f2e130]:
+                    - generic [ref=f2e131]:
+                      - text: Mason357_Bugcrowd changed the state to
+                      - generic [ref=f2e132]: Resolved
+                    - paragraph [ref=f2e135]:
+                      - generic [ref=f2e136]:
+                        - time [ref=f2e138]: 21 days ago
+                        - generic [ref=f2e139]:
+                          - text: (
+                          - time [ref=f2e140]: 12 Aug 2026 20:29:04 GMT+0
+                          - text: )
+              - listitem [ref=f2e141]:
+                - generic [ref=f2e142]:
+                  - img "JulienZgh’s avatar" [ref=f2e144]
+                  - generic [ref=f2e145]:
+                    - generic [ref=f2e146]: JulienZgh sent a message
+                    - paragraph [ref=f2e147]:
+                      - generic [ref=f2e148]:
+                        - time [ref=f2e150]: 22 days ago
+                        - generic [ref=f2e151]:
+                          - text: (
+                          - time [ref=f2e152]: 11 Aug 2026 15:59:34 GMT+0
+                          - text: )
+              - listitem [ref=f2e153]:
+                - generic [ref=f2e154]:
+                  - img "Joel_NASA’s avatar" [ref=f2e156]
+                  - generic [ref=f2e157]:
+                    - generic [ref=f2e158]:
+                      - text: Joel_NASA
+                      - generic [ref=f2e159]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f2e160]:
+                      - generic [ref=f2e161]:
+                        - time [ref=f2e163]: 22 days ago
+                        - generic [ref=f2e164]:
+                          - text: (
+                          - time [ref=f2e165]: 11 Aug 2026 15:54:22 GMT+0
+                          - text: )
+              - listitem [ref=f2e166]:
+                - generic [ref=f2e167]:
+                  - img "Joel_NASA’s avatar" [ref=f2e169]
+                  - generic [ref=f2e170]:
+                    - generic [ref=f2e171]:
+                      - text: Joel_NASA
+                      - generic [ref=f2e172]: Customer
+                      - text: changed the state to
+                      - generic [ref=f2e173]: Unresolved
+                    - paragraph [ref=f2e176]:
+                      - generic [ref=f2e177]:
+                        - time [ref=f2e179]: 22 days ago
+                        - generic [ref=f2e180]:
+                          - text: (
+                          - time [ref=f2e181]: 11 Aug 2026 15:54:11 GMT+0
+                          - text: )
+              - listitem [ref=f2e182]:
+                - generic [ref=f2e183]:
+                  - img "JulienZgh’s avatar" [ref=f2e185]
+                  - generic [ref=f2e186]:
+                    - generic [ref=f2e187]: JulienZgh sent a message
+                    - paragraph [ref=f2e188]:
+                      - generic [ref=f2e189]:
+                        - time [ref=f2e191]: 25 days ago
+                        - generic [ref=f2e192]:
+                          - text: (
+                          - time [ref=f2e193]: 08 Aug 2026 05:31:28 GMT+0
+                          - text: )
+              - listitem [ref=f2e194]:
+                - generic [ref=f2e195]:
+                  - generic [ref=f2e196]:
+                    - img "Jack_bugcrowd’s avatar" [ref=f2e197]
+                    - img "bugcrowd logo" [ref=f2e198]
+                  - generic [ref=f2e199]:
+                    - generic [ref=f2e200]: Jack_bugcrowd sent a message
+                    - paragraph [ref=f2e201]:
+                      - generic [ref=f2e202]:
+                        - time [ref=f2e204]: 25 days ago
+                        - generic [ref=f2e205]:
+                          - text: (
+                          - time [ref=f2e206]: 08 Aug 2026 05:28:13 GMT+0
+                          - text: )
+              - listitem [ref=f2e207]:
+                - generic [ref=f2e208]:
+                  - generic [ref=f2e209]:
+                    - img "Jack_bugcrowd’s avatar" [ref=f2e210]
+                    - img "bugcrowd logo" [ref=f2e211]
+                  - generic [ref=f2e212]:
+                    - generic [ref=f2e213]:
+                      - text: Jack_bugcrowd changed the state to
+                      - generic [ref=f2e214]: Triaged
+                    - paragraph [ref=f2e217]:
+                      - generic [ref=f2e218]:
+                        - time [ref=f2e220]: 25 days ago
+                        - generic [ref=f2e221]:
+                          - text: (
+                          - time [ref=f2e222]: 08 Aug 2026 05:28:08 GMT+0
+                          - text: )
+              - listitem [ref=f2e223]:
+                - generic [ref=f2e224]:
+                  - generic [ref=f2e225]:
+                    - img "Jack_bugcrowd’s avatar" [ref=f2e226]
+                    - img "bugcrowd logo" [ref=f2e227]
+                  - generic [ref=f2e228]:
+                    - generic [ref=f2e229]:
+                      - text: Jack_bugcrowd changed the severity to
+                      - generic [ref=f2e230]: P3
+                    - paragraph [ref=f2e233]:
+                      - generic [ref=f2e234]:
+                        - time [ref=f2e236]: 25 days ago
+                        - generic [ref=f2e237]:
+                          - text: (
+                          - time [ref=f2e238]: 08 Aug 2026 05:28:07 GMT+0
+                          - text: )
+              - listitem [ref=f2e239]:
+                - generic [ref=f2e240]:
+                  - img "JulienZgh’s avatar" [ref=f2e242]
+                  - generic [ref=f2e243]:
+                    - generic [ref=f2e244]: JulienZgh sent a message
+                    - paragraph [ref=f2e245]:
+                      - generic [ref=f2e246]:
+                        - time [ref=f2e248]: 27 days ago
+                        - generic [ref=f2e249]:
+                          - text: (
+                          - time [ref=f2e250]: 06 Aug 2026 07:07:21 GMT+0
+                          - text: )
+              - listitem [ref=f2e251]:
+                - generic [ref=f2e252]:
+                  - img "JulienZgh’s avatar" [ref=f2e254]
+                  - generic [ref=f2e255]:
+                    - generic [ref=f2e256]: JulienZgh created the submission
+                    - paragraph [ref=f2e257]:
+                      - generic [ref=f2e258]:
+                        - time [ref=f2e260]: 27 days ago
+                        - generic [ref=f2e261]:
+                          - text: (
+                          - time [ref=f2e262]: 06 Aug 2026 05:29:02 GMT+0
+                          - text: )
+        - complementary [ref=f2e263]:
+          - generic [ref=f2e264]:
+            - generic [ref=f2e267]:
+              - img "JulienZgh's avatar" [ref=f2e269]
+              - strong [ref=f2e271]:
+                - link "JulienZgh" [ref=f2e272] [cursor=pointer]:
+                  - /url: /h/JulienZgh
+            - list [ref=f2e274]:
+              - listitem [ref=f2e275]:
+                - generic [ref=f2e276]: All-time points
+                - generic [ref=f2e277]: "0"
+              - listitem [ref=f2e278]:
+                - generic [ref=f2e279]: Accuracy
+                - generic [ref=f2e280]: 80.0%
+              - listitem [ref=f2e281]:
+                - generic [ref=f2e282]: Current rank
+                - generic [ref=f2e283]: N/A
+              - listitem [ref=f2e284]:
+                - generic [ref=f2e285]: Priority percentile
+                - generic [ref=f2e288]:
+                  - term [ref=f2e289]: Submission priority percentiles
+                  - definition [ref=f2e290]:
+                    - generic [ref=f2e291]: P1 - 0th
+                  - definition [ref=f2e292]:
+                    - generic [ref=f2e293]: P2 - 0th
+                  - definition [ref=f2e294]:
+                    - generic [ref=f2e295]: P3 - 49th
+                  - definition [ref=f2e296]:
+                    - generic [ref=f2e297]: P4 - 0th
+                  - definition [ref=f2e298]:
+                    - generic [ref=f2e299]: P5 - 80th
+  - contentinfo [ref=f2e303]:
+    - navigation "Footer navigation" [ref=f2e304]:
+      - list [ref=f2e305]:
+        - listitem [ref=f2e306]:
+          - link "Terms & Conditions" [ref=f2e307] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/terms-and-conditions/
+        - listitem [ref=f2e308]:
+          - link "Privacy Policy" [ref=f2e309] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/
+        - listitem [ref=f2e310]:
+          - link "Security" [ref=f2e311] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/solutions/security-companies
+        - listitem [ref=f2e312]:
+          - link "Do Not Sell My Information" [ref=f2e313] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/do-not-sell-my-information/
+      - list [ref=f2e314]:
+        - listitem [ref=f2e315]:
+          - link "Docs" [ref=f2e316] [cursor=pointer]:
+            - /url: https://docs.bugcrowd.com/researchers/onboarding/welcome
+        - listitem [ref=f2e317]:
+          - link "FAQ" [ref=f2e318] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/hackers/faqs/
+        - listitem [ref=f2e319]:
+          - link "Resources" [ref=f2e320] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/resources
+        - listitem [ref=f2e321]:
+          - link "Blog" [ref=f2e322] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/blog
+        - listitem [ref=f2e323]:
+          - link "Contact" [ref=f2e324] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/about/contact
+        - listitem [ref=f2e325]:
+          - link "Get Help" [ref=f2e326] [cursor=pointer]:
+            - /url: https://bugcrowd-support.freshdesk.com/support/login
+    - generic [ref=f2e327]:
+      - link [ref=f2e328] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd Logo" [ref=f2e330]
+      - generic [ref=f2e333]: Copyright © 2014 – 2026 Bugcrowd, Inc. All rights reserved.

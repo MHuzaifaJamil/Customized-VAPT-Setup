@@ -1,0 +1,255 @@
+- generic [ref=f3e6]:
+  - generic [ref=f3e7]:
+    - navigation [ref=f3e9]:
+      - link "traviN home" [ref=f3e10] [cursor=pointer]:
+        - /url: /
+        - img "traviN" [ref=f3e11]
+      - generic [ref=f3e12]:
+        - button "Login" [ref=f3e13]
+        - generic [ref=f3e14]:
+          - 'button "Currency: PKR" [ref=f3e15]': PKR
+          - 'button "Language: English" [ref=f3e19]': ENG
+          - button "Get App" [ref=f3e21]
+    - generic [ref=f3e24]:
+      - generic [ref=f3e25]:
+        - paragraph [ref=f3e26]:
+          - img "Pakistan" [ref=f3e27]
+          - text: Pakistan's first AI travel companion
+        - heading "Dream it. Describe it. Consider it booked." [level=1] [ref=f3e28]:
+          - generic [aria-hidden] [ref=f3e29]: "|Dream it. Describe it."
+          - generic [aria-hidden] [ref=f3e30]: Consider it booked.
+      - generic [ref=f3e32]:
+        - textbox "Best 7 days trip places in Europe…" [ref=f3e33]
+        - button "Plan My Trip" [ref=f3e34]
+    - button "Learn More" [ref=f3e36]
+  - generic [ref=f3e39]:
+    - generic [ref=f3e41]:
+      - generic [ref=f3e42]:
+        - heading [level=2] [ref=f3e43]:
+          - text: How
+          - generic [ref=f3e44]: Travin
+          - text: Works
+        - paragraph [ref=f3e46]: All-in-one intelligence designed to replace hours of research, spreadsheet planning, and multi-tab confusion.
+      - generic [ref=f3e47]:
+        - generic [ref=f3e48]:
+          - generic [ref=f3e49]:
+            - heading "Tell Travin Where to Go" [level=3] [ref=f3e50]
+            - paragraph [ref=f3e51]: Travin's AI pulls real-time flights, hotels, and activities matched to exactly what you described.
+          - generic [ref=f3e55]:
+            - generic [ref=f3e56]:
+              - img "Waqar" [ref=f3e58]
+              - paragraph [ref=f3e59]: Waqar
+            - paragraph [ref=f3e60]: Welcome, WaqarBook Flights, Hotels etc,
+            - generic [ref=f3e61]:
+              - generic [ref=f3e63]: Where do you want to go?
+              - generic [ref=f3e64]: Plan My Trip
+        - generic [ref=f3e75]:
+          - generic [ref=f3e76]:
+            - heading "Review, Compare, Customize" [level=3] [ref=f3e77]
+            - paragraph [ref=f3e78]: Swap hotels, adjust dates, upgrade your seat class, or add experiences, everything updates live without starting over.
+          - generic [ref=f3e82]:
+            - generic [ref=f3e83]:
+              - img "Waqar" [ref=f3e85]
+              - paragraph [ref=f3e86]: Waqar
+            - generic [ref=f3e87]:
+              - paragraph [ref=f3e89]: Hi, I want to go to Dubai this coming Monday between 2 PM and 3 PM.
+              - paragraph [ref=f3e90]: Found 2 direct flights from Karachi leaving around that time! ✈️
+              - generic [ref=f3e91]:
+                - generic [ref=f3e96]:
+                  - generic [ref=f3e97]: 2:30 PM
+                  - generic [ref=f3e98]: PKR 125,000
+                - generic [ref=f3e103]:
+                  - generic [ref=f3e104]: 2:30 PM
+                  - generic [ref=f3e105]: PKR 125,000
+            - generic [ref=f3e106]: The emirates one looks good! can...
+        - generic [ref=f3e111]:
+          - generic [ref=f3e112]:
+            - heading "Book Everything in One Place" [level=3] [ref=f3e113]
+            - paragraph [ref=f3e114]: No redirects to third-party sites. Your e-ticket and itinerary land in your inbox immediately.
+          - generic [ref=f3e118]:
+            - generic [ref=f3e119]:
+              - img "Waqar" [ref=f3e121]
+              - paragraph [ref=f3e122]: Waqar
+            - generic [ref=f3e123]:
+              - generic [ref=f3e124]: Booking Successful
+              - paragraph [ref=f3e127]: All set! 🎉 Flight and 4-night stay at Rove Downtown are confirmed.
+            - generic [ref=f3e136]:
+              - generic [ref=f3e137]:
+                - generic [ref=f3e138]:
+                  - generic [ref=f3e139]: KHI
+                  - generic [ref=f3e143]: DXB
+                - generic [ref=f3e144]: "Departing: 25 July, 2026"
+              - generic [ref=f3e145]:
+                - generic [ref=f3e146]: 03h 12m
+                - generic [ref=f3e147]: Economy
+            - button "Download PDF" [ref=f3e148]
+    - generic [ref=f3e152]:
+      - generic [ref=f3e153]:
+        - heading [level=2] [ref=f3e154]:
+          - text: Why Travelers Choose
+          - generic [ref=f3e155]: Travin
+        - paragraph [ref=f3e158]: All-in-one intelligence designed to replace hours of research, spreadsheet planning, and multi-tab confusion.
+      - generic [ref=f3e159]:
+        - article [ref=f3e160]:
+          - generic [ref=f3e161]:
+            - heading "AI Speed + Human Support" [level=3] [ref=f3e162]
+            - paragraph [ref=f3e163]: Have a complex visa question or last-minute flight change? Our travel specialists are always on standby.
+        - article [ref=f3e164]:
+          - generic [ref=f3e165]:
+            - heading "Best Price Guarantee" [level=3] [ref=f3e166]
+            - paragraph [ref=f3e167]: We aggregate real-time flight fares and hotel deals to ensure you never overpay for your trip.
+        - article [ref=f3e168]:
+          - generic [ref=f3e169]:
+            - heading "Day-by-Day Precision" [level=3] [ref=f3e170]
+            - paragraph [ref=f3e171]: Visual daily timelines optimized for realistic travel times, local traffic, and opening hours.
+        - article [ref=f3e172]:
+          - generic [ref=f3e173]:
+            - heading "Plan Together, Seamlessly" [level=3] [ref=f3e174]
+            - paragraph [ref=f3e175]: Share your live itinerary with friends or family via a single link and vote on activities together.
+  - generic [ref=f3e177]:
+    - generic [ref=f3e179]:
+      - heading "Trending Destinations, Curated by AI" [level=2] [ref=f3e180]: Trending Destinations,Curated by AI
+      - paragraph [ref=f3e181]: Based on live booking data, current flight deals, and traveler interest.
+    - list [ref=f3e184]:
+      - listitem [ref=f3e185]:
+        - article [ref=f3e186]:
+          - img "Santorini, Greece" [ref=f3e187]
+          - generic [ref=f3e188]: Greece
+          - generic [ref=f3e190]:
+            - heading "Santorini" [level=3] [ref=f3e191]
+            - paragraph [ref=f3e192]: White wash beauty above the endless blue.
+      - listitem [ref=f3e193]:
+        - article [ref=f3e194]:
+          - img "Maldives, Maldives" [ref=f3e195]
+          - generic [ref=f3e196]: Maldives
+          - generic [ref=f3e198]:
+            - heading "Maldives" [level=3] [ref=f3e199]
+            - paragraph [ref=f3e200]: Crystal clear waters and ultimate relaxations.
+      - listitem [ref=f3e201]:
+        - article [ref=f3e202]:
+          - img "Swiss Alps, Switzerland" [ref=f3e203]
+          - generic [ref=f3e204]: Switzerland
+          - generic [ref=f3e206]:
+            - heading "Swiss Alps" [level=3] [ref=f3e207]
+            - paragraph [ref=f3e208]: Breathtaking landscapes that feels like paradise.
+      - listitem [ref=f3e209]:
+        - article [ref=f3e210]:
+          - img "Santorini, Greece" [ref=f3e211]
+          - generic [ref=f3e212]: Greece
+          - generic [ref=f3e214]:
+            - heading "Santorini" [level=3] [ref=f3e215]
+            - paragraph [ref=f3e216]: White wash beauty above the endless blue.
+      - listitem [ref=f3e217]:
+        - article [ref=f3e218]:
+          - img "Maldives, Maldives" [ref=f3e219]
+          - generic [ref=f3e220]: Maldives
+          - generic [ref=f3e222]:
+            - heading "Maldives" [level=3] [ref=f3e223]
+            - paragraph [ref=f3e224]: Crystal clear waters and ultimate relaxations.
+      - listitem [aria-hidden] [ref=f3e225]:
+        - article [ref=f3e226]:
+          - generic [ref=f3e228]: Greece
+          - generic [ref=f3e230]:
+            - heading [level=3] [ref=f3e231]: Santorini
+            - paragraph [ref=f3e232]: White wash beauty above the endless blue.
+      - listitem [aria-hidden] [ref=f3e233]:
+        - article [ref=f3e234]:
+          - generic [ref=f3e236]: Maldives
+          - generic [ref=f3e238]:
+            - heading [level=3] [ref=f3e239]: Maldives
+            - paragraph [ref=f3e240]: Crystal clear waters and ultimate relaxations.
+      - listitem [aria-hidden] [ref=f3e241]:
+        - article [ref=f3e242]:
+          - generic [ref=f3e244]: Switzerland
+          - generic [ref=f3e246]:
+            - heading [level=3] [ref=f3e247]: Swiss Alps
+            - paragraph [ref=f3e248]: Breathtaking landscapes that feels like paradise.
+      - listitem [aria-hidden] [ref=f3e249]:
+        - article [ref=f3e250]:
+          - generic [ref=f3e252]: Greece
+          - generic [ref=f3e254]:
+            - heading [level=3] [ref=f3e255]: Santorini
+            - paragraph [ref=f3e256]: White wash beauty above the endless blue.
+      - listitem [aria-hidden] [ref=f3e257]:
+        - article [ref=f3e258]:
+          - generic [ref=f3e260]: Maldives
+          - generic [ref=f3e262]:
+            - heading [level=3] [ref=f3e263]: Maldives
+            - paragraph [ref=f3e264]: Crystal clear waters and ultimate relaxations.
+  - generic [ref=f3e268]:
+    - generic [ref=f3e269]:
+      - img "Traveler video testimonial" [ref=f3e273]
+      - article [ref=f3e277]:
+        - paragraph [ref=f3e278]: Sara M., Frequent Traveler
+        - paragraph [ref=f3e280]: "\"I used to spend 3 weekends planning our annual family trip. Travin built our complete Japan itinerary with flights and boutique hotels in under 5 minutes.\""
+      - img "Traveler video testimonial" [ref=f3e284]
+    - heading "What Our Users Says About Travin" [level=2] [ref=f3e288]
+    - generic [ref=f3e289]:
+      - article [ref=f3e291]:
+        - paragraph [ref=f3e292]: Omer K., Product Manager
+        - paragraph [ref=f3e294]: "\"The fact that you don't get kicked out to 10 different third-party booking sites is a game changer. Everything stays in one clean dashboard.\""
+      - img "Traveler video testimonial" [ref=f3e298]
+      - article [ref=f3e302]:
+        - paragraph [ref=f3e303]: Omer K., Product Manager
+        - paragraph [ref=f3e305]: "\"The fact that you don't get kicked out to 10 different third-party booking sites is a game changer. Everything stays in one clean dashboard.\""
+  - generic [ref=f3e306]:
+    - img "Travin mobile app"
+    - generic [ref=f3e308]:
+      - heading "Download Our Mobile App" [level=2] [ref=f3e309]
+      - generic [ref=f3e310]:
+        - link "IOS Mobile App" [ref=f3e311] [cursor=pointer]:
+          - /url: "#"
+        - link "Android Mobile App" [ref=f3e313] [cursor=pointer]:
+          - /url: "#"
+  - contentinfo [ref=f3e315]:
+    - generic [ref=f3e316]:
+      - generic [ref=f3e317]:
+        - heading "Your Next Journey Start Here" [level=2] [ref=f3e318]: Your Next JourneyStart Here
+        - paragraph [ref=f3e319]: AI-powered trip planning. Flights, stays, and experiences in one smart workspace.
+      - generic [ref=f3e321]:
+        - generic [ref=f3e322]:
+          - navigation [ref=f3e323]:
+            - heading "Products" [level=3] [ref=f3e324]
+            - list [ref=f3e325]:
+              - listitem [ref=f3e326]:
+                - link "Flights" [ref=f3e327] [cursor=pointer]:
+                  - /url: /trip
+              - listitem [ref=f3e328]:
+                - link "Hotels" [ref=f3e329] [cursor=pointer]:
+                  - /url: /trip
+              - listitem [ref=f3e330]:
+                - link "Packages" [ref=f3e331] [cursor=pointer]:
+                  - /url: /trip
+          - navigation [ref=f3e332]:
+            - heading "Company" [level=3] [ref=f3e333]
+            - list [ref=f3e334]:
+              - listitem [ref=f3e335]:
+                - link "About Us" [ref=f3e336] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=f3e337]:
+                - link "Contact Us" [ref=f3e338] [cursor=pointer]:
+                  - /url: /contact
+              - listitem [ref=f3e339]:
+                - link "Terms & Conditions" [ref=f3e340] [cursor=pointer]:
+                  - /url: /terms
+        - generic [ref=f3e341]:
+          - generic [ref=f3e342]: Get Mobile App
+          - generic "App download QR code" [ref=f3e343]: QR
+      - generic [ref=f3e346]:
+        - generic [ref=f3e347]:
+          - generic [ref=f3e348]: © 2026 Travin, Inc.
+          - link "Privacy Policy" [ref=f3e349] [cursor=pointer]:
+            - /url: /terms
+          - link "Terms of Services" [ref=f3e350] [cursor=pointer]:
+            - /url: /terms
+        - generic [ref=f3e351]:
+          - link "Instagram" [ref=f3e352] [cursor=pointer]:
+            - /url: https://www.instagram.com/travin.ai/
+          - link "Facebook" [ref=f3e353] [cursor=pointer]:
+            - /url: https://www.facebook.com/travin.ai.official
+          - link "Youtube" [ref=f3e354] [cursor=pointer]:
+            - /url: https://www.youtube.com/@Travinai
+          - link "Tiktok" [ref=f3e355] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@travin.ai7
+          - link "LinkedIn" [ref=f3e356] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/travin.ai

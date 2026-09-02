@@ -1,0 +1,480 @@
+- generic [ref=f5e2]:
+  - banner [ref=f5e3]:
+    - generic [ref=f5e4]:
+      - link [ref=f5e5] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd logo" [ref=f5e6]
+      - list [ref=f5e8]:
+        - listitem [ref=f5e9]:
+          - link "Hacker Login" [ref=f5e10] [cursor=pointer]:
+            - /url: https://bugcrowd.com/user/sign_in
+        - listitem [ref=f5e11]:
+          - link "Customer Login" [ref=f5e12] [cursor=pointer]:
+            - /url: https://tracker.bugcrowd.com/user/sign_in
+  - main [ref=f5e13]:
+    - generic [ref=f5e14]:
+      - navigation "Breadcrumb navigation" [ref=f5e15]:
+        - list [ref=f5e16]:
+          - listitem [ref=f5e17]:
+            - link "CrowdStream" [ref=f5e18] [cursor=pointer]:
+              - /url: https://bugcrowd.com/crowdstream
+          - listitem [ref=f5e19]: Unauthenticated Error-Based SQL Injection via POST Parameter Name in /api/experiment/answer/new/
+      - generic [ref=f5e23]:
+        - heading "Unauthenticated Error-Based SQL Injection via POST Parameter Name in /api/experiment/answer/new/" [level=1] [ref=f5e24]
+        - generic [ref=f5e25]:
+          - text: Disclosed by
+          - img "iaramsri's avatar" [ref=f5e27]
+          - link "iaramsri" [ref=f5e28] [cursor=pointer]:
+            - /url: /h/iaramsri
+      - list [ref=f5e29]:
+        - listitem [ref=f5e30]:
+          - generic [ref=f5e31]: Engagement
+          - link "National Aeronautics and Space Administration (NASA) - Vulnerability Disclosure Program" [ref=f5e33] [cursor=pointer]:
+            - /url: /engagements/nasa-vdp
+        - listitem [ref=f5e34]:
+          - generic [ref=f5e35]: Disclosed date
+          - time [ref=f5e37]: 20 Aug 2026
+          - generic [ref=f5e38]: 13 days ago
+        - listitem [ref=f5e39]:
+          - generic [ref=f5e40]: Priority
+          - generic [ref=f5e41]: P1
+          - generic [ref=f5e43]: Bugcrowd's VRT priority rating
+        - listitem [ref=f5e44]:
+          - generic [ref=f5e45]: Status
+          - generic [ref=f5e46]: Resolved
+          - generic [ref=f5e48]: This vulnerability has been accepted and fixed
+      - generic [ref=f5e49]:
+        - generic [ref=f5e50]:
+          - article [ref=f5e51]:
+            - heading "Summary by iaramsri" [level=5] [ref=f5e52]
+            - heading "Responsible Disclosure Report - NASA VDP" [level=1] [ref=f5e53]
+            - heading "Unauthenticated XPATH Error-Based SQL Injection in NASA Space Place API" [level=2] [ref=f5e54]
+            - heading "Executive Summary" [level=2] [ref=f5e55]
+            - paragraph [ref=f5e56]:
+              - text: On August 11, 2026, I identified and responsibly reported an
+              - strong [ref=f5e57]: Unauthenticated error-based SQL injection vulnerability
+              - text: "affecting a publicly accessible NASA Space Place API endpoint:"
+            - code [ref=f5e60]: POST /api/experiment/answer/new/
+            - paragraph [ref=f5e61]: The vulnerability was caused by the application's handling of HTTP form parameter names.
+            - paragraph [ref=f5e62]:
+              - text: User-controlled parameter names were incorporated into the SQL
+              - code [ref=f5e63]: INSERT
+              - text: column list without being sufficiently restricted to a predefined set of expected database fields.
+            - paragraph [ref=f5e64]: By supplying a specially crafted parameter name, it was possible to modify the structure of the generated SQL statement and cause the underlying database server to evaluate attacker-controlled SQL expressions.
+            - paragraph [ref=f5e65]:
+              - text: The vulnerability was responsibly reported through the
+              - strong [ref=f5e66]: NASA Vulnerability Disclosure Program (VDP) via Bugcrowd
+              - text: .
+            - paragraph [ref=f5e67]:
+              - text: The submission was subsequently reviewed and remediated and was officially marked
+              - strong [ref=f5e68]: Resolved on August 19, 2026
+              - text: .
+            - paragraph [ref=f5e69]:
+              - text: "On"
+              - strong [ref=f5e70]: August 20, 2026
+              - text: ", NASA issued an official"
+              - strong [ref=f5e71]: Letter of Recognition (LOR)
+              - text: acknowledging the responsible security research and contribution.
+            - paragraph [ref=f5e72]: Internal database identifiers, authentication tokens, full SQL injection payloads, and unnecessary implementation details have intentionally been omitted from this public disclosure.
+            - separator [ref=f5e73]
+            - heading "Affected Component" [level=2] [ref=f5e74]
+            - paragraph [ref=f5e75]:
+              - strong [ref=f5e76]: "Application:"
+              - text: NASA Space Place
+            - paragraph [ref=f5e77]:
+              - strong [ref=f5e78]: "Affected endpoint:"
+            - code [ref=f5e81]: POST /api/experiment/answer/new/
+            - paragraph [ref=f5e82]:
+              - strong [ref=f5e83]: "Authentication required:"
+              - text: None
+            - paragraph [ref=f5e84]: The endpoint formed part of the application's publicly accessible experiment-answer submission workflow.
+            - separator [ref=f5e85]
+            - heading "Vulnerability Details" [level=2] [ref=f5e86]
+            - paragraph [ref=f5e87]:
+              - text: The vulnerable endpoint dynamically constructed an SQL
+              - code [ref=f5e88]: INSERT
+              - text: statement using HTTP form parameter names as database column identifiers.
+            - paragraph [ref=f5e89]: "Conceptually, the vulnerable behavior was similar to:"
+            - code [ref=f5e92]: $sql = "INSERT INTO <table> (" . implode(",", array_keys($_POST)) . ") VALUES (...)";
+            - paragraph [ref=f5e93]: When unexpected parameter names are accepted without strict validation, an attacker may be able to supply SQL syntax instead of a legitimate database column name.
+            - paragraph [ref=f5e94]:
+              - text: In this case, a specially crafted parameter name could modify the structure of the generated
+              - code [ref=f5e95]: INSERT
+              - text: statement and introduce attacker-controlled SQL expressions.
+            - paragraph [ref=f5e96]:
+              - text: This demonstrates an important SQL injection scenario where the vulnerable input exists in the
+              - strong [ref=f5e97]: parameter name rather than the parameter value
+              - text: .
+            - separator [ref=f5e98]
+            - heading "Proof of SQL Execution" [level=2] [ref=f5e99]
+            - paragraph [ref=f5e100]: Controlled testing demonstrated that SQL expressions supplied through the crafted parameter name were parsed and evaluated by the underlying database server.
+            - paragraph [ref=f5e101]: Error-based techniques were used to safely return a limited amount of fixed database metadata through attacker-controlled markers.
+            - paragraph [ref=f5e102]: "For example, responses followed patterns similar to:"
+            - code [ref=f5e105]: "XPATH syntax error: '~BD:[REDACTED]~'"
+            - paragraph [ref=f5e106]: "and:"
+            - code [ref=f5e109]: "XPATH syntax error: '~BU:[REDACTED]~'"
+            - paragraph [ref=f5e110]: The markers surrounding the returned values were supplied by the testing request, while the values themselves were produced by database runtime functions.
+            - paragraph [ref=f5e111]: A separate controlled database-object resolution test also confirmed that an application database column could be successfully referenced from an attacker-controlled subquery.
+            - paragraph [ref=f5e112]: These tests demonstrated that the issue was not merely producing malformed SQL or a generic syntax error.
+            - paragraph [ref=f5e113]:
+              - text: The injected SQL expressions were being
+              - strong [ref=f5e114]: evaluated by the database server
+              - text: .
+            - paragraph [ref=f5e115]: Specific database names, database account identifiers, schema details, and full injection payloads have been intentionally omitted.
+            - separator [ref=f5e116]
+            - heading "Potential Impact" [level=2] [ref=f5e117]
+            - paragraph [ref=f5e118]:
+              - text: Successful exploitation could allow an unauthenticated attacker to execute attacker-controlled SQL expressions and
+              - code [ref=f5e119]: SELECT
+              - text: subqueries under the privileges assigned to the application's database account.
+            - paragraph [ref=f5e120]: "Depending on the permissions available to that account, potential consequences could include:"
+            - list [ref=f5e121]:
+              - listitem [ref=f5e122]: Unauthorized access to database information.
+              - listitem [ref=f5e123]: Enumeration of database schema and application objects.
+              - listitem [ref=f5e124]: Retrieval of application data accessible to the database account.
+              - listitem [ref=f5e125]: Potential modification of application data where write permissions are available.
+              - listitem [ref=f5e126]: Additional impact depending on the database configuration and assigned privileges.
+            - paragraph [ref=f5e127]: Testing was intentionally stopped after confirming controlled SQL execution and limited metadata access.
+            - paragraph [ref=f5e128]: The maximum possible impact against production data was not tested.
+            - heading "Root Cause" [level=2] [ref=f5e129]
+            - paragraph [ref=f5e130]:
+              - text: The root cause was the use of
+              - strong [ref=f5e131]: user-controlled HTTP parameter names as dynamically generated SQL identifiers
+              - text: .
+            - paragraph [ref=f5e132]: The application did not sufficiently restrict submitted parameter names to a fixed set of known fields before incorporating them into the SQL query structure.
+            - paragraph [ref=f5e133]: This allowed a crafted parameter name to modify the intended SQL statement.
+            - paragraph [ref=f5e134]: The vulnerability also demonstrates why traditional prepared statements are not sufficient when attacker-controlled input determines SQL identifiers.
+            - paragraph [ref=f5e135]:
+              - text: Parameterized queries protect SQL
+              - strong [ref=f5e136]: values
+              - text: ", but dynamically generated identifiers such as column names must instead be statically defined or validated against a strict allowlist."
+            - separator [ref=f5e137]
+            - heading "Remediation Recommendations" [level=2] [ref=f5e138]
+            - paragraph [ref=f5e139]: The recommended remediation is to avoid dynamically constructing SQL column lists from submitted HTTP parameter names.
+            - paragraph [ref=f5e140]: "The application should:"
+            - list [ref=f5e141]:
+              - listitem [ref=f5e142]: Define the accepted fields statically within the application.
+              - listitem [ref=f5e143]: Strictly allowlist expected HTTP parameter names.
+              - listitem [ref=f5e144]: Reject or ignore unexpected form parameters.
+              - listitem [ref=f5e145]: Use prepared statements and bound parameters for all submitted values.
+              - listitem [ref=f5e146]: Ensure client-controlled input cannot determine SQL identifiers.
+              - listitem [ref=f5e147]: Generate server-controlled metadata such as timestamps and request information exclusively on the server.
+              - listitem [ref=f5e148]: Avoid returning generated SQL statements to API clients.
+              - listitem [ref=f5e149]: Suppress raw database error messages from public responses.
+              - listitem [ref=f5e150]: Store detailed database errors only in protected server-side logs.
+              - listitem [ref=f5e151]: Review similar create/update handlers for the same dynamic parameter-to-column pattern.
+            - separator [ref=f5e152]
+            - heading "Timeline" [level=2] [ref=f5e153]
+            - list [ref=f5e154]:
+              - listitem [ref=f5e155]:
+                - strong [ref=f5e156]: August 11, 2026
+                - text: — Vulnerability identified and reproduced through a fresh unauthenticated workflow.
+              - listitem [ref=f5e157]:
+                - strong [ref=f5e158]: August 12, 2026
+                - text: — NASA acknowledged the report and referred it to the appropriate security and system teams.
+              - listitem [ref=f5e159]:
+                - strong [ref=f5e160]: August 12, 2026
+                - text: — NASA confirmed that a Letter of Recognition would be awarded once the finding was resolved.
+              - listitem [ref=f5e161]:
+                - strong [ref=f5e162]: August 19, 2026
+                - text: — Submission marked
+                - strong [ref=f5e163]: Resolved
+                - text: on Bugcrowd.
+              - listitem [ref=f5e164]:
+                - strong [ref=f5e165]: August 20, 2026
+                - text: — NASA issued an official
+                - strong [ref=f5e166]: Letter of Recognition (LOR)
+                - text: .
+            - separator [ref=f5e167]
+            - heading "Resolution and Recognition" [level=2] [ref=f5e168]
+            - paragraph [ref=f5e169]:
+              - text: The vulnerability was responsibly disclosed through the
+              - strong [ref=f5e170]: NASA Vulnerability Disclosure Program via Bugcrowd
+              - text: .
+            - paragraph [ref=f5e171]: "Following investigation and remediation, the submission was officially marked:"
+            - paragraph [ref=f5e172]:
+              - strong [ref=f5e173]: Resolved — August 19, 2026
+            - paragraph [ref=f5e174]:
+              - text: NASA subsequently issued a
+              - strong [ref=f5e175]: Letter of Recognition on August 20, 2026
+              - text: ", recognizing the responsible identification and reporting of the vulnerability."
+            - paragraph [ref=f5e176]: The exact internal remediation implementation has not been publicly documented and is therefore not speculated upon in this disclosure.
+            - separator [ref=f5e177]
+            - heading "Ethical Statement" [level=2] [ref=f5e178]
+            - paragraph [ref=f5e179]: This research was performed within the scope and requirements of NASA's Vulnerability Disclosure Program.
+            - paragraph [ref=f5e180]: Testing was limited to what was necessary to demonstrate the vulnerability.
+            - paragraph [ref=f5e181]: No production user records, credentials, personal information, or other sensitive application data were retrieved.
+            - paragraph [ref=f5e182]: No destructive testing was performed.
+            - paragraph [ref=f5e183]: Internal database identifiers, full exploitation payloads, tokens, and other unnecessary implementation details have been intentionally omitted from this public disclosure.
+            - separator [ref=f5e184]
+            - heading "Purpose of Disclosure" [level=2] [ref=f5e185]
+            - paragraph [ref=f5e186]: "The goal of this disclosure is to highlight an unusual but important SQL injection pattern:"
+            - paragraph [ref=f5e187]:
+              - strong [ref=f5e188]: SQL injection through attacker-controlled HTTP parameter names rather than parameter values.
+            - paragraph [ref=f5e189]: Applications may correctly parameterize submitted values while still remaining vulnerable if untrusted input is used to construct SQL identifiers or query structure.
+            - paragraph [ref=f5e190]: "Secure database interaction therefore requires protection of both:"
+            - list [ref=f5e191]:
+              - listitem [ref=f5e192]:
+                - strong [ref=f5e193]: SQL values
+                - text: through parameterized queries.
+              - listitem [ref=f5e194]:
+                - strong [ref=f5e195]: SQL identifiers and structure
+                - text: through static definitions and strict allowlisting.
+            - paragraph [ref=f5e196]: This vulnerability was responsibly reported, investigated, remediated, and resolved through coordination between an independent security researcher, Bugcrowd, and NASA.
+            - separator [ref=f5e197]
+            - paragraph [ref=f5e198]:
+              - strong [ref=f5e199]: "Researcher:"
+              - code [ref=f5e200]: Itthidej Aramsri
+              - strong [ref=f5e201]: "Program:"
+              - code [ref=f5e202]: NASA - Vulnerability Disclosure Program via Bugcrowd
+              - strong [ref=f5e203]: "Vulnerability:"
+              - code [ref=f5e204]: Unauthenticated XPATH Error-Based SQL Injection
+              - strong [ref=f5e205]: "Status:"
+              - code [ref=f5e206]: Resolved
+              - strong [ref=f5e207]: "Resolved:"
+              - code [ref=f5e208]: August 19, 2026
+              - strong [ref=f5e209]: "NASA Letter of Recognition:"
+              - code [ref=f5e210]: August 20, 2026
+          - article [ref=f5e211]:
+            - heading "Activity" [level=5] [ref=f5e212]
+            - list [ref=f5e215]:
+              - listitem [ref=f5e216]:
+                - generic [ref=f5e217]:
+                  - img "Martin_NASA’s avatar" [ref=f5e219]
+                  - generic [ref=f5e220]:
+                    - generic [ref=f5e221]:
+                      - text: Martin_NASA
+                      - generic [ref=f5e222]: Customer
+                      - text: published the disclosure report
+                    - paragraph [ref=f5e223]:
+                      - generic [ref=f5e224]:
+                        - time [ref=f5e226]: 13 days ago
+                        - generic [ref=f5e227]:
+                          - text: (
+                          - time [ref=f5e228]: 20 Aug 2026 20:37:09 GMT+0
+                          - text: )
+              - listitem [ref=f5e229]:
+                - generic [ref=f5e230]:
+                  - img "iaramsri’s avatar" [ref=f5e232]
+                  - generic [ref=f5e233]:
+                    - generic [ref=f5e234]: iaramsri requested disclosure
+                    - paragraph [ref=f5e235]:
+                      - generic [ref=f5e236]:
+                        - time [ref=f5e238]: 13 days ago
+                        - generic [ref=f5e239]:
+                          - text: (
+                          - time [ref=f5e240]: 20 Aug 2026 17:09:12 GMT+0
+                          - text: )
+              - listitem [ref=f5e241]:
+                - generic [ref=f5e242]:
+                  - img "Joel_NASA’s avatar" [ref=f5e244]
+                  - generic [ref=f5e245]:
+                    - generic [ref=f5e246]:
+                      - text: Joel_NASA
+                      - generic [ref=f5e247]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f5e248]:
+                      - generic [ref=f5e249]:
+                        - time [ref=f5e251]: 13 days ago
+                        - generic [ref=f5e252]:
+                          - text: (
+                          - time [ref=f5e253]: 20 Aug 2026 14:37:18 GMT+0
+                          - text: )
+              - listitem [ref=f5e254]:
+                - generic [ref=f5e255]:
+                  - generic [ref=f5e256]:
+                    - img "lmz_bugcrowd’s avatar" [ref=f5e257]
+                    - img "bugcrowd logo" [ref=f5e258]
+                  - generic [ref=f5e259]:
+                    - generic [ref=f5e260]:
+                      - text: lmz_bugcrowd changed the state to
+                      - generic [ref=f5e261]: Resolved
+                    - paragraph [ref=f5e264]:
+                      - generic [ref=f5e265]:
+                        - time [ref=f5e267]: 14 days ago
+                        - generic [ref=f5e268]:
+                          - text: (
+                          - time [ref=f5e269]: 19 Aug 2026 14:53:34 GMT+0
+                          - text: )
+              - listitem [ref=f5e270]:
+                - generic [ref=f5e271]:
+                  - img "iaramsri’s avatar" [ref=f5e273]
+                  - generic [ref=f5e274]:
+                    - generic [ref=f5e275]: iaramsri sent a message
+                    - paragraph [ref=f5e276]:
+                      - generic [ref=f5e277]:
+                        - time [ref=f5e279]: 21 days ago
+                        - generic [ref=f5e280]:
+                          - text: (
+                          - time [ref=f5e281]: 12 Aug 2026 17:36:10 GMT+0
+                          - text: )
+              - listitem [ref=f5e282]:
+                - generic [ref=f5e283]:
+                  - img "Joel_NASA’s avatar" [ref=f5e285]
+                  - generic [ref=f5e286]:
+                    - generic [ref=f5e287]:
+                      - text: Joel_NASA
+                      - generic [ref=f5e288]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f5e289]:
+                      - generic [ref=f5e290]:
+                        - time [ref=f5e292]: 21 days ago
+                        - generic [ref=f5e293]:
+                          - text: (
+                          - time [ref=f5e294]: 12 Aug 2026 17:07:16 GMT+0
+                          - text: )
+              - listitem [ref=f5e295]:
+                - generic [ref=f5e296]:
+                  - img "Joel_NASA’s avatar" [ref=f5e298]
+                  - generic [ref=f5e299]:
+                    - generic [ref=f5e300]:
+                      - text: Joel_NASA
+                      - generic [ref=f5e301]: Customer
+                      - text: changed the state to
+                      - generic [ref=f5e302]: Unresolved
+                    - paragraph [ref=f5e305]:
+                      - generic [ref=f5e306]:
+                        - time [ref=f5e308]: 21 days ago
+                        - generic [ref=f5e309]:
+                          - text: (
+                          - time [ref=f5e310]: 12 Aug 2026 17:06:50 GMT+0
+                          - text: )
+              - listitem [ref=f5e311]:
+                - generic [ref=f5e312]:
+                  - generic [ref=f5e313]:
+                    - img "lmz_bugcrowd’s avatar" [ref=f5e314]
+                    - img "bugcrowd logo" [ref=f5e315]
+                  - generic [ref=f5e316]:
+                    - generic [ref=f5e317]:
+                      - text: lmz_bugcrowd changed the state to
+                      - generic [ref=f5e318]: Triaged
+                    - paragraph [ref=f5e321]:
+                      - generic [ref=f5e322]:
+                        - time [ref=f5e324]: 21 days ago
+                        - generic [ref=f5e325]:
+                          - text: (
+                          - time [ref=f5e326]: 12 Aug 2026 00:57:35 GMT+0
+                          - text: )
+              - listitem [ref=f5e327]:
+                - generic [ref=f5e328]:
+                  - generic [ref=f5e329]:
+                    - img "lmz_bugcrowd’s avatar" [ref=f5e330]
+                    - img "bugcrowd logo" [ref=f5e331]
+                  - generic [ref=f5e332]:
+                    - generic [ref=f5e333]: lmz_bugcrowd sent a message
+                    - paragraph [ref=f5e334]:
+                      - generic [ref=f5e335]:
+                        - time [ref=f5e337]: 21 days ago
+                        - generic [ref=f5e338]:
+                          - text: (
+                          - time [ref=f5e339]: 12 Aug 2026 00:57:23 GMT+0
+                          - text: )
+              - listitem [ref=f5e340]:
+                - generic [ref=f5e341]:
+                  - img "iaramsri’s avatar" [ref=f5e343]
+                  - generic [ref=f5e344]:
+                    - generic [ref=f5e345]: iaramsri sent a message
+                    - paragraph [ref=f5e346]:
+                      - generic [ref=f5e347]:
+                        - time [ref=f5e349]: 21 days ago
+                        - generic [ref=f5e350]:
+                          - text: (
+                          - time [ref=f5e351]: 12 Aug 2026 00:24:55 GMT+0
+                          - text: )
+                      - generic [ref=f5e352]:
+                        - text: •Edited
+                        - time [ref=f5e353]: 21 days ago
+              - listitem [ref=f5e354]:
+                - generic [ref=f5e355]:
+                  - img "iaramsri’s avatar" [ref=f5e357]
+                  - generic [ref=f5e358]:
+                    - generic [ref=f5e359]: iaramsri sent a message
+                    - paragraph [ref=f5e360]:
+                      - generic [ref=f5e361]:
+                        - time [ref=f5e363]: 22 days ago
+                        - generic [ref=f5e364]:
+                          - text: (
+                          - time [ref=f5e365]: 11 Aug 2026 23:44:28 GMT+0
+                          - text: )
+              - listitem [ref=f5e366]:
+                - generic [ref=f5e367]:
+                  - img "iaramsri’s avatar" [ref=f5e369]
+                  - generic [ref=f5e370]:
+                    - generic [ref=f5e371]: iaramsri created the submission
+                    - paragraph [ref=f5e372]:
+                      - generic [ref=f5e373]:
+                        - time [ref=f5e375]: 22 days ago
+                        - generic [ref=f5e376]:
+                          - text: (
+                          - time [ref=f5e377]: 11 Aug 2026 23:33:21 GMT+0
+                          - text: )
+        - complementary [ref=f5e378]:
+          - generic [ref=f5e379]:
+            - generic [ref=f5e382]:
+              - img "iaramsri's avatar" [ref=f5e384]
+              - strong [ref=f5e386]:
+                - link "iaramsri" [ref=f5e387] [cursor=pointer]:
+                  - /url: /h/iaramsri
+            - list [ref=f5e389]:
+              - listitem [ref=f5e390]:
+                - generic [ref=f5e391]: All-time points
+                - generic [ref=f5e392]: "0"
+              - listitem [ref=f5e393]:
+                - generic [ref=f5e394]: Accuracy
+                - generic [ref=f5e395]: 85.7%
+              - listitem [ref=f5e396]:
+                - generic [ref=f5e397]: Current rank
+                - generic [ref=f5e398]: N/A
+              - listitem [ref=f5e399]:
+                - generic [ref=f5e400]: Priority percentile
+                - generic [ref=f5e403]:
+                  - term [ref=f5e404]: Submission priority percentiles
+                  - definition [ref=f5e405]:
+                    - generic [ref=f5e406]: P1 - 65th
+                  - definition [ref=f5e407]:
+                    - generic [ref=f5e408]: P2 - 0th
+                  - definition [ref=f5e409]:
+                    - generic [ref=f5e410]: P3 - 49th
+                  - definition [ref=f5e411]:
+                    - generic [ref=f5e412]: P4 - 0th
+                  - definition [ref=f5e413]:
+                    - generic [ref=f5e414]: P5 - 66th
+  - contentinfo [ref=f5e418]:
+    - navigation "Footer navigation" [ref=f5e419]:
+      - list [ref=f5e420]:
+        - listitem [ref=f5e421]:
+          - link "Terms & Conditions" [ref=f5e422] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/terms-and-conditions/
+        - listitem [ref=f5e423]:
+          - link "Privacy Policy" [ref=f5e424] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/
+        - listitem [ref=f5e425]:
+          - link "Security" [ref=f5e426] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/solutions/security-companies
+        - listitem [ref=f5e427]:
+          - link "Do Not Sell My Information" [ref=f5e428] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/do-not-sell-my-information/
+      - list [ref=f5e429]:
+        - listitem [ref=f5e430]:
+          - link "Docs" [ref=f5e431] [cursor=pointer]:
+            - /url: https://docs.bugcrowd.com/researchers/onboarding/welcome
+        - listitem [ref=f5e432]:
+          - link "FAQ" [ref=f5e433] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/hackers/faqs/
+        - listitem [ref=f5e434]:
+          - link "Resources" [ref=f5e435] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/resources
+        - listitem [ref=f5e436]:
+          - link "Blog" [ref=f5e437] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/blog
+        - listitem [ref=f5e438]:
+          - link "Contact" [ref=f5e439] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/about/contact
+        - listitem [ref=f5e440]:
+          - link "Get Help" [ref=f5e441] [cursor=pointer]:
+            - /url: https://bugcrowd-support.freshdesk.com/support/login
+    - generic [ref=f5e442]:
+      - link [ref=f5e443] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd Logo" [ref=f5e445]
+      - generic [ref=f5e448]: Copyright © 2014 – 2026 Bugcrowd, Inc. All rights reserved.

@@ -1,0 +1,15 @@
+{
+  "wsEndpoints": [],
+  "apiEndpoints": [],
+  "scripts": [
+    "https://www.googletagmanager.com/gtag/js?id=G-CSLL4ZEK4L&cx=c&gtm=4e68v1",
+    "https://www.googletagmanager.com/gtag/js?id=G-MD19XN81GF",
+    "https://www.googletagmanager.com/gtag/js?id=G-CSLL4ZEK4L",
+    "https://trek.nasa.gov/moon/html2canvas/html2canvas.js",
+    "https://trek.nasa.gov/moon/dojo/selector/lite.js?v=3.6.29-Moon",
+    "https://trek.nasa.gov/moon/highstock/highstock.js?v=3.6.29-Moon",
+    "https://trek.nasa.gov/moon/dojo/dojo.js?v=3.6.29-Moon",
+    "https://trek.nasa.gov/moon/app/run.js?v=3.6.29-Moon",
+    "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=NASA&subagency=MarsTrek&dclink=true&sp=search,s,q&sdor=false&exts=tif,tiff"
+  ]
+}

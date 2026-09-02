@@ -1,0 +1,343 @@
+- tabpanel [ref=e485]:
+  - generic [ref=e486]:
+    - generic [ref=e487]:
+      - heading "Filters" [level=4] [ref=e488]
+      - list [ref=e489]:
+        - listitem [ref=e490]:
+          - generic [ref=e492] [cursor=pointer]:
+            - switch "Accepted submissions" [checked] [ref=e494]
+            - generic [ref=e496]: Accepted submissions
+        - listitem [ref=e497]:
+          - generic [ref=e499] [cursor=pointer]:
+            - switch "Disclosed reports" [checked] [ref=e501]
+            - generic [ref=e503]: Disclosed reports
+    - generic [ref=e504]:
+      - list [ref=e505]:
+        - listitem [ref=e506]:
+          - generic [ref=e509]:
+            - paragraph [ref=e510]:
+              - text: "Disclosed report:"
+              - link "Unauthenticated Create, Read, and Delete of Any User's Data + Email Relay on JPL Hurricane Watch" [ref=e512] [cursor=pointer]:
+                - /url: /disclosures/eb823c31-5e78-4bf9-9b2a-4c339918e879/unauthenticated-create-read-and-delete-of-any-user-s-data-email-relay-on-jpl-hurricane-watch
+            - list [ref=e513]:
+              - listitem [ref=e514]:
+                - text: By
+                - link "Aman12321" [ref=e515] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/Aman12321
+                - text: •
+              - listitem [ref=e516]:
+                - text: Priority
+                - generic [ref=e517]: P1
+            - generic [ref=e518]: Disclosed on 1 Sep 2026
+        - listitem [ref=e519]:
+          - generic [ref=e522]:
+            - paragraph [ref=e523]:
+              - text: "Disclosed report:"
+              - link "Unauthenticated OS Command Injection (RCE) in NASA International Mass Loading Service CGI (massloading.smce.nasa.gov /cgi-bin/eop_series.py)" [ref=e525] [cursor=pointer]:
+                - /url: /disclosures/9fd428e5-c863-49d4-aea7-e91d2ba9199b/unauthenticated-os-command-injection-rce-in-nasa-international-mass-loading-service-cgi-massloading-smce-nasa-gov-cgi-bin-eop_series-py
+            - list [ref=e526]:
+              - listitem [ref=e527]:
+                - text: By
+                - link "radithyaputra" [ref=e528] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/radithyaputra
+                - text: •
+              - listitem [ref=e529]:
+                - text: Priority
+                - generic [ref=e530]: P1
+            - generic [ref=e531]: Disclosed on 1 Sep 2026
+        - listitem [ref=e532]:
+          - generic [ref=e535]:
+            - paragraph [ref=e536]:
+              - text: "Disclosed report:"
+              - link "DOM-based cross-site scripting through the publicly exposed Cesium Sandcastle shared-code feature" [ref=e538] [cursor=pointer]:
+                - /url: /disclosures/6765826c-df24-47cd-afa4-c158bde0e4b6/dom-based-cross-site-scripting-through-the-publicly-exposed-cesium-sandcastle-shared-code-feature
+            - list [ref=e539]:
+              - listitem [ref=e540]:
+                - text: By
+                - link "iaramsri" [ref=e541] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/iaramsri
+                - text: •
+              - listitem [ref=e542]:
+                - text: Priority
+                - generic [ref=e543]: P3
+            - generic [ref=e544]: Disclosed on 1 Sep 2026
+        - listitem [ref=e545]:
+          - generic [ref=e548]:
+            - paragraph [ref=e549]:
+              - text: "Disclosed report:"
+              - link "Publicly Accessible Administrative Configuration File Exposes Authentication Hashes and Internal Configuration" [ref=e551] [cursor=pointer]:
+                - /url: /disclosures/e2794469-0dec-4c81-a5ca-916a663f35c5/publicly-accessible-administrative-configuration-file-exposes-authentication-hashes-and-internal-configuration
+            - list [ref=e552]:
+              - listitem [ref=e553]:
+                - text: By
+                - link "JulienZgh" [ref=e554] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/JulienZgh
+                - text: •
+              - listitem [ref=e555]:
+                - text: Priority
+                - generic [ref=e556]: P3
+            - generic [ref=e557]: Disclosed on 1 Sep 2026
+        - listitem [ref=e558]:
+          - generic [ref=e561]:
+            - paragraph [ref=e562]:
+              - text: "Disclosed report:"
+              - link "Impersonation via Broken Link Hijacking on NASA Earth Matters Blog Page" [ref=e564] [cursor=pointer]:
+                - /url: /disclosures/081a696d-d1d2-4d7d-acb7-29b313c9aa9b/impersonation-via-broken-link-hijacking-on-nasa-earth-matters-blog-page
+            - list [ref=e565]:
+              - listitem [ref=e566]:
+                - text: By
+                - link "muhammadabdillah64edc3" [ref=e567] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/muhammadabdillah64edc3
+                - text: •
+              - listitem [ref=e568]:
+                - text: Priority
+                - generic [ref=e569]: P4
+            - generic [ref=e570]: Disclosed on 1 Sep 2026
+        - listitem [ref=e571]:
+          - generic [ref=e574]:
+            - paragraph [ref=e575]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e576]:
+              - listitem [ref=e577]: By Niranj•
+              - listitem [ref=e578]:
+                - text: Priority
+                - generic [ref=e579]: P4
+            - generic [ref=e580]: Accepted on 31 Aug 2026
+        - listitem [ref=e581]:
+          - generic [ref=e584]:
+            - paragraph [ref=e585]: Submission accepted
+            - list [ref=e586]:
+              - listitem [ref=e587]: By Private user•
+              - listitem [ref=e588]:
+                - text: Priority
+                - generic [ref=e589]: P3
+            - generic [ref=e590]: Accepted on 31 Aug 2026
+        - listitem [ref=e591]:
+          - generic [ref=e594]:
+            - paragraph [ref=e595]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e596]:
+              - listitem [ref=e597]:
+                - text: By
+                - link "S1m0n3" [ref=e598] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/S1m0n3
+                - text: •
+              - listitem [ref=e599]:
+                - text: Priority
+                - generic [ref=e600]: P2
+            - generic [ref=e601]: Accepted on 31 Aug 2026
+        - listitem [ref=e602]:
+          - generic [ref=e605]:
+            - paragraph [ref=e606]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e607]:
+              - listitem [ref=e608]:
+                - text: By
+                - link "teammyinside" [ref=e609] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/teammyinside
+                - text: •
+              - listitem [ref=e610]:
+                - text: Priority
+                - generic [ref=e611]: P1
+            - generic [ref=e612]: Accepted on 31 Aug 2026
+        - listitem [ref=e613]:
+          - generic [ref=e616]:
+            - paragraph [ref=e617]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e618]:
+              - listitem [ref=e619]:
+                - text: By
+                - link "Sleibe" [ref=e620] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/Sleibe
+                - text: •
+              - listitem [ref=e621]:
+                - text: Priority
+                - generic [ref=e622]: P1
+            - generic [ref=e623]: Accepted on 31 Aug 2026
+        - listitem [ref=e624]:
+          - generic [ref=e627]:
+            - paragraph [ref=e628]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e629]:
+              - listitem [ref=e630]:
+                - text: By
+                - link "infernosalex" [ref=e631] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/infernosalex
+                - text: •
+              - listitem [ref=e632]:
+                - text: Priority
+                - generic [ref=e633]: P1
+            - generic [ref=e634]: Accepted on 31 Aug 2026
+        - listitem [ref=e635]:
+          - generic [ref=e638]:
+            - paragraph [ref=e639]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e640]:
+              - listitem [ref=e641]:
+                - text: By
+                - link "Mukesh-Bhatt" [ref=e642] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/Mukesh-Bhatt
+                - text: •
+              - listitem [ref=e643]:
+                - text: Priority
+                - generic [ref=e644]: P4
+            - generic [ref=e645]: Accepted on 31 Aug 2026
+        - listitem [ref=e646]:
+          - generic [ref=e649]:
+            - paragraph [ref=e650]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e651]:
+              - listitem [ref=e652]:
+                - text: By
+                - link "copo" [ref=e653] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/copo
+                - text: •
+              - listitem [ref=e654]:
+                - text: Priority
+                - generic [ref=e655]: P4
+            - generic [ref=e656]: Accepted on 28 Aug 2026
+        - listitem [ref=e657]:
+          - generic [ref=e660]:
+            - paragraph [ref=e661]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e662]:
+              - listitem [ref=e663]: By Niranj•
+              - listitem [ref=e664]:
+                - text: Priority
+                - generic [ref=e665]: P4
+            - generic [ref=e666]: Accepted on 28 Aug 2026
+        - listitem [ref=e667]:
+          - generic [ref=e670]:
+            - paragraph [ref=e671]: Submission accepted
+            - list [ref=e672]:
+              - listitem [ref=e673]:
+                - text: By
+                - link "rteriz23" [ref=e674] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/rteriz23
+                - text: •
+              - listitem [ref=e675]:
+                - text: Priority
+                - generic [ref=e676]: P4
+            - generic [ref=e677]: Accepted on 28 Aug 2026
+        - listitem [ref=e678]:
+          - generic [ref=e681]:
+            - paragraph [ref=e682]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e683]:
+              - listitem [ref=e684]: By skxss•
+              - listitem [ref=e685]:
+                - text: Priority
+                - generic [ref=e686]: P4
+            - generic [ref=e687]: Accepted on 28 Aug 2026
+        - listitem [ref=e688]:
+          - generic [ref=e691]:
+            - paragraph [ref=e692]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e693]:
+              - listitem [ref=e694]:
+                - text: By
+                - link "Varkey_Denny" [ref=e695] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/Varkey_Denny
+                - text: •
+              - listitem [ref=e696]:
+                - text: Priority
+                - generic [ref=e697]: P3
+            - generic [ref=e698]: Accepted on 28 Aug 2026
+        - listitem [ref=e699]:
+          - generic [ref=e702]:
+            - paragraph [ref=e703]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e704]:
+              - listitem [ref=e705]:
+                - text: By
+                - link "teammyinside" [ref=e706] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/teammyinside
+                - text: •
+              - listitem [ref=e707]:
+                - text: Priority
+                - generic [ref=e708]: P1
+            - generic [ref=e709]: Accepted on 28 Aug 2026
+        - listitem [ref=e710]:
+          - generic [ref=e713]:
+            - paragraph [ref=e714]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e715]:
+              - listitem [ref=e716]:
+                - text: By
+                - link "teammyinside" [ref=e717] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/teammyinside
+                - text: •
+              - listitem [ref=e718]:
+                - text: Priority
+                - generic [ref=e719]: P1
+            - generic [ref=e720]: Accepted on 28 Aug 2026
+        - listitem [ref=e721]:
+          - generic [ref=e724]:
+            - paragraph [ref=e725]: "Submission accepted on target: https://nasa.gov"
+            - list [ref=e726]:
+              - listitem [ref=e727]:
+                - text: By
+                - link "pixo" [ref=e728] [cursor=pointer]:
+                  - /url: https://bugcrowd.com/h/pixo
+                - text: •
+              - listitem [ref=e729]:
+                - text: Priority
+                - generic [ref=e730]: P1
+            - generic [ref=e731]: Accepted on 28 Aug 2026
+      - menubar "Pagination menubar" [ref=e732]:
+        - generic [ref=e733]:
+          - menuitem "Previous page" [disabled] [ref=e734] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e738]: Prev
+          - generic [ref=e739]:
+            - generic [aria-hidden] [ref=e740]: "Page:"
+            - menu "Select page" [ref=e743]:
+              - option "1" [selected]
+              - option "2"
+              - option "3"
+              - option "4"
+              - option "5"
+              - option "6"
+              - option "7"
+              - option "8"
+              - option "9"
+              - option "10"
+              - option "11"
+              - option "12"
+              - option "13"
+              - option "14"
+              - option "15"
+              - option "16"
+              - option "17"
+              - option "18"
+              - option "19"
+              - option "20"
+              - option "21"
+              - option "22"
+              - option "23"
+              - option "24"
+              - option "25"
+              - option "26"
+              - option "27"
+              - option "28"
+              - option "29"
+              - option "30"
+              - option "31"
+              - option "32"
+              - option "33"
+              - option "34"
+              - option "35"
+              - option "36"
+              - option "37"
+              - option "38"
+              - option "39"
+              - option "40"
+              - option "41"
+              - option "42"
+              - option "43"
+              - option "44"
+              - option "45"
+              - option "46"
+            - generic [ref=e745]:
+              - text: of
+              - strong [ref=e746]: "46"
+            - status [ref=e747]: Viewing page 1 of 46
+          - menuitem "Next page" [ref=e748] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e749]: Next
+        - generic [ref=e753]:
+          - generic [ref=e755]:
+            - text: Viewing
+            - strong [ref=e756]: "1"
+            - text: to
+            - strong [ref=e757]: "20"
+            - text: of
+            - strong [ref=e758]: "914"
+          - status [ref=e759]: Viewing items 1 to 20 of 914
+      - paragraph [ref=e760]: Only showing submission accepted events in the last 6 months.

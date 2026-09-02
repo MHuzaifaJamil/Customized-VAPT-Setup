@@ -1,0 +1,305 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link [ref=f1e5] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd logo" [ref=f1e6]
+      - list [ref=f1e8]:
+        - listitem [ref=f1e9]:
+          - link "Hacker Login" [ref=f1e10] [cursor=pointer]:
+            - /url: https://bugcrowd.com/user/sign_in
+        - listitem [ref=f1e11]:
+          - link "Customer Login" [ref=f1e12] [cursor=pointer]:
+            - /url: https://tracker.bugcrowd.com/user/sign_in
+  - main [ref=f1e13]:
+    - generic [ref=f1e14]:
+      - navigation "Breadcrumb navigation" [ref=f1e15]:
+        - list [ref=f1e16]:
+          - listitem [ref=f1e17]:
+            - link "CrowdStream" [ref=f1e18] [cursor=pointer]:
+              - /url: https://bugcrowd.com/crowdstream
+          - listitem [ref=f1e19]: Unauthenticated OS Command Injection (RCE) in NASA International Mass Loading Service CGI (massloading.smce.nasa.gov /cgi-bin/eop_series.py)
+      - generic [ref=f1e23]:
+        - heading "Unauthenticated OS Command Injection (RCE) in NASA International Mass Loading Service CGI (massloading.smce.nasa.gov /cgi-bin/eop_series.py)" [level=1] [ref=f1e24]
+        - generic [ref=f1e25]:
+          - text: Disclosed by
+          - img "radithyaputra's avatar" [ref=f1e27]
+          - link "radithyaputra" [ref=f1e28] [cursor=pointer]:
+            - /url: /h/radithyaputra
+      - list [ref=f1e29]:
+        - listitem [ref=f1e30]:
+          - generic [ref=f1e31]: Engagement
+          - link "National Aeronautics and Space Administration (NASA) - Vulnerability Disclosure Program" [ref=f1e33] [cursor=pointer]:
+            - /url: /engagements/nasa-vdp
+        - listitem [ref=f1e34]:
+          - generic [ref=f1e35]: Disclosed date
+          - time [ref=f1e37]: 1 Sep 2026
+          - generic [ref=f1e38]: about 16 hours ago
+        - listitem [ref=f1e39]:
+          - generic [ref=f1e40]: Priority
+          - generic [ref=f1e41]: P1
+          - generic [ref=f1e43]: Bugcrowd's VRT priority rating
+        - listitem [ref=f1e44]:
+          - generic [ref=f1e45]: Status
+          - generic [ref=f1e46]: Resolved
+          - generic [ref=f1e48]: This vulnerability has been accepted and fixed
+      - generic [ref=f1e49]:
+        - generic [ref=f1e50]:
+          - article [ref=f1e51]:
+            - heading "Summary by radithyaputra" [level=5] [ref=f1e52]
+            - paragraph [ref=f1e53]: "\"An unauthenticated Remote Code Execution (RCE) vulnerability was discovered and responsibly disclosed in a NASA CGI endpoint, allowing arbitrary OS command execution through unvalidated parameters.\""
+          - article [ref=f1e54]:
+            - heading "Activity" [level=5] [ref=f1e55]
+            - list [ref=f1e58]:
+              - listitem [ref=f1e59]:
+                - generic [ref=f1e60]:
+                  - img "radithyaputra’s avatar" [ref=f1e62]
+                  - generic [ref=f1e63]:
+                    - generic [ref=f1e64]: radithyaputra sent a message
+                    - paragraph [ref=f1e65]:
+                      - generic [ref=f1e66]:
+                        - time [ref=f1e68]: about 13 hours ago
+                        - generic [ref=f1e69]:
+                          - text: (
+                          - time [ref=f1e70]: 01 Sep 2026 22:54:42 GMT+0
+                          - text: )
+              - listitem [ref=f1e71]:
+                - generic [ref=f1e72]:
+                  - img "Martin_NASA’s avatar" [ref=f1e74]
+                  - generic [ref=f1e75]:
+                    - generic [ref=f1e76]:
+                      - text: Martin_NASA
+                      - generic [ref=f1e77]: Customer
+                      - text: published the disclosure report
+                    - paragraph [ref=f1e78]:
+                      - generic [ref=f1e79]:
+                        - time [ref=f1e81]: about 16 hours ago
+                        - generic [ref=f1e82]:
+                          - text: (
+                          - time [ref=f1e83]: 01 Sep 2026 19:51:34 GMT+0
+                          - text: )
+              - listitem [ref=f1e84]:
+                - generic [ref=f1e85]:
+                  - img "radithyaputra’s avatar" [ref=f1e87]
+                  - generic [ref=f1e88]:
+                    - generic [ref=f1e89]: radithyaputra requested disclosure
+                    - paragraph [ref=f1e90]:
+                      - generic [ref=f1e91]:
+                        - time [ref=f1e93]: about 20 hours ago
+                        - generic [ref=f1e94]:
+                          - text: (
+                          - time [ref=f1e95]: 01 Sep 2026 15:35:20 GMT+0
+                          - text: )
+              - listitem [ref=f1e96]:
+                - generic [ref=f1e97]:
+                  - img "radithyaputra’s avatar" [ref=f1e99]
+                  - generic [ref=f1e100]:
+                    - generic [ref=f1e101]: radithyaputra sent a message
+                    - paragraph [ref=f1e102]:
+                      - generic [ref=f1e103]:
+                        - time [ref=f1e105]: about 20 hours ago
+                        - generic [ref=f1e106]:
+                          - text: (
+                          - time [ref=f1e107]: 01 Sep 2026 15:32:32 GMT+0
+                          - text: )
+              - listitem [ref=f1e108]:
+                - generic [ref=f1e109]:
+                  - img "Martin_NASA’s avatar" [ref=f1e111]
+                  - generic [ref=f1e112]:
+                    - generic [ref=f1e113]:
+                      - text: Martin_NASA
+                      - generic [ref=f1e114]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f1e115]:
+                      - generic [ref=f1e116]:
+                        - time [ref=f1e118]: about 21 hours ago
+                        - generic [ref=f1e119]:
+                          - text: (
+                          - time [ref=f1e120]: 01 Sep 2026 14:36:23 GMT+0
+                          - text: )
+              - listitem [ref=f1e121]:
+                - generic [ref=f1e122]:
+                  - img "radithyaputra’s avatar" [ref=f1e124]
+                  - generic [ref=f1e125]:
+                    - generic [ref=f1e126]: radithyaputra sent a message
+                    - paragraph [ref=f1e127]:
+                      - generic [ref=f1e128]:
+                        - time [ref=f1e130]: 1 day ago
+                        - generic [ref=f1e131]:
+                          - text: (
+                          - time [ref=f1e132]: 01 Sep 2026 05:59:23 GMT+0
+                          - text: )
+              - listitem [ref=f1e133]:
+                - generic [ref=f1e134]:
+                  - generic [ref=f1e135]:
+                    - img "Mason357_Bugcrowd’s avatar" [ref=f1e136]
+                    - img "bugcrowd logo" [ref=f1e137]
+                  - generic [ref=f1e138]:
+                    - generic [ref=f1e139]:
+                      - text: Mason357_Bugcrowd changed the state to
+                      - generic [ref=f1e140]: Resolved
+                    - paragraph [ref=f1e143]:
+                      - generic [ref=f1e144]:
+                        - time [ref=f1e146]: 1 day ago
+                        - generic [ref=f1e147]:
+                          - text: (
+                          - time [ref=f1e148]: 01 Sep 2026 00:58:38 GMT+0
+                          - text: )
+              - listitem [ref=f1e149]:
+                - generic [ref=f1e150]:
+                  - img "radithyaputra’s avatar" [ref=f1e152]
+                  - generic [ref=f1e153]:
+                    - generic [ref=f1e154]: radithyaputra sent a message
+                    - paragraph [ref=f1e155]:
+                      - generic [ref=f1e156]:
+                        - time [ref=f1e158]: 22 days ago
+                        - generic [ref=f1e159]:
+                          - text: (
+                          - time [ref=f1e160]: 11 Aug 2026 18:30:07 GMT+0
+                          - text: )
+                      - generic [ref=f1e161]:
+                        - text: •Edited
+                        - time [ref=f1e162]: 22 days ago
+              - listitem [ref=f1e163]:
+                - generic [ref=f1e164]:
+                  - img "Joel_NASA’s avatar" [ref=f1e166]
+                  - generic [ref=f1e167]:
+                    - generic [ref=f1e168]:
+                      - text: Joel_NASA
+                      - generic [ref=f1e169]: Customer
+                      - text: sent a message
+                    - paragraph [ref=f1e170]:
+                      - generic [ref=f1e171]:
+                        - time [ref=f1e173]: 22 days ago
+                        - generic [ref=f1e174]:
+                          - text: (
+                          - time [ref=f1e175]: 11 Aug 2026 15:32:34 GMT+0
+                          - text: )
+              - listitem [ref=f1e176]:
+                - generic [ref=f1e177]:
+                  - img "Joel_NASA’s avatar" [ref=f1e179]
+                  - generic [ref=f1e180]:
+                    - generic [ref=f1e181]:
+                      - text: Joel_NASA
+                      - generic [ref=f1e182]: Customer
+                      - text: changed the state to
+                      - generic [ref=f1e183]: Unresolved
+                    - paragraph [ref=f1e186]:
+                      - generic [ref=f1e187]:
+                        - time [ref=f1e189]: 22 days ago
+                        - generic [ref=f1e190]:
+                          - text: (
+                          - time [ref=f1e191]: 11 Aug 2026 15:32:11 GMT+0
+                          - text: )
+              - listitem [ref=f1e192]:
+                - generic [ref=f1e193]:
+                  - generic [ref=f1e194]:
+                    - img "lmz_bugcrowd’s avatar" [ref=f1e195]
+                    - img "bugcrowd logo" [ref=f1e196]
+                  - generic [ref=f1e197]:
+                    - generic [ref=f1e198]:
+                      - text: lmz_bugcrowd changed the state to
+                      - generic [ref=f1e199]: Triaged
+                    - paragraph [ref=f1e202]:
+                      - generic [ref=f1e203]:
+                        - time [ref=f1e205]: 26 days ago
+                        - generic [ref=f1e206]:
+                          - text: (
+                          - time [ref=f1e207]: 07 Aug 2026 15:44:01 GMT+0
+                          - text: )
+              - listitem [ref=f1e208]:
+                - generic [ref=f1e209]:
+                  - generic [ref=f1e210]:
+                    - img "lmz_bugcrowd’s avatar" [ref=f1e211]
+                    - img "bugcrowd logo" [ref=f1e212]
+                  - generic [ref=f1e213]:
+                    - generic [ref=f1e214]: lmz_bugcrowd sent a message
+                    - paragraph [ref=f1e215]:
+                      - generic [ref=f1e216]:
+                        - time [ref=f1e218]: 26 days ago
+                        - generic [ref=f1e219]:
+                          - text: (
+                          - time [ref=f1e220]: 07 Aug 2026 15:43:56 GMT+0
+                          - text: )
+              - listitem [ref=f1e221]:
+                - generic [ref=f1e222]:
+                  - img "radithyaputra’s avatar" [ref=f1e224]
+                  - generic [ref=f1e225]:
+                    - generic [ref=f1e226]: radithyaputra created the submission
+                    - paragraph [ref=f1e227]:
+                      - generic [ref=f1e228]:
+                        - time [ref=f1e230]: 26 days ago
+                        - generic [ref=f1e231]:
+                          - text: (
+                          - time [ref=f1e232]: 07 Aug 2026 03:50:55 GMT+0
+                          - text: )
+        - complementary [ref=f1e233]:
+          - generic [ref=f1e234]:
+            - generic [ref=f1e237]:
+              - img "radithyaputra's avatar" [ref=f1e239]
+              - strong [ref=f1e241]:
+                - link "radithyaputra" [ref=f1e242] [cursor=pointer]:
+                  - /url: /h/radithyaputra
+            - list [ref=f1e244]:
+              - listitem [ref=f1e245]:
+                - generic [ref=f1e246]: All-time points
+                - generic [ref=f1e247]: "0"
+              - listitem [ref=f1e248]:
+                - generic [ref=f1e249]: Accuracy
+                - generic [ref=f1e250]: 53.9%
+              - listitem [ref=f1e251]:
+                - generic [ref=f1e252]: Current rank
+                - generic [ref=f1e253]: 597192nd
+              - listitem [ref=f1e254]:
+                - generic [ref=f1e255]: Priority percentile
+                - generic [ref=f1e258]:
+                  - term [ref=f1e259]: Submission priority percentiles
+                  - definition [ref=f1e260]:
+                    - generic [ref=f1e261]: P1 - 50th
+                  - definition [ref=f1e262]:
+                    - generic [ref=f1e263]: P2 - 51st
+                  - definition [ref=f1e264]:
+                    - generic [ref=f1e265]: P3 - 0th
+                  - definition [ref=f1e266]:
+                    - generic [ref=f1e267]: P4 - 0th
+                  - definition [ref=f1e268]:
+                    - generic [ref=f1e269]: P5 - 75th
+  - contentinfo [ref=f1e273]:
+    - navigation "Footer navigation" [ref=f1e274]:
+      - list [ref=f1e275]:
+        - listitem [ref=f1e276]:
+          - link "Terms & Conditions" [ref=f1e277] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/terms-and-conditions/
+        - listitem [ref=f1e278]:
+          - link "Privacy Policy" [ref=f1e279] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/
+        - listitem [ref=f1e280]:
+          - link "Security" [ref=f1e281] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/solutions/security-companies
+        - listitem [ref=f1e282]:
+          - link "Do Not Sell My Information" [ref=f1e283] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/privacy/do-not-sell-my-information/
+      - list [ref=f1e284]:
+        - listitem [ref=f1e285]:
+          - link "Docs" [ref=f1e286] [cursor=pointer]:
+            - /url: https://docs.bugcrowd.com/researchers/onboarding/welcome
+        - listitem [ref=f1e287]:
+          - link "FAQ" [ref=f1e288] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/hackers/faqs/
+        - listitem [ref=f1e289]:
+          - link "Resources" [ref=f1e290] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/resources
+        - listitem [ref=f1e291]:
+          - link "Blog" [ref=f1e292] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/blog
+        - listitem [ref=f1e293]:
+          - link "Contact" [ref=f1e294] [cursor=pointer]:
+            - /url: https://www.bugcrowd.com/about/contact
+        - listitem [ref=f1e295]:
+          - link "Get Help" [ref=f1e296] [cursor=pointer]:
+            - /url: https://bugcrowd-support.freshdesk.com/support/login
+    - generic [ref=f1e297]:
+      - link [ref=f1e298] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd Logo" [ref=f1e300]
+      - generic [ref=f1e303]: Copyright © 2014 – 2026 Bugcrowd, Inc. All rights reserved.

@@ -1,0 +1,40 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Bugcrowd logo" [ref=e5] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd logo" [ref=e6]
+      - list [ref=e8]:
+        - listitem [ref=e9]
+        - listitem [ref=e11]
+  - main [ref=e13]:
+    - generic [ref=e15]:
+      - generic [ref=e403]:
+        - navigation "Breadcrumb navigation" [ref=e404]
+        - generic [ref=e409]
+        - list [ref=e429]
+        - list [ref=e440]
+        - separator [ref=e453]
+        - generic [ref=e454]
+      - generic [ref=e470]:
+        - navigation [ref=e471]
+        - tabpanel [ref=e485]
+  - contentinfo [ref=e371]:
+    - navigation "Footer navigation" [ref=e372]:
+      - list [ref=e373]:
+        - listitem [ref=e374]
+        - listitem [ref=e376]
+        - listitem [ref=e378]
+        - listitem [ref=e380]
+      - list [ref=e382]:
+        - listitem [ref=e383]
+        - listitem [ref=e385]
+        - listitem [ref=e387]
+        - listitem [ref=e389]
+        - listitem [ref=e391]
+        - listitem [ref=e393]
+    - generic [ref=e395]:
+      - link "Bugcrowd Logo" [ref=e396] [cursor=pointer]:
+        - /url: https://www.bugcrowd.com
+        - img "Bugcrowd Logo" [ref=e398]
+      - generic [ref=e401]: Copyright © 2014 – 2026 Bugcrowd, Inc. All rights reserved.
