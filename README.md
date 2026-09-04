@@ -3,8 +3,7 @@
 </p>
 
 <p align="center">
-  <b>AI-powered bug bounty hunting - recon to report, in your terminal.
-dev is cooking </b>
+  <b>AI-powered bug bounty hunting - recon to report, in your terminal. </b>
   
   <br> 
   <a href="#standalone-mode-no-subscription-required">Free Setup</a>
