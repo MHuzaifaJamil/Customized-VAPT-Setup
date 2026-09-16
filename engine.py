@@ -655,6 +655,16 @@ def cmd_status(args):
     print()
 
 
+def cmd_mcp(args):
+    """MCP serve / doctor / tools — delegates to mcp/bughunter-mcp/cli.py."""
+    mcp_dir = Path(__file__).resolve().parent / "mcp" / "bughunter-mcp"
+    if str(mcp_dir) not in sys.path:
+        sys.path.insert(0, str(mcp_dir))
+    from cli import main as mcp_main  # type: ignore
+    sub = getattr(args, "mcp_command", "serve") or "serve"
+    raise SystemExit(mcp_main([sub]))
+
+
 # ── Utility ────────────────────────────────────────────────────────────────────
 
 def _read_stdin_or_prompt(prompt_text: str) -> str:
@@ -764,6 +774,15 @@ def main():
     p_chain.add_argument("--findings-dir", default="", help="Path to findings/<target> directory")
     p_chain.add_argument("finding", nargs="?", default="", help="Bug A description (or pipe via stdin)")
 
+    p_mcp = sub.add_parser("mcp", help="MCP server / doctor / tool catalog")
+    p_mcp.add_argument(
+        "mcp_command",
+        nargs="?",
+        default="serve",
+        choices=["serve", "doctor", "tools"],
+        help="serve (stdio MCP), doctor, or tools",
+    )
+
     args = parser.parse_args(argv)
 
     # Apply provider override
@@ -780,7 +799,7 @@ def main():
         if not os.environ.get(env_var) and cfg.get(env_var):
             os.environ[env_var] = cfg[env_var]
 
-    quiet_cmds = {"status", "providers", "models", None}
+    quiet_cmds = {"status", "providers", "models", "mcp", None}
     if not getattr(args, "no_banner", False) and args.command not in quiet_cmds:
         _print_banner()
 
@@ -796,6 +815,7 @@ def main():
         "chain":     cmd_chain,
         "chat":      cmd_chat,
         "status":    cmd_status,
+        "mcp":       cmd_mcp,
     }
 
     if not args.command:
