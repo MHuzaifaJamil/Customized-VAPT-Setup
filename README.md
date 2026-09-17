@@ -246,6 +246,24 @@ Verify /recon /hunt /validate /report are available.
 
 ---
 
+## MCP
+
+Use Agentic-Bug-Hunter from AI agents (Cursor, Claude Code, Codex, OpenCode).
+
+```text
+AI Agent → Agentic-Bug-Hunter MCP → Scope → Recon → Hunt → Validate → Report
+```
+
+```bash
+pip install 'mcp>=1.28'
+./install.sh --agent mcp
+bughunter mcp doctor
+bughunter mcp serve
+```
+
+MCP is an adapter over the existing research engine — not a second scanner. Active tools require scope and explicit approval. See [docs/mcp.md](docs/mcp.md).
+
+---
 
 ## Commands
 
@@ -440,7 +458,7 @@ Agentic-Bug-Hunter/
 ├── rules/                     # Always-active hunting + reporting rules
 ├── tests/                     # Regression test suite (pytest)
 ├── web3/                      # 13-chapter smart contract audit guide
-├── mcp/                       # MCP integrations - Burp Suite · Caido · HackerOne API
+├── mcp/                       # MCP — native BugHunter server + Burp · Caido · HackerOne
 ├── wordlists/                 # Curated wordlists + SecLists / PayloadsAllTheThings refs
 ├── scripts/                   # Dork runner · full hunt pipeline
 ├── hooks/                     # Claude Code hook configuration
