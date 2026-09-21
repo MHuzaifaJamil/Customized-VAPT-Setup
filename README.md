@@ -34,8 +34,6 @@
 
 <p align="center">
   <a href="https://trendshift.io/repositories/23808?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-23808" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/23808" alt="Awarexone%2FAgentic-Bug-Hunter | Trendshift" width="250" height="55"/></a>
-  &nbsp;
-  <a href="https://www.producthunt.com/products/agentic-bug-hunter?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-agentic-bug-hunter" target="_blank" rel="noopener noreferrer"><img alt="Agentic Bug Hunter - Open source AI bug bounty toolkit free or subscription based | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1241444&amp;theme=dark&amp;t=1788539612337"></a>
 </p>
 
 <p align="center">
@@ -44,16 +42,20 @@
 
 <p align="center">
   <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">
-    <img src="assets/fluxion-partner-banner.jpg" alt="Fluxion AI — one gateway to leading AI models. Partner offer for AwareXone / BugHunter." width="100%"/>
+    <img src="assets/fluxion-partner-banner.jpg" alt="Fluxion AI — One gateway to the world's leading AI models" width="720"/>
   </a>
 </p>
 
 <p align="center">
-  <b>Partner: <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">Fluxion AI</a></b>
-  — unified model access for BugHunter standalone mode
+  <b>One gateway to the world's leading AI models</b><br/>
+  <sub>AI model access &amp; operations · partner for BugHunter standalone mode</sub>
+</p>
+
+<p align="center">
+  <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE"><b>Register with partner link →</b></a>
+  · promo <code>AWAREXONE</code>
   · <a href="https://docs.fluxionai.world/user-guide/help-center">Docs</a>
   · <a href="https://fluxionai.world/model-plaza">Model Plaza</a>
-  · <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">Register (tracked)</a>
 </p>
 
 ---
