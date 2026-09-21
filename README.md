@@ -631,9 +631,15 @@ If BugHunter helps your hunts, you can fuel more of them — every contribution 
 
 ### Sponsorship
 
+<p align="center">
+  <a href="https://github.com/sponsors/awarexone">
+    <img src="https://img.shields.io/badge/Sponsor_AwareXone-ea4aaa?style=for-the-badge&logo=github&logoColor=white" alt="Sponsor awarexone on GitHub"/>
+  </a>
+</p>
+
 We're open to sponsors. Sponsoring funds new features and keeps the standalone mode free for everyone, and gets your logo and a link right here in the README, plus a credit in every release.
 
-Want to sponsor? Reach out at [AwareXone.com](https://awarexone.com) or [b2b@awarexone.com](mailto:b2b@awarexone.com).
+Want to sponsor? Use [GitHub Sponsors](https://github.com/sponsors/awarexone), or reach out at [AwareXone.com](https://awarexone.com) / [b2b@awarexone.com](mailto:b2b@awarexone.com).
 
 ### AwareXone
 
