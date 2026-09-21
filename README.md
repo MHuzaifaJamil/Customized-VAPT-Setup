@@ -41,18 +41,9 @@
 </p>
 
 <p align="center">
-  <b>Social account hacked, locked, or disabled?</b><br/>
-  <sub>AwareXone runs human-led social media recovery through legitimate channels. Private case review. Reply within five hours. No passwords or OTP. Best-effort — platforms decide.</sub>
-</p>
-
-<p align="center">
-  <a href="https://www.awarexone.com/all-types-of-social-media-problem-solutions#case-review"><b>Apply for Case Review →</b></a>
-  ·
-  <a href="https://wa.me/601137634679">WhatsApp</a>
-  ·
-  <a href="mailto:support@awarexone.com">support@awarexone.com</a>
-  ·
-  <a href="mailto:hello@awarexone.com">hello@awarexone.com</a>
+  <a href="https://www.awarexone.com/all-types-of-social-media-problem-solutions#case-review">
+    <img src="assets/apply-case-review-btn.png" alt="Apply for Case Review" height="48"/>
+  </a>
 </p>
 
 <p align="center">
