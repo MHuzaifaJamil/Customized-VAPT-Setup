@@ -41,6 +41,11 @@
 </p>
 
 <p align="center">
+  <b>Social account hacked, locked, or disabled?</b><br/>
+  <sub>Human-led recovery through legitimate channels. Private case review · reply within five hours · no passwords or OTP.</sub>
+</p>
+
+<p align="center">
   <a href="https://www.awarexone.com/all-types-of-social-media-problem-solutions#case-review">
     <img src="assets/apply-case-review-btn.png" alt="Apply for Case Review" height="48"/>
   </a>
