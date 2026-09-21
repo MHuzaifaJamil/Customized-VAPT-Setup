@@ -5,12 +5,12 @@ from __future__ import annotations
 Brain — Multi-Provider LLM Reasoning Layer for Bug Bounty & VAPT
 Supports: Ollama (local), Claude, OpenAI, Grok, Groq, DeepSeek,
           Gemini, Kimi (Moonshot), Mistral, Together AI, Cerebras, Perplexity,
-          OpenRouter, OrcaRouter
+          OpenRouter, OrcaRouter, Fluxion
 
 Provider selection (in order of precedence):
   1. BRAIN_PROVIDER env var  (ollama | claude | openai | grok | groq | deepseek |
                                gemini | kimi | mistral | together | cerebras |
-                               perplexity | openrouter | orcarouter)
+                               perplexity | openrouter | orcarouter | fluxion)
   2. Auto-detect: uses first provider whose API key / server is available
 
 Model selection:
@@ -33,6 +33,7 @@ API keys (env vars):
   PERPLEXITY_API_KEY  — Perplexity (sonar-pro — live web search)
   OPENROUTER_API_KEY  — OpenRouter (multi-model gateway — anthropic/claude-sonnet-4.6, etc.)
   ORCAROUTER_API_KEY  — OrcaRouter (multi-model gateway — openai/gpt-4o, orcarouter/auto, etc.)
+  FLUXION_API_KEY     — Fluxion (multi-model gateway — https://fluxionai.world/v1)
   OLLAMA_HOST         — Ollama base URL (default: http://localhost:11434)
 
 Default model priority (uses first available):
@@ -181,7 +182,8 @@ class LLMClient:
     PROVIDER_PRIORITY = [
         "ollama", "groq", "deepseek", "cerebras",
         "gemini", "kimi", "mistral", "together",
-        "perplexity", "orcarouter", "openrouter", "claude", "openai", "grok",
+        "perplexity", "orcarouter", "openrouter", "fluxion",
+        "claude", "openai", "grok",
     ]
 
     # Default models per provider
@@ -199,6 +201,7 @@ class LLMClient:
         "perplexity":  "sonar-pro",
         "openrouter":  "anthropic/claude-sonnet-4.6",
         "orcarouter":  "openai/gpt-4o",
+        "fluxion":     "openai/gpt-4o",
         "litellm":     "gpt-4o",
         "ollama":      None,  # resolved dynamically
     }
@@ -247,6 +250,7 @@ class LLMClient:
         "perplexity":  "PERPLEXITY_API_KEY",
         "openrouter":  "OPENROUTER_API_KEY",
         "orcarouter":  "ORCAROUTER_API_KEY",
+        "fluxion":     "FLUXION_API_KEY",
         # Kept last so auto-detect only reaches LiteLLM when LITELLM_API_KEY is
         # set, and never preempts a directly-configured provider above.
         "litellm":     "LITELLM_API_KEY",
@@ -461,6 +465,22 @@ class LLMClient:
             self.available   = True
             self.description = "OrcaRouter (multi-model gateway)"
 
+        elif provider == "fluxion":
+            key = os.environ.get("FLUXION_API_KEY", "")
+            if not key:
+                return
+            import requests
+            self._http = requests.Session()
+            self._http.headers.update({
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://github.com/Awarexone/Agentic-Bug-Hunter",
+                "X-Title": "BugHunter",
+            })
+            self._api_base   = "https://fluxionai.world/v1"
+            self.available   = True
+            self.description = "Fluxion (multi-model gateway)"
+
         elif provider == "litellm":
             # LiteLLM routes by the model-name prefix (e.g. "anthropic/claude-...",
             # "gemini/gemini-...", "bedrock/...") and reads each target provider's
@@ -492,7 +512,7 @@ class LLMClient:
             elif self.provider in (
                 "openai", "grok", "groq", "deepseek",
                 "gemini", "kimi", "mistral", "together", "cerebras", "perplexity",
-                "openrouter", "orcarouter",
+                "openrouter", "orcarouter", "fluxion",
             ):
                 return self._chat_openai_compat(model, system, user, max_tokens, temperature)
         except Exception as e:
@@ -650,6 +670,15 @@ class LLMClient:
                 "grok/grok-4.3",
                 "deepseek/deepseek-v4-pro",
                 "qwen/qwen3.7-max",
+            ]
+        elif self.provider == "fluxion":
+            # Curated starter set — full catalog: https://fluxionai.world/model-plaza
+            return [
+                "openai/gpt-4o",
+                "openai/gpt-4o-mini",
+                "anthropic/claude-sonnet-4.6",
+                "google/gemini-2.0-flash-001",
+                "deepseek/deepseek-v4-flash",
             ]
         elif self.provider == "litellm":
             return self._litellm_list_models()

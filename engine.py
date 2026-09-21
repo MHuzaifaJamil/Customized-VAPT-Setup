@@ -18,6 +18,9 @@ Providers (auto-detected, first available wins):
                     get key: https://openrouter.ai/keys
          orcarouter — multi-model gateway, set ORCAROUTER_API_KEY
                     get key: https://www.orcarouter.ai
+         fluxion    — multi-model gateway, set FLUXION_API_KEY
+                    get key: https://fluxionai.world
+                    docs: https://docs.fluxionai.world/user-guide/help-center
          litellm    — 100+ provider gateway (SDK), routes by "provider/model"
                     prefix using each provider's own key; or set
                     LITELLM_API_KEY/LITELLM_API_BASE for a LiteLLM proxy
@@ -228,15 +231,16 @@ def cmd_setup(args):
     header("BugHunter Setup")
 
     providers = {
-        "1": ("ollama",     "Ollama     (local, FREE)       — needs ollama running locally"),
-        "2": ("groq",       "Groq       (cloud, FREE tier)  — needs GROQ_API_KEY"),
-        "3": ("deepseek",   "DeepSeek   (cloud, very cheap)— needs DEEPSEEK_API_KEY"),
-        "4": ("claude",     "Claude     (paid)              — needs ANTHROPIC_API_KEY"),
-        "5": ("openai",     "OpenAI     (paid)              — needs OPENAI_API_KEY"),
-        "6": ("grok",       "Grok/xAI   (paid)              — needs XAI_API_KEY"),
-        "7": ("openrouter", "OpenRouter (multi-model)       — needs OPENROUTER_API_KEY"),
-        "8": ("orcarouter", "OrcaRouter (multi-model)       — needs ORCAROUTER_API_KEY"),
-        "9": ("litellm",    "LiteLLM    (100+ providers)    — uses per-provider keys or LITELLM_API_KEY"),
+        "1":  ("ollama",     "Ollama     (local, FREE)       — needs ollama running locally"),
+        "2":  ("groq",       "Groq       (cloud, FREE tier)  — needs GROQ_API_KEY"),
+        "3":  ("deepseek",   "DeepSeek   (cloud, very cheap)— needs DEEPSEEK_API_KEY"),
+        "4":  ("claude",     "Claude     (paid)              — needs ANTHROPIC_API_KEY"),
+        "5":  ("openai",     "OpenAI     (paid)              — needs OPENAI_API_KEY"),
+        "6":  ("grok",       "Grok/xAI   (paid)              — needs XAI_API_KEY"),
+        "7":  ("openrouter", "OpenRouter (multi-model)       — needs OPENROUTER_API_KEY"),
+        "8":  ("orcarouter", "OrcaRouter (multi-model)       — needs ORCAROUTER_API_KEY"),
+        "9":  ("fluxion",    "Fluxion    (multi-model)       — needs FLUXION_API_KEY"),
+        "10": ("litellm",    "LiteLLM    (100+ providers)    — uses per-provider keys or LITELLM_API_KEY"),
     }
 
     requested_provider = (
@@ -271,6 +275,7 @@ def cmd_setup(args):
         "grok":       "XAI_API_KEY",
         "openrouter": "OPENROUTER_API_KEY",
         "orcarouter": "ORCAROUTER_API_KEY",
+        "fluxion":    "FLUXION_API_KEY",
     }
 
     if provider in env_map:
@@ -372,6 +377,7 @@ def cmd_providers(args):
         "grok":       "XAI_API_KEY",
         "openrouter": "OPENROUTER_API_KEY",
         "orcarouter": "ORCAROUTER_API_KEY",
+        "fluxion":    "FLUXION_API_KEY",
     }
     tier = {
         "ollama": "FREE (local)", "groq": "FREE tier",
@@ -379,6 +385,7 @@ def cmd_providers(args):
         "openai": "paid",         "grok": "paid",
         "openrouter": "subscription",
         "orcarouter": "subscription",
+        "fluxion": "subscription",
     }
 
     print(f"\n  {'PROVIDER':<12} {'TIER':<16} {'STATUS':<20} {'NOTE'}")
@@ -733,7 +740,7 @@ def main():
         """),
     )
     parser.add_argument("--provider", "-p",
-                        help="Force provider: ollama / groq / deepseek / claude / openai / grok / openrouter / orcarouter")
+                        help="Force provider: ollama / groq / deepseek / claude / openai / grok / openrouter / orcarouter / fluxion / litellm")
     parser.add_argument("--model", "-m", help="Force model for this invocation (for example qwen3:14b)")
     parser.add_argument("--no-banner", action="store_true", help="Suppress banner")
 
@@ -742,7 +749,8 @@ def main():
     p_setup = sub.add_parser("setup", aliases=["init"], help="Configure and persist provider/model")
     p_setup.add_argument(
         "--provider", dest="setup_provider",
-        choices=["ollama", "groq", "deepseek", "claude", "openai", "grok", "openrouter", "orcarouter"],
+        choices=["ollama", "groq", "deepseek", "claude", "openai", "grok",
+                 "openrouter", "orcarouter", "fluxion", "litellm"],
         help="Provider to persist (skips the provider prompt)",
     )
     p_setup.add_argument(
@@ -795,7 +803,7 @@ def main():
     cfg = load_config()
     for env_var in ("GROQ_API_KEY", "DEEPSEEK_API_KEY", "ANTHROPIC_API_KEY",
                     "OPENAI_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY",
-                    "ORCAROUTER_API_KEY"):
+                    "ORCAROUTER_API_KEY", "FLUXION_API_KEY"):
         if not os.environ.get(env_var) and cfg.get(env_var):
             os.environ[env_var] = cfg[env_var]
 

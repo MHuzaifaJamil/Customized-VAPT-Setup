@@ -42,6 +42,20 @@
   Built and maintained by <b>AwareXone</b> · <a href="https://awarexone.com">Website</a> · <a href="https://x.com/awarexone">X</a> · <a href="https://github.com/Awarexone">GitHub</a>
 </p>
 
+<p align="center">
+  <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">
+    <img src="assets/fluxion-partner-banner.jpg" alt="Fluxion AI — one gateway to leading AI models. Partner offer for AwareXone / BugHunter." width="100%"/>
+  </a>
+</p>
+
+<p align="center">
+  <b>Partner: <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">Fluxion AI</a></b>
+  — unified model access for BugHunter standalone mode
+  · <a href="https://docs.fluxionai.world/user-guide/help-center">Docs</a>
+  · <a href="https://fluxionai.world/model-plaza">Model Plaza</a>
+  · <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">Register (tracked)</a>
+</p>
+
 ---
 
 ## Trusted By Engineers At
@@ -157,9 +171,10 @@ bughunter v "finding"        # short alias for validate
 | **Grok (xAI)** | Paid | Cloud | Fast | [console.x.ai](https://console.x.ai) → `grok-4.5` |
 | **OpenRouter** | Subscription / pay-as-you-go | Cloud | Fast | [openrouter.ai/keys](https://openrouter.ai/keys) → get API key |
 | **OrcaRouter** | Subscription / pay-as-you-go | Cloud | Fast | [orcarouter.ai](https://www.orcarouter.ai) → get API key |
+| **Fluxion** | Subscription / pay-as-you-go | Cloud | Fast | [fluxionai.world](https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE) → get API key · [docs](https://docs.fluxionai.world/user-guide/help-center) · [Model Plaza](https://fluxionai.world/model-plaza) |
 | **LiteLLM** | Uses your existing provider keys | Cloud / self-hosted proxy | Fast | [docs.litellm.ai](https://docs.litellm.ai) → one gateway for 100+ models |
 
-BugHunter auto-detects providers in this order: **Ollama → Groq → DeepSeek → … → OrcaRouter → OpenRouter → Claude → OpenAI**. LiteLLM is opt-in (selected explicitly or when `LITELLM_API_KEY` is set) so it never preempts a provider you already configured.
+BugHunter auto-detects providers in this order: **Ollama → Groq → DeepSeek → … → OrcaRouter → OpenRouter → Fluxion → Claude → OpenAI**. LiteLLM is opt-in (selected explicitly or when `LITELLM_API_KEY` is set) so it never preempts a provider you already configured.
 
 Switch providers or choose an installed Ollama model anytime: `bughunter setup`.
 The setup can also be fully non-interactive:
@@ -198,6 +213,25 @@ export GROQ_API_KEY="your-key-here"     # free at console.groq.com
 ./install.sh --agent standalone
 bughunter setup       # choose Groq
 bughunter hunt target.com
+```
+
+### Fluxion setup (multi-model gateway)
+
+Fluxion is an optional OpenAI-compatible gateway (`https://fluxionai.world/v1`). It is **not** the default provider — pick it in `bughunter setup`, or set `BRAIN_PROVIDER=fluxion` when you want it.
+
+```bash
+# 1. Register (AwareXone partner link) and create an API key
+#    https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE
+#    Docs: https://docs.fluxionai.world/user-guide/help-center
+#    Models: https://fluxionai.world/model-plaza
+
+export FLUXION_API_KEY="your-key-here"
+./install.sh --agent standalone
+bughunter setup --provider fluxion --model openai/gpt-4o
+bughunter hunt target.com
+
+# Or one-off:
+bughunter --provider fluxion --model openai/gpt-4o hunt target.com
 ```
 
 ---
@@ -640,6 +674,8 @@ If BugHunter helps your hunts, you can fuel more of them — every contribution 
 We're open to sponsors. Sponsoring funds new features and keeps the standalone mode free for everyone, and gets your logo and a link right here in the README, plus a credit in every release.
 
 Want to sponsor? Use [GitHub Sponsors](https://github.com/sponsors/awarexone), or reach out at [AwareXone.com](https://awarexone.com) / [b2b@awarexone.com](mailto:b2b@awarexone.com).
+
+AI model access partner: **[Fluxion AI](https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE)** — [docs](https://docs.fluxionai.world/user-guide/help-center) · [Model Plaza](https://fluxionai.world/model-plaza).
 
 ### AwareXone
 
