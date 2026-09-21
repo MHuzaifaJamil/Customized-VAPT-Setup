@@ -623,12 +623,6 @@ If BugHunter helps your hunts, you can fuel more of them — every contribution 
 | **Bitcoin (BTC)** | `1GXwGqmLcnbZWgVNskUAZyw2cmqenkUFNY` |
 | **Solana (SOL)** | `4ArkPu1E7tkrt3d5X84grWzF1xjuLpScgGEy12Bp2cmE` |
 
-<p align="center">
-  <a href="https://www.buymeacoffee.com/shuvonsec">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50"/>
-  </a>
-</p>
-
 ### Sponsorship
 
 <p align="center">
