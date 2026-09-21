@@ -41,8 +41,7 @@
 </p>
 
 <p align="center">
-  <b>Social account hacked, locked, or disabled?</b><br/>
-  <sub>Human-led recovery through legitimate channels. Private case review · reply within five hours · no passwords or OTP.</sub>
+  <sub>SocialSafe by AwareXone provides case review and assistance for hacked, disabled, locked, restricted, and inaccessible social media accounts in Malaysia and worldwide by remote review. Assistance is best-effort, and final decisions remain with the platform.</sub>
 </p>
 
 <p align="center">
