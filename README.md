@@ -42,16 +42,20 @@
 
 <p align="center">
   <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">
-    <img src="assets/fluxion-partner-banner.jpg" alt="Fluxion AI — one gateway to leading AI models. Partner offer for AwareXone / BugHunter." width="100%"/>
+    <img src="assets/fluxion-partner-banner.jpg" alt="Fluxion AI — One gateway to the world's leading AI models" width="720"/>
   </a>
 </p>
 
 <p align="center">
-  <b>Partner: <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">Fluxion AI</a></b>
-  — unified model access for BugHunter standalone mode
+  <b>One gateway to the world's leading AI models</b><br/>
+  <sub>AI model access &amp; operations · partner for BugHunter standalone mode</sub>
+</p>
+
+<p align="center">
+  <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE"><b>Register with partner link →</b></a>
+  · promo <code>AWAREXONE</code>
   · <a href="https://docs.fluxionai.world/user-guide/help-center">Docs</a>
   · <a href="https://fluxionai.world/model-plaza">Model Plaza</a>
-  · <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">Register (tracked)</a>
 </p>
 
 ---
