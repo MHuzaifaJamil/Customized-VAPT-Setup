@@ -41,7 +41,7 @@
 </p>
 
 <p align="center">
-  <sub>SocialSafe by AwareXone provides case review and assistance for hacked, disabled, locked, restricted, and inaccessible social media accounts in Malaysia and worldwide by remote review. Assistance is best-effort, and final decisions remain with the platform.</sub>
+  <img src="assets/socialsafe-blurb.png" alt="SocialSafe by AwareXone provides case review and assistance for hacked, disabled, locked, restricted, and inaccessible social media accounts in Malaysia and worldwide by remote review. Assistance is best-effort, and final decisions remain with the platform." width="720"/>
 </p>
 
 <p align="center">
