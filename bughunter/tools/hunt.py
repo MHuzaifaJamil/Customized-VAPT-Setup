@@ -86,10 +86,21 @@ def expand_cidr(cidr: str, max_hosts: int = MAX_CIDR_HOSTS) -> list[str]:
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(TOOLS_DIR)
-TARGETS_DIR = os.path.join(BASE_DIR, "targets")
-RECON_DIR = os.path.join(BASE_DIR, "recon")
-FINDINGS_DIR = os.path.join(BASE_DIR, "findings")
-REPORTS_DIR = os.path.join(BASE_DIR, "reports")
+# Writable output honors BUGHUNTER_HOME (falls back to the install dir when it is
+# writable — a git clone — else ~/.bughunter for a read-only pip install).
+def _bh_home():
+    env = os.environ.get("BUGHUNTER_HOME")
+    if env:
+        return os.path.expanduser(env)
+    if os.access(BASE_DIR, os.W_OK):
+        return BASE_DIR
+    return os.path.join(os.path.expanduser("~"), ".bughunter")
+_DATA_HOME = _bh_home()
+TARGETS_DIR = os.path.join(_DATA_HOME, "targets")
+RECON_DIR = os.path.join(_DATA_HOME, "recon")
+FINDINGS_DIR = os.path.join(_DATA_HOME, "findings")
+REPORTS_DIR = os.path.join(_DATA_HOME, "reports")
+# Wordlists are read-only data shipped with the package, always package-relative.
 WORDLIST_DIR = os.path.join(BASE_DIR, "wordlists")
 
 

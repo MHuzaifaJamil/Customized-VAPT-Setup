@@ -55,9 +55,23 @@ from pathlib import Path
 HERE     = Path(__file__).resolve().parent  # resolve symlink first so /usr/local/bin/bughunter -> repo dir
 AGENTS   = HERE / "agents"
 TOOLS    = HERE / "tools"
-RECON    = HERE / "recon"
-FINDINGS = HERE / "findings"
-REPORTS  = HERE / "reports"
+# Writable output goes under a user data home, not the install dir, so the tool
+# works whether it runs from a git clone or a read-only pip install.
+# Override with BUGHUNTER_HOME; defaults to the clone dir if it is writable
+# (preserves legacy layout), else ~/.bughunter.
+def _data_home():
+    import os
+    env = os.environ.get("BUGHUNTER_HOME")
+    if env:
+        return Path(env).expanduser()
+    if os.access(HERE, os.W_OK):
+        return HERE
+    return Path.home() / ".bughunter"
+
+DATA_HOME = _data_home()
+RECON    = DATA_HOME / "recon"
+FINDINGS = DATA_HOME / "findings"
+REPORTS  = DATA_HOME / "reports"
 CONFIG   = Path.home() / ".bughunter" / "config.json"
 
 # ── Colors ─────────────────────────────────────────────────────────────────────

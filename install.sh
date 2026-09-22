@@ -239,7 +239,7 @@ install_standalone() {
     local repo_dir engine existing_cmd bin_dir target action
     local -a install_cmd
     repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    engine="$repo_dir/engine.py"
+    engine="$repo_dir/bughunter/engine.py"
 
     # Make engine.py executable
     chmod +x "$engine"
@@ -347,7 +347,7 @@ install_mcp() {
     echo "════════════════════════════════════════════════════"
     echo ""
     echo "Server entry:"
-    echo "  python3 mcp/bughunter-mcp/server.py"
+    echo "  python3 bughunter/mcp/bughunter-mcp/server.py"
     echo "  # or: bughunter mcp serve   (after standalone install)"
     echo ""
     echo "Doctor / tool catalog:"
@@ -357,8 +357,8 @@ install_mcp() {
     echo "Python SDK:"
     echo "  pip install 'mcp>=1.28'"
     echo ""
-    echo "Claude Code — merge mcp/bughunter-mcp/claude-config.json into ~/.claude/settings.json mcpServers"
-    echo "OpenCode   — merge mcp/bughunter-mcp/opencode-config.json into opencode mcp config"
+    echo "Claude Code — merge bughunter/mcp/bughunter-mcp/claude-config.json into ~/.claude/settings.json mcpServers"
+    echo "OpenCode   — merge bughunter/mcp/bughunter-mcp/opencode-config.json into opencode mcp config"
     echo ""
     echo "Active tools require scope_domains + approve=true (or BBHUNT_MCP_APPROVE=1)."
     echo "Existing Burp / Caido / HackerOne integrations are unchanged."

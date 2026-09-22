@@ -1389,7 +1389,10 @@ Keep it under 80 words total."""
         priority_json  = self._read_file_sample(str(recon_path / "priority/prioritized_hosts.json"), 3000)
         attack_surface = self._read_file_sample(str(recon_path / "priority/attack_surface.md"), 2500)
         openapi_summary = self._read_file_sample(str(recon_path / "api_specs/summary.md"), 2000)
-        repo_root = Path(__file__).resolve().parent
+        import os as _os
+        _env = _os.environ.get("BUGHUNTER_HOME")
+        _clone = Path(__file__).resolve().parent
+        repo_root = Path(_env).expanduser() if _env else (_clone if _os.access(_clone, _os.W_OK) else Path.home() / ".bughunter")
         session_session_path = repo_root / "targets" / target / "autonomous_session.json"
         if session_id:
             session_session_path = repo_root / "targets" / target / "sessions" / session_id / "autonomous_session.json"
