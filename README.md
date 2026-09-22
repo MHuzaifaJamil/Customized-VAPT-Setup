@@ -72,6 +72,31 @@
 
 ---
 
+## Get started (30 seconds)
+
+```bash
+uv tool install agentic-bug-hunter   # install the CLI (or: pipx install agentic-bug-hunter)
+bughunter setup                      # connect a free AI provider
+```
+
+Then hunt — straight from your terminal:
+
+```bash
+bughunter hunt target.com            # recon → find → validate → report
+```
+
+…or drive it from inside Claude Code:
+
+```text
+/hunt target.com
+```
+
+<sub>The CLI and AI hunting work on their own. Full recon also uses external tools
+(subfinder · httpx · nuclei · katana · ffuf · nmap) — install them with
+<code>install_tools.sh</code> from the repo. Output lands in <code>~/.bughunter/</code>.</sub>
+
+---
+
 ## Trusted By Engineers At
 
 <p align="center"><i>Where this project's stargazers say they work.</i></p>
