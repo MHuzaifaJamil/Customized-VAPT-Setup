@@ -10,16 +10,19 @@ Provides three tools:
 This is a lightweight wrapper around HackerOne's public GraphQL API.
 Authenticated endpoints (submit_report, private scope) are deferred.
 
-Usage (standalone test):
+Usage (standalone CLI test — takes a subcommand):
     python3 mcp/hackerone-mcp/server.py search "ssrf" --limit 5
     python3 mcp/hackerone-mcp/server.py stats "example-corp"
     python3 mcp/hackerone-mcp/server.py policy "example-corp"
 
-MCP integration:
-    Add to .claude/settings.json mcpServers — see config.json.
+MCP integration (no arguments — reads JSON-RPC 2.0 over stdin/stdout):
+    Add to .claude/settings.json mcpServers — see config.json. Claude Code
+    invokes this script with no args, which starts the MCP stdio server
+    loop (run_mcp_server()) instead of the CLI dispatcher.
 """
 
 import json
+import os
 import ssl
 import sys
 import urllib.request
@@ -27,19 +30,24 @@ import urllib.error
 import urllib.parse
 from datetime import datetime, timezone
 
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _REPO not in sys.path:
+    sys.path.insert(0, _REPO)
+from tools.safe_http import safe_urlopen  # noqa: E402
+
 
 # ─── SSL context ─────────────────────────────────────────────────────────────
+# Prefer certifi's CA bundle when available; otherwise fall back to the
+# system CA store via ssl.create_default_context(), which is already a
+# verifying context. Never disable verification (see
+# SECURITY-REVIEW-2026-08-22.md finding #9) — that fallback used to
+# disable verification outright, silently exposing every request to MITM
+# on any stock install, since certifi is not a declared dependency.
 _SSL_CTX = ssl.create_default_context()
 try:
     import certifi
     _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 except ImportError:
-    # certifi isn't installed — fall back to the system CA store via
-    # ssl.create_default_context(), which is already a verifying context.
-    # Never disable verification: see SECURITY-REVIEW-2026-08-22.md
-    # finding #9 — this fallback used to disable verification outright,
-    # silently exposing every request to MITM on any stock install, since
-    # certifi is not a declared dependency.
     _SSL_CTX = ssl.create_default_context()
 
 H1_GRAPHQL = "https://hackerone.com/graphql"
@@ -75,7 +83,7 @@ def _graphql_request(query: str, timeout: int = DEFAULT_TIMEOUT) -> dict:
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=_SSL_CTX) as resp:
+        with safe_urlopen(req, timeout=timeout, context=_SSL_CTX) as resp:
             body = resp.read().decode("utf-8", errors="replace")
             data = json.loads(body)
             if "errors" in data:
@@ -277,7 +285,153 @@ def get_program_policy(program: str) -> dict:
     }
 
 
-# ─── CLI interface ───────────────────────────────────────────────────────────
+# ─── MCP stdio server ────────────────────────────────────────────────────────
+# Minimal JSON-RPC 2.0 server over stdin/stdout, per the MCP stdio transport
+# spec: one JSON object per line in, one JSON object per line out. No
+# Content-Length framing (that's LSP, not MCP).
+
+MCP_PROTOCOL_VERSION = "2024-11-05"
+
+_TOOL_DEFS = [
+    {
+        "name": "search_disclosed_reports",
+        "description": (
+            "Search HackerOne Hacktivity for disclosed vulnerability reports "
+            "by keyword and/or program handle."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "keyword": {"type": "string", "description": "Search term (vuln type, tech, etc.)"},
+                "program": {"type": "string", "description": "HackerOne program handle (e.g. 'shopify')"},
+                "limit": {"type": "integer", "description": "Max results (1-25)", "default": 10},
+            },
+        },
+    },
+    {
+        "name": "get_program_stats",
+        "description": (
+            "Get public statistics for a HackerOne program — bounty ranges, "
+            "response times, resolved report counts."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "program": {"type": "string", "description": "HackerOne program handle (e.g. 'shopify')"},
+            },
+            "required": ["program"],
+        },
+    },
+    {
+        "name": "get_program_policy",
+        "description": (
+            "Get the public policy for a HackerOne program — safe harbor "
+            "status, response SLAs, in-scope assets, excluded vuln classes."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "program": {"type": "string", "description": "HackerOne program handle (e.g. 'shopify')"},
+            },
+            "required": ["program"],
+        },
+    },
+]
+
+_TOOL_FUNCS = {
+    "search_disclosed_reports": lambda a: search_disclosed_reports(
+        keyword=a.get("keyword", ""),
+        program=a.get("program", ""),
+        limit=int(a.get("limit", 10)),
+    ),
+    "get_program_stats": lambda a: get_program_stats(a.get("program", "")),
+    "get_program_policy": lambda a: get_program_policy(a.get("program", "")),
+}
+
+
+def _mcp_write(obj: dict) -> None:
+    sys.stdout.write(json.dumps(obj) + "\n")
+    sys.stdout.flush()
+
+
+def _mcp_result(msg_id, result) -> None:
+    _mcp_write({"jsonrpc": "2.0", "id": msg_id, "result": result})
+
+
+def _mcp_error(msg_id, code: int, message: str) -> None:
+    _mcp_write({"jsonrpc": "2.0", "id": msg_id, "error": {"code": code, "message": message}})
+
+
+def _mcp_tool_error(msg_id, message: str) -> None:
+    # Tool-execution failures are reported as a normal result with
+    # isError: true, per the MCP spec — NOT a JSON-RPC protocol error.
+    # A JSON-RPC error means "the request itself was malformed"; a failed
+    # HackerOne lookup is a valid request that just didn't succeed.
+    _mcp_result(msg_id, {
+        "content": [{"type": "text", "text": json.dumps({"error": message})}],
+        "isError": True,
+    })
+
+
+def run_mcp_server() -> None:
+    """Read JSON-RPC 2.0 requests from stdin, one per line, until EOF."""
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            msg = json.loads(line)
+        except json.JSONDecodeError:
+            continue  # can't reply without a valid id — drop malformed input
+
+        method = msg.get("method")
+        msg_id = msg.get("id")
+
+        if method == "initialize":
+            _mcp_result(msg_id, {
+                "protocolVersion": MCP_PROTOCOL_VERSION,
+                "capabilities": {"tools": {}},
+                "serverInfo": {"name": "hackerone", "version": "1.0.0"},
+            })
+
+        elif method == "notifications/initialized":
+            pass  # notification — no response expected
+
+        elif method == "tools/list":
+            _mcp_result(msg_id, {"tools": _TOOL_DEFS})
+
+        elif method == "tools/call":
+            params = msg.get("params") or {}
+            tool_name = params.get("name")
+            args = params.get("arguments") or {}
+            func = _TOOL_FUNCS.get(tool_name)
+            if func is None:
+                _mcp_error(msg_id, -32602, f"Unknown tool: {tool_name}")
+                continue
+            try:
+                result = func(args)
+                _mcp_result(msg_id, {
+                    "content": [{"type": "text", "text": json.dumps(result, indent=2)}],
+                })
+            except HackerOneAPIError as e:
+                _mcp_tool_error(msg_id, str(e))
+            except Exception as e:  # noqa: BLE001 — must never crash the stdio loop
+                _mcp_tool_error(msg_id, f"Unexpected error: {e}")
+
+        elif method == "ping":
+            _mcp_result(msg_id, {})
+
+        elif method == "shutdown":
+            _mcp_result(msg_id, {})
+            break
+
+        else:
+            if msg_id is not None:
+                _mcp_error(msg_id, -32601, f"Method not found: {method}")
+            # else: unknown notification — ignore per spec, don't reply
+
+
+# ─── CLI interface (standalone testing only) ─────────────────────────────────
 
 def main():
     if len(sys.argv) < 2:
@@ -333,4 +487,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        # No subcommand — this is how Claude Code's mcpServers config invokes
+        # it, so bare invocation means "be an MCP server", not "print usage".
+        run_mcp_server()
+    else:
+        main()

