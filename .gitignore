@@ -12,6 +12,14 @@ config.json
 secrets.txt
 api_keys.txt
 .private/
+target_config.yaml
+
+# Personal editor / tool config, not project content
+.obsidian/
+.garak-venv/
+
+# Live/undisclosed recon artifacts and session captures — never commit
+.playwright-mcp/
 
 # Nested local clones / sub-repos (not tracked)
 Agentic-Bug-Hunter/

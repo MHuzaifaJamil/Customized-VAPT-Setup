@@ -4,25 +4,31 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 ## What's Here
 
-### Skills (13 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+### Skills (19 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
 
 | Skill | Domain |
 |---|---|
 | `skills/bug-bounty/` | Master workflow — recon to report, all vuln classes, LLM testing, chains |
 | `skills/bb-methodology/` | **Hunting mindset + 5-phase non-linear workflow + tool routing + session discipline** |
 | `skills/web2-recon/` | Subdomain enum, live host discovery, URL crawling, nuclei |
-| `skills/web2-vuln-classes/` | 21 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI) |
+| `skills/web2-vuln-classes/` | 32 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI, BFLA, NoSQLi, semantic confusion, header injection, XXE, WebSocket security, dependency confusion, padding oracle/crypto misuse) |
 | `skills/security-arsenal/` | Payloads, bypass tables, gf patterns, always-rejected list |
-| `skills/web3-audit/` | 10 smart contract bug classes, Foundry PoC template, pre-dive kill signals |
+| `skills/web3-audit/` | 10 smart contract bug classes, closure discipline for ruling candidates in/out, Foundry PoC template, pre-dive kill signals |
 | `skills/meme-coin-audit/` | Meme coin rug pull detection, token authority checks, bonding curve exploits, LP attacks |
 | `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi report templates, CVSS 3.1, human tone |
-| `skills/triage-validation/` | 7-Question Gate, 4 gates, never-submit list, conditionally valid table |
-| `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails |
-| `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile, deeplink injection, WebView bridge |
-| `skills/cicd-security/` | CI/CD pipeline hunting — GitHub Actions injection, secret exfil, self-hosted runner poisoning |
-| `skills/graphql-audit/` | GraphQL hunting — introspection, field suggestions, batching DoS, IDOR via aliasing, injection |
+| `skills/triage-validation/` | Closure discipline (confirmed/ruled_out/open_proof_gap), 7-Question Gate, 4 gates, never-submit list, conditionally valid table, severity calibration |
+| `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails, pitfalls learned from live tests |
+| `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile for hidden endpoints + secrets, deeplink/exported-activity injection, WebView bridge, SSL pinning bypass |
+| `skills/cicd-security/` | CI/CD pipeline hunting — GitHub Actions injection, secret exfil, self-hosted runner poisoning, OIDC abuse, supply chain attacks |
+| `skills/graphql-audit/` | GraphQL hunting — introspection, field suggestions (clairvoyance), batching DoS, IDOR via aliasing, injection, auth bypass, depth bombs |
+| `skills/diff-review/` | Diff-scoped PR/commit review — in-scope vs out-of-scope rules, how far to follow a change, validation without a live target |
+| `skills/whitebox-code-recon/` | Source-first recon for engagements with code access — architecture/entry-point/schema mapping, then backward taint-hunts per vuln class before live testing |
+| `skills/capability-chaining/` | Derive novel exploit chains when no known pattern fits — capability primitives (read/write/exec/ssrf/cred/idor), RCE-as-equation table, forward/backward state-space search |
+| `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
+| `skills/argus/` | Six automated scanners for high-value web + LLM bug classes — CORS, CRLF/host-header, NoSQLi, JWT attacks, OOB confirmation (blind SSRF/XXE/SQLi/RCE/Log4Shell), LLM red-team corpus |
+| `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, JS deobfuscation basics |
 
-### Commands (slash commands)
+### Commands (40 slash commands)
 
 > **Note:** All commands are prefixed to avoid conflicts with Codex's built-in commands.
 > `/resume` is a reserved Codex command — use `/pickup` to continue a previous hunt.
@@ -52,11 +58,23 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/bypass-403` | `/bypass-403 <url>` — try header/method/encoding tricks against a 403/401 |
 | `/arsenal` | `/arsenal [tool]` — list installed external tools or get an install hint |
 | `/scan-cves` | `/scan-cves <host>` — focused nuclei CVE sweep (high/critical) + optional log4j-scan |
-| `/wordlist-gen` | `/wordlist-gen <target>` — company-specific password wordlist; requires `--with-credential-attack` |
-| `/osint-employees` | `/osint-employees <target>` — employee names + emails; requires `--with-credential-attack` |
-| `/breach-check` | `/breach-check <wordlist>` — HIBP k-anonymity rank wordlist by breach count |
-| `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards |
-| `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit |
+| `/wordlist-gen` | `/wordlist-gen <target>` — company-specific password wordlist (cewler + hashcat); requires `--with-credential-attack` |
+| `/osint-employees` | `/osint-employees <target>` — employee names + emails (theHarvester + username-anarchy, opt-in LinkedIn); requires `--with-credential-attack` |
+| `/breach-check` | `/breach-check <wordlist>` — HIBP k-anonymity rank wordlist by real-world breach count |
+| `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards (typed-host confirm, lockout warn, audit log) |
+| `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit: introspection, batching DoS, IDOR, injection, alias bomb, graphw00f fingerprint |
+| `/diff-review` | `/diff-review [PR#\|sha\|base...head]` — diff-scoped security review of a PR/commit/branch, not a full repo audit |
+| `/cors` | `/cors <url>` — CORS misconfig: origin reflection, null-origin, credentialed read, regex bypass |
+| `/crlf` | `/crlf <url>` — CRLF/response-splitting + host-header injection (Set-Cookie canary) |
+| `/nosqli` | `/nosqli <url>` — NoSQL injection: operator auth-bypass, `$where` time-based blind |
+| `/jwt-scan` | `/jwt-scan <token>` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline) |
+| `/oob` | `/oob <url>` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh) |
+| `/llm-redteam` | `/llm-redteam <endpoint>` — LLM red-team corpus: injection, jailbreak, prompt leak, exfil |
+| `/domxss` | `/domxss "<url>" [--params q,name]` — headless-browser DOM XSS confirmation, only reports on actual execution |
+| `/portscan` | `/portscan <host>` — non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP) |
+| `/sast` | `/sast <path>` — Semgrep rulesets over fetched JS/source |
+| `/screenshot` | `/screenshot -l urls.txt -o shots/` — self-contained HTML screenshot gallery for visual triage |
+| `/poc` | `/poc capture <url> [-H ...] \| from-request req.txt [--response resp.txt]` — reproducible PoC evidence bundle (request/response, curl, HAR, screenshot, report-ready evidence.md); secrets redacted by default |
 
 ### Agents (9 specialized agents)
 
@@ -74,39 +92,69 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 - `rules/hunting.md` — 17 critical hunting rules
 - `rules/reporting.md` — report quality rules
+- `rules/vapt_report_format.md` — mandatory VAPT client PDF report format (cover page, sections, code blocks, prohibited content)
 
-### Tools (Python/shell — in `tools/`)
+### Tools (Python/shell — in `bughunter/tools/`)
 
-See **`tools/README.md`** for the full ~50-tool catalogue. Highlights:
-
-- `tools/hunt.py` — master orchestrator (auto lead-board ingest + EOL after recon; `--graphql` / `--cve-hunt` / `--zero-day`)
-- `tools/lead_board.py` — persistent recon→skill lead ledger (`ingest` / `show` / `next` / `touch`)
-- `tools/recon_engine.sh` · `vuln_scanner.sh` · `validate.py` · `scope_checker.py`
-- `tools/graphql_audit.sh` · `cicd_scanner.sh` · `cve_scan.sh` · `eol_check.py`
-- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` · `bypass_403.sh`
-- `tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
-- `tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
-- Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
-- Web3: `token_scanner.py`
+- `tools/hunt.py` — master orchestrator (auto lead-board ingest + EOL after recon; `--graphql` / `--cve-hunt` / `--zero-day` flags)
+- `tools/lead_board.py` — persistent recon→skill lead ledger (`ingest`/`show`/`next`/`touch`/`add`). See **Critical Rule 6**.
+- `tools/recon_engine.sh` — subdomain + URL discovery (optional `nuclei` phase, theHarvester + dnsrecon passive OSINT)
+- `tools/vuln_scanner.sh` — XSS/SQLi/SSTI/MFA/SAML probe pipeline (SAML probing baselines against a random nonexistent path first, so a catchall/blanket-403 host can't fake a "found" endpoint)
+- `tools/validate.py` — 4-gate finding validator
+- `tools/learn.py` — CVE + disclosure intel
+- `tools/intel_engine.py` — on-demand intel with memory context
+- `tools/scope_checker.py` — deterministic scope safety checker
+- `tools/scope_aggregator.sh` — multi-platform scope pull (bbscope + bounty-targets-data)
+- `tools/secrets_hunter.sh` — trufflehog/noseyparker/gitleaks wrapper for FS/git/JS/GH-org
+- `tools/takeover_scanner.sh` — dnsReaper/subjack subdomain-takeover scanner
+- `tools/cloud_recon.sh` — S3Scanner + cloud_enum + CloudFail wrapper
+- `tools/param_discovery.sh` — Arjun/x8 hidden-parameter discovery
+- `tools/bypass_403.sh` — byp4xx + built-in 403/401 bypass matrix
+- `tools/cve_scan.sh` — focused nuclei CVE-tag sweep + optional log4j-scan
+- `tools/external_arsenal.sh` — installed-tool registry (~70 tools); other scripts source this for `_have <tool>`
+- `tools/cicd_scanner.sh` — GitHub Actions workflow scanner (sisakulint wrapper, remote scan)
+- `tools/token_scanner.py` — automated token red flag scanner (EVM + Solana)
+- `tools/wordlist_engine.sh` — company-specific password wordlist generator (cewler + hashcat rules); requires `--with-credential-attack`
+- `tools/osint_employees.sh` — employee names + email patterns for spray prep (theHarvester + username-anarchy, opt-in CrossLinked); requires `--with-credential-attack`
+- `tools/breach_checker.py` — HIBP k-anonymity wordlist enrichment; ranks passwords by breach count (no API key, free)
+- `tools/spray_orchestrator.sh` — password spray with typed-hostname guard + lockout warning + audit log; modes: http-form / oauth / o365 / okta (TREVOR); requires `--with-credential-attack` for TREVOR modes
+- `tools/graphql_audit.sh` — 7-phase GraphQL audit: introspection + schema dump, graphw00f fingerprint, clairvoyance field discovery, batching DoS, alias bomb, gqlmap injection, graphql-cop checklist
+- `tools/cors_scanner.py` — CORS misconfig: origin reflection, null-origin, credentialed read, regex bypass
+- `tools/crlf_scanner.py` — CRLF/response-splitting + host-header injection (Set-Cookie canary)
+- `tools/nosqli_scanner.py` — NoSQL injection: operator auth-bypass, `$where` time-based blind
+- `tools/jwt_scanner.py` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline)
+- `tools/oob_listener.py` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh)
+- `tools/llm_redteam.py` — LLM red-team corpus: injection, jailbreak, prompt leak, exfil
+- `tools/dom_xss_harness.py` — headless-browser DOM XSS confirmation, only reports on actual execution
+- `tools/port_scanner.py` — non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP)
+- `tools/sast_scan.py` — Semgrep rulesets over fetched JS/source, mapped into this toolkit's severity/confidence model
+- `tools/visual_triage.py` — self-contained HTML screenshot gallery for visual triage
+- `tools/eol_check.py` — end-of-life/lifecycle intel from endoflife.date for fingerprint pairs
+- `tools/poc_bundler.py` — PoC evidence bundler (`capture` live via SSRF-guarded `safe_http`, or `from-request` offline from a saved/Burp request); secrets redacted by default. See `/poc`.
+- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` — WAF bypass + soft-block scoring + upload mutation
+- `tools/bootstrap_arsenal.sh` · `bootstrap_plugins.sh` · `burp_bridge.sh` — this fork's own session-bootstrap and Burp REST-bridge tooling (wired via `.claude/settings.json` SessionStart hooks)
+- Full catalogue: **`tools/README.md`** (~70 tools).
 
 ### External tool references
 
 - `wordlists/REFERENCES.md` — pointers to SecLists / OneListForAll / fuzz4bounty / PayloadsAllTheThings
-- `skills/security-arsenal/REFERENCES.md` — methodology, writeup archives, dorks, key-verification
-- `skills/security-arsenal/METHODOLOGY_CHEATSHEET.md` — per-vuln quick-check tables
+- `skills/security-arsenal/REFERENCES.md` — methodology, writeup archives, dorks, key-verification, AI-security skill repos
+- `skills/security-arsenal/METHODOLOGY_CHEATSHEET.md` — per-vuln quick-check tables distilled from HowToHunt + HolyTips + AllAboutBugBounty + KingOfBugBountyTips
 
-### MCP Integrations (in `mcp/`)
+### MCP Integrations (in `bughunter/mcp/`)
 
 - `mcp/burp-mcp-client/` — Burp Suite proxy integration
-- `mcp/hackerone-mcp/` — HackerOne public API (Hacktivity, program stats, policy)
+- `mcp/hackerone-mcp/` — HackerOne public API (Hacktivity, program stats, policy) + full MCP stdio server
+- `mcp/bughunter-mcp/` — this toolkit's own MCP server (tool policy engine, redaction, CLI + Claude/OpenCode configs)
+- `mcp/caido-mcp-client/` — Caido proxy integration
 
-### Hunt Memory (in `memory/`)
+### Hunt Memory (in `bughunter/memory/`)
 
 - `memory/pattern_db.py` — cross-target pattern learning
 - `memory/audit_log.py` — request audit log, rate limiter, circuit breaker
 - `memory/rotation.py` — size-based JSONL rotation (10MB cap, keep 3 backups), auto-fired on append
-- `memory/schemas.py` — schema validation for all data
-- `memory/leads/<target>.jsonl` — lead board ledger (via `lead_board.py`)
+- `memory/schemas.py` — schema validation for all data (v2: research/contribution event tracking)
+- `memory/hunt_journal.py` · `research_case.py` — structured hunt journal and research-case tracking
 
 ## Start Here
 
@@ -144,3 +192,11 @@ Install for another harness:
 4. KILL weak findings fast — N/A hurts your validity ratio
 5. 5-minute rule — nothing after 5 min = move on
 6. **LEAD BOARD — never lose a lead.** After recon, run `lead_board.py ingest <target>` + `show`, and route each finding to its `hunt-*` skill in plain language ("GraphQL endpoint → hunt-graphql"). When starting/killing/reporting a lead, `touch` its status. The hunter focuses on one lead at a time; the board remembers the rest so none is forgotten. Surface stale high-priority leads unprompted.
+7. NEVER redact evidence in a report, no matter how sensitive — see VAPT Standard §1.5
+8. **NEVER publish an Artifact unless the user explicitly asks for one.** Write files to disk only. Do not call the Artifact tool proactively.
+
+## VAPT Client Report Formatting Standard (Mandatory for All Future Reports)
+
+Full spec: `rules/vapt_report_format.md` — the enforced format for every client-facing VAPT PDF report (myco.io, buypass.ai, and any future engagement): tone/typography, cover page + footer HTML/CSS, running footer, section/page-break rules, the six section playbooks, prohibited content, legacy formats to avoid, the informational-findings register, HTML retention, dark code-evidence-block spec, pre-render grep checks, and the canonical reference template. Read it in full before generating or editing any client VAPT report — do not improvise report formatting from memory.
+
+Critical Rule #7 above (never redact evidence) is §1.5 of that file.
