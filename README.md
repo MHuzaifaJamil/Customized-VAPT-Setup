@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" alt="Agentic Bug Hunter - by AwareXone - AI-powered bug bounty reconnaissance and vulnerability discovery" width="100%"/>
+  <img src="https://raw.githubusercontent.com/awarexone/Agentic-Bug-Hunter/main/assets/banner.png" alt="Agentic Bug Hunter - by AwareXone - AI-powered bug bounty reconnaissance and vulnerability discovery" width="100%"/>
 </p>
 
 <p align="center">
@@ -41,18 +41,18 @@
 </p>
 
 <p align="center">
-  <img src="assets/socialsafe-blurb.png" alt="SocialSafe by AwareXone provides case review and assistance for hacked, disabled, locked, restricted, and inaccessible social media accounts in Malaysia and worldwide by remote review. Assistance is best-effort, and final decisions remain with the platform." width="720"/>
+  <img src="https://raw.githubusercontent.com/awarexone/Agentic-Bug-Hunter/main/assets/socialsafe-blurb.png" alt="SocialSafe by AwareXone provides case review and assistance for hacked, disabled, locked, restricted, and inaccessible social media accounts in Malaysia and worldwide by remote review. Assistance is best-effort, and final decisions remain with the platform." width="720"/>
 </p>
 
 <p align="center">
   <a href="https://www.awarexone.com/all-types-of-social-media-problem-solutions#case-review">
-    <img src="assets/apply-case-review-btn.png" alt="Apply for Case Review" height="48"/>
+    <img src="https://raw.githubusercontent.com/awarexone/Agentic-Bug-Hunter/main/assets/apply-case-review-btn.png" alt="Apply for Case Review" height="48"/>
   </a>
 </p>
 
 <p align="center">
   <a href="https://fluxionai.world/register?source=github&campaign=github-awarexone&promo=AWAREXONE">
-    <img src="assets/fluxion-partner-banner.jpg" alt="Fluxion AI — One gateway to the world's leading AI models" width="720"/>
+    <img src="https://raw.githubusercontent.com/awarexone/Agentic-Bug-Hunter/main/assets/fluxion-partner-banner.jpg" alt="Fluxion AI — One gateway to the world's leading AI models" width="720"/>
   </a>
 </p>
 
@@ -307,7 +307,7 @@ bughunter mcp doctor
 bughunter mcp serve
 ```
 
-MCP is an adapter over the existing research engine — not a second scanner. Active tools require scope and explicit approval. See [docs/mcp.md](docs/mcp.md).
+MCP is an adapter over the existing research engine — not a second scanner. Active tools require scope and explicit approval. See [docs/mcp.md](https://github.com/awarexone/Agentic-Bug-Hunter/blob/main/docs/mcp.md).
 
 ---
 
@@ -638,7 +638,7 @@ git push origin feature/your-contribution
   <tr>
     <td align="center" width="200">
       <a href="https://awarexone.com">
-        <img src="assets/awarexone-logo.webp" alt="AwareXone" width="72"/>
+        <img src="https://raw.githubusercontent.com/awarexone/Agentic-Bug-Hunter/main/assets/awarexone-logo.webp" alt="AwareXone" width="72"/>
         <br/><b>AwareXone</b>
       </a>
       <br/><sub>AI agent vs. scams &amp; fraud</sub>
@@ -924,7 +924,7 @@ Building apps with AI? Pair BugHunter with **[AXguard](https://github.com/Awarex
 
 <p align="center">
   <a href="https://awarexone.com">
-    <img src="assets/awarexone-logo.webp" alt="AwareXone" width="56"/>
+    <img src="https://raw.githubusercontent.com/awarexone/Agentic-Bug-Hunter/main/assets/awarexone-logo.webp" alt="AwareXone" width="56"/>
   </a>
   <br/>
   <sub>Powered by <a href="https://awarexone.com"><b>AwareXone.com</b></a></sub>
