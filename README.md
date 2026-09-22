@@ -252,6 +252,20 @@ bughunter --provider fluxion --model openai/gpt-4o hunt target.com
 
 ## Quick Start
 
+**Fastest - install from PyPI**
+
+```bash
+pip install agentic-bug-hunter
+bughunter setup                   # pick a free AI provider
+bughunter recon target.com
+bughunter hunt  target.com
+```
+
+> Installs the `bughunter` and `bughunter-agent` commands. The AI hunting works out
+> of the box; full recon also uses external CLIs (subfinder, httpx, nuclei, katana,
+> ffuf, nmap). Get them with `install_tools.sh` from the repo, or your package
+> manager. Output is written to `~/.bughunter/` (override with `BUGHUNTER_HOME`).
+
 **Option A - standalone (no subscription, works for everyone)**
 
 ```bash
