@@ -32,7 +32,7 @@ class TestHuntGraphqlAuditNoInjection:
     def test_malicious_url_does_not_execute(self, tmp_path, monkeypatch):
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "hunt", os.path.join(REPO_ROOT, "tools", "hunt.py")
+            "hunt", os.path.join(REPO_ROOT, "bughunter", "tools", "hunt.py")
         )
         hunt = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(hunt)
