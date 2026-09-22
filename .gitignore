@@ -46,3 +46,8 @@ nmap-output/
 .forge/
 dist/
 build/
+
+# Real employer/client infrastructure details — never commit
+theharvester.json
+theharvester.xml
+cloudflare-doc1.png
