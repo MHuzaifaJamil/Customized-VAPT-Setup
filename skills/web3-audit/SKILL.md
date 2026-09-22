@@ -1,6 +1,6 @@
 ---
 name: web3-audit
-description: Smart contract security audit — 10 DeFi bug classes (accounting desync, access control, incomplete path, off-by-one, oracle, ERC4626, reentrancy, flash loan, signature replay, proxy), pre-dive kill signals (TVL < $500K etc), Foundry PoC template, grep patterns for each class, and real Immunefi paid examples. Use for any Solidity/Rust contract audit or when deciding whether a DeFi target is worth hunting.
+description: Smart contract security audit — 10 DeFi bug classes (accounting desync, access control, incomplete path, off-by-one, oracle, ERC4626, reentrancy, flash loan, signature replay, proxy), pre-dive kill signals (TVL < $500K etc), closure discipline for ruling a candidate in/out honestly, Foundry PoC template, grep patterns for each class, and real Immunefi paid examples. Use for any Solidity/Rust contract audit or when deciding whether a DeFi target is worth hunting.
 ---
 
 # WEB3 SMART CONTRACT AUDIT
@@ -36,6 +36,45 @@ description: Smart contract security audit — 10 DeFi bug classes (accounting d
 > "Read ALL sibling functions. If `vote()` has a modifier, check `poke()`, `reset()`, `harvest()`. The missing modifier on the sibling IS the bug."
 
 This single rule explains 19% of all Critical findings.
+
+---
+
+## CLOSURE DISCIPLINE — RULING A CANDIDATE IN OR OUT
+
+Every grep hit and sibling-function suspicion ends in exactly one state:
+`confirmed` (Foundry PoC shows the exploit executing), `ruled_out` (you can
+name the exact modifier/check/require that runs on *every* call path to this
+function, not just the one you first read), or `open_proof_gap` (plausible,
+you can't build the PoC yet — don't silently drop it, note it and come back).
+
+**What does NOT rule out a candidate in Solidity:**
+- A modifier on the sibling function you already checked. `vote()` having
+  `onlyNewEpoch` says nothing about `poke()` — check every function in the
+  family, not just the one that first drew your eye.
+- `onlyOwner`/access control on the entry point when the actual bug is a
+  `delegatecall` to a target the owner doesn't fully control, or a callback
+  that re-enters through a different function.
+- Solidity ≥0.8 automatic overflow checks — an `unchecked { }` block anywhere
+  in the arithmetic path reintroduces the exact overflow you were about to
+  rule out.
+- A `require` that reverts on the exact case you tried — check the *sibling*
+  paths and rounding directions (a `require` on `amount > 0` says nothing
+  about `amount == balance` or integer division rounding to 0).
+- "It's covered by an external audit" — re-verify against the *current*
+  deployed bytecode/commit; audits are pinned to a version, and diffs since
+  then are exactly where new bugs live.
+- A price/oracle check existing at all — confirm it checks *staleness* and
+  *confidence*, not just that `latestRoundData()` is called somewhere.
+
+**What DOES rule one out:** a Foundry test where the attack path executes
+against the real (or forked-mainnet) contract and demonstrably fails, with a
+clear reason why (a specific `require` fires, a specific modifier reverts) —
+not just "the test didn't revert as I expected."
+
+Don't report a "found via grep" pattern match as a finding — the PoC is what
+turns a candidate into `confirmed`. A pattern that matches but doesn't produce
+a passing exploit test is `open_proof_gap` at best; write it down rather than
+inflating it into a submission.
 
 ---
 

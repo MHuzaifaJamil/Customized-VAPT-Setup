@@ -52,6 +52,29 @@ Before touching any tool:
 - Send coupon request 10x simultaneously -> Race condition?
 - Replace `guid=f8a2...` with `id=100` on sibling endpoint -> IDOR?
 
+**Assumption-breaking checklist** (when known bug classes/scanners have run
+dry and you need to find something nobody's written up before — pairs with
+`whitebox-code-recon`'s variant/patch-gap analysis when source is available):
+- **Trust boundary**: what is this code assuming is trusted input? Under
+  what condition does that assumption stop holding?
+- **State/timing**: can the state between two steps be changed from another
+  request (TOCTOU)? Can the steps be triggered out of order?
+- **Parse/normalize ordering**: how many times is this input parsed? Does
+  normalization happen before or after the security check runs?
+- **Boundary/extreme values**: negative, zero, oversized, type-confused,
+  encoded, or null-byte — has each actually been tried, or just assumed
+  handled?
+- **Incidental capability**: what does this feature give me access to as a
+  side effect of its stated purpose?
+- **Uniqueness**: is this ID/token actually unpredictable, or does
+  "looks random" just mean nobody's looked closely?
+
+Turn a feature into a list of implied assumptions and break them one at a
+time: file upload implies "only images accepted" + "extension is
+trustworthy" + "filename has no path" + "content is only data, never
+executed" — each one broken is a candidate, several broken together is a
+chain.
+
 #### 2. Multi-Perspective (multiple angles)
 
 | Perspective | What to check |
@@ -205,7 +228,7 @@ python3 tools/lead_board.py next target.com
 # Route in plain language: "GraphQL endpoint → skills/graphql-audit"
 # touch status when you start / kill / report a lead
 ```
-(`hunt.py` runs ingest + EOL automatically unless `--skip-leads`.)
+(`tools/hunt.py` runs ingest + EOL automatically unless `--skip-leads`.)
 
 ### Phase 2: MAPPING & ANALYSIS
 
@@ -380,13 +403,49 @@ Every 20 minutes ask yourself: **"Am I making progress?"**
 | Discovery: XSS | `kxss` -> `dalfox` | Filter (which params reflect?) -> scan (only reflective params) |
 | Discovery: SQLi | `ghauri` | Modern blind SQLi on ID-like parameters |
 | Discovery: SSRF | `interactsh-client` | Self-hosted OOB listener for blind SSRF/XXE/RCE |
-| Discovery: WAF | `wafw00f` → `tools/bypass_403.sh` → `tools/waf_encoder.py` → `waf_response_analyzer.py` | Fingerprint → soft-block aware bypass → encoded variants → score response |
+| Discovery: WAF | `wafw00f` → `tools/bypass_403.sh` → `tools/waf_encoder.py` → `tools/waf_response_analyzer.py` | Fingerprint → soft-block aware bypass → encoded variants → score response |
 | Exploit: 403 | `tools/bypass_403.sh` / `byp4xx` | Soft-block (200+block body) aware; verdict: bypassed/needs_review/blocked |
 | Exploit: Upload | `tools/multipart_mutator.py --file shell --field f` | Parser-confusion multipart variants |
 | Exploit: Takeover | `tools/takeover_scanner.sh` / `subzy` | CNAME against vulnerable services |
-| Exploit: Cloud | `tools/cloud_recon.sh` + `aws` CLI | Scan bucket permissions -> extract metadata credentials |
+| Exploit: Cloud | `tools/cloud_recon.sh` + `s3scanner` + `aws` CLI | Scan bucket permissions -> extract metadata credentials |
 | Exploit: Secrets | `tools/secrets_hunter.sh` / `trufflehog --only-verified` | Only verified working keys (no false positives) |
 | Orchestrate | `python3 tools/hunt.py --target T` | Recon → lead ingest → EOL → scan (add `--graphql` / `--cve-hunt` as needed) |
+
+> **OAST/callback server choice matters beyond convenience.** Running the
+> `interactsh-client` CLI locally does not by itself mean your callbacks are
+> private — by default it connects to the free public interactsh.com/oast.fun
+> server pool, same as Burp Collaborator's default. Some programs explicitly
+> forbid public-collaborator-style services in their rules (PortSwigger's own
+> bug bounty policy is one documented example) independent of whether the
+> underlying finding is valid — check the program's policy before relying on
+> the public pool. For any paid client VAPT engagement, self-host your own
+> `interactsh-server` instance rather than the public pool.
+
+### Complementary Skill Library — Post-Access / Internal / Cloud-Audit Work
+
+Everything above is this toolkit's own bug-bounty/VAPT-scoped skills. When an
+engagement moves past web-app hunting into territory this toolkit doesn't
+cover itself — you got a shell or cloud credentials and need to go further,
+or the engagement includes an internal/AD network — check whether the
+`cybersecurity-skills` plugin (available in this environment separately from
+this repo) already has it before improvising or building new content here.
+It's large and specific; a few examples of what it covers that this toolkit
+doesn't:
+
+```
+Got AWS/Azure/GCP/K8s access, need privesc or persistence  -> cybersecurity-skills:performing-aws-privilege-escalation-assessment,
+                                                                exploiting-active-directory-with-bloodhound (if AD-joined), escaping-containers-to-host
+Internal network engagement, need AD/Kerberos attacks      -> cybersecurity-skills:exploiting-kerberoasting-with-impacket, conducting-domain-persistence-with-dcsync,
+                                                                moving-laterally-with-netexec, performing-active-directory-penetration-test
+Client wants a CIS-benchmark-aligned cloud/K8s audit        -> cybersecurity-skills:auditing-cloud-with-cis-benchmarks, auditing-kubernetes-cluster-rbac
+Linux/Windows host in scope, need privesc enumeration       -> cybersecurity-skills:performing-privilege-escalation-on-linux, performing-privilege-escalation-assessment
+```
+
+This is a pointer, not a replacement for `whitebox-code-recon`, `cicd-security`,
+or any other skill in this repo — use this repo's own skills for anything
+they already cover, and reach for `cybersecurity-skills` only for the gap
+above (post-initial-access, internal/AD, compliance-audit work) that this
+toolkit doesn't carry itself.
 
 ### Session End Checklist
 

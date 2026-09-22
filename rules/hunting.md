@@ -76,6 +76,11 @@ Automation: recon (subfinder, httpx, katana, nuclei)
 Manual: IDOR testing, auth bypass, business logic, race conditions
 ```
 
+A nuclei/nikto/zap/wapiti hit is a lead, not a finding — it stays
+unverified until you independently reproduce it by hand per
+`triage-validation`'s baseline/attack/diff procedure. Don't let a scanner's
+severity label become your severity claim.
+
 ## 7. IMPACT-FIRST HUNTING
 
 Ask: "What's the worst thing that could happen if auth was broken here?"
@@ -147,6 +152,17 @@ Proving what the key accesses (S3 read, database, admin panel) = Medium/High.
 
 Always call the API as the leaked key. Enumerate permissions.
 
+**A single 200 with the real key doesn't prove the key is live** — plenty
+of endpoints answer 200 regardless of what's in the auth header. Prove it
+with a matched-twin control: send the real key, then send a deliberately
+corrupted twin of the SAME key (rotate a few characters in the *middle*,
+never the prefix a provider uses for routing like `sk-`/`ghp_`/`AKIA`, so
+the twin still reaches the same validation path). Real-key-accepted AND
+corrupted-twin-rejected is what proves the credential is actually being
+checked, not just that the endpoint doesn't care. See
+`triage-validation`'s "matched twin" note for the general version of this
+construction.
+
 ## 18. MOBILE = DIFFERENT ATTACK SURFACE
 
 Mobile apps expose endpoints that the web app doesn't. Always decompile the APK/IPA when in scope:
@@ -204,3 +220,78 @@ echo "SAMLResponse_VALUE" | base64 -d | xmllint --format -
 ```
 
 > SAML bugs frequently pay High–Critical because they enable SSO bypass across the entire platform.
+
+## 21. CHANGE LEDGER FOR STATE-MODIFYING ACTIONS (VAPT/whitebox engagements)
+
+This applies to client VAPT/whitebox engagements where state-modifying
+proof-of-concept actions are authorized — not to public bug-bounty hunting,
+where Rule 0 already limits you to what a PoC strictly requires and nothing
+persisted beyond that.
+
+Any action on a client engagement that changes state on their
+infrastructure — a webshell dropped, a test account created, a config value
+changed, a persistence mechanism set, a privilege/role modified — gets
+logged in real time, not reconstructed from memory at the end:
+
+```
+# | timestamp | host | action type | location | content | rollback command
+```
+
+Before changing a config value, capture the original (a `.bak` copy or the
+exact original value) so the rollback command is real, not aspirational.
+The final deliverable to the client includes the complete ledger plus a
+one-command rollback script generated in reverse order — this toolkit never
+auto-cleans a client environment on its own; cleanup is the client's
+informed choice, made from a complete list of what changed.
+
+## 23. ⛔ NEVER PROPOSE SUBMITTING INFORMATIONAL OR LIKELY-INFORMATIONAL FINDINGS
+
+**This rule exists because a 30-day Bugcrowd account suspension was issued on 2026-09-16 for a pattern of high-rejection-rate submissions (32 submitted, 0 accepted, 15×P5, 7×N/A, 5×NR, 3×OOS). All reports were generated in this tooling. The suspension was preventable.**
+
+### Hard block — NEVER propose submission for:
+
+| Category | Why it will land as P5/N/A |
+|---|---|
+| Login page visible (any panel — Grafana, Keycloak, Sitefinity, etc.) | Intended public; auth required for exploitation |
+| CORS origin reflection WITHOUT a live authenticated exfiltration PoC | Triager cannot self-verify; NR at P1; P5 at best |
+| Health / status / version endpoints (`/health`, `/actuator`, `/info`) | No exploitation chain = P5 |
+| SBOM / dependency version disclosure | Documentation of misconfiguration = P5 |
+| OAuth/SAML flows without demonstrated auth bypass | No active exploit = P5 |
+| Public repo credentials (API keys, tokens in public code) | Considered by design / free-tier = N/A unless exploitation is PROVEN with matched-twin test |
+| K8s metrics / internal hostname disclosure (unauthenticated) | sensitive_data_exposure P5; high duplicate probability |
+| Hardcoded keys/creds without confirmed live access | Info only until you prove what they access |
+| Username enumeration (timing, error message) | Consistently P4–P5 or OOS on large programs |
+| Missing security headers (HSTS, CSP, X-Frame-Options) | Almost always P5 or N/A |
+| TLS/SSL configuration issues (old ciphers, weak cert) | P5 or N/A; rarely P4 with clear user impact |
+| Rate limiting absent (without demonstrated account takeover/data breach) | P5 |
+| Information disclosure in error messages (stack traces, paths) | P5 unless it directly enables another exploit chain |
+| Open redirect without demonstrated token theft | P5; not submittable alone |
+| Subdomain pointing to unclaimed resource (without confirmed takeover) | Lead only — confirm the takeover first |
+| CVE match without actually firing it against the live target | NEVER — search result is not a vulnerability (Rule 22) |
+
+### The P3+ bar (minimum to even discuss submission):
+
+A finding is only worth proposing when ALL of the following are true:
+1. **Live confirmed exploit** — you fired the actual payload/request and captured the real response, not a scanner hit
+2. **No auth required for impact** — the attacker gets something without needing victim credentials (or victim click is a clear, realistic scenario)
+3. **Real user/data impact** — PII exfiltration, account takeover, privilege escalation, SSRF to internal network, RCE, payment manipulation
+4. **Not a duplicate class** — if it is a well-known "low-hanging fruit" class (CORS, open redirect, rate limit), it requires a chained exploit to be submittable
+5. **In scope** — explicitly verified against the program's asset list
+
+If ANY of these fail → KILL the finding, do not propose submission.
+
+### Lesson from NASA VDP (32 submissions, 0 accepted, account suspended)
+
+The root failure was submitting "misconfigurations" instead of "exploits." Every P5/N/A submission was a configuration observation with no demonstrated attack chain. The triager applies a strict impact-verification bar. Documentation of misconfiguration is not a security finding.
+
+**The rule is: if you cannot describe the exact attacker action, victim state, and attacker-obtained asset in one sentence — do not submit.**
+
+## 22. SEARCH RESULTS ARE LEADS, NOT FINDINGS
+
+A CVE database hit, a public PoC, or someone else's writeup describing the
+same framework/version tells you where to look — it does not confirm the
+bug exists on *this* target. Treat it as `tentative` per `triage-validation`
+until the PoC actually runs against the live target and produces real
+evidence (see that skill's "search result is not a vulnerability" note).
+Never report a match to a public CVE as a finding without having actually
+fired it against the target and captured the result.

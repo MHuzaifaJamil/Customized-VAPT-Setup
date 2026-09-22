@@ -13,7 +13,7 @@
 #   • dalfox XSS pipeline integration
 # =============================================================================
 
-set -o pipefail
+set -uo pipefail
 
 # ── Colours ──────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'
@@ -217,19 +217,20 @@ awk '!seen[$0]++' "$ORDERED_SCAN" > "${ORDERED_SCAN}.tmp" && mv "${ORDERED_SCAN}
 # ── Check 0: Upload Surface Discovery ──────────────────────────────────
 if ! skip_has upload; then
     log_info "Check 0: Upload Surface Discovery"
-    CATCHALL_HOSTS=""
+    CATCHALL_FILE="$FINDINGS_DIR/upload/.catchall_hosts.txt"
+    : > "$CATCHALL_FILE"
     log_step "Detecting catchall behavior..."
-    head -10 "$ORDERED_SCAN" | while read -r host; do
+    while read -r host; do
         [ -z "$host" ] && continue
         if [ "$(curl -sk -o /dev/null -w "%{http_code}" --max-time 10 "${host}/non_existent_$(date +%s)")" -eq 200 ]; then
             log_warn "Catchall detected: $host"
-            CATCHALL_HOSTS="${CATCHALL_HOSTS},${host}"
+            echo "$host" >> "$CATCHALL_FILE"
         fi
-    done
+    done < <(head -10 "$ORDERED_SCAN")
     PROBE_PATHS=("/upload.php" "/uploader.php" "/upload/index.php" "/filemanager/index.php" "/ckfinder/core/connector/php/connector.php" "/fckeditor/editor/filemanager/connectors/php/connector.php" "/elfinder.php" "/admin/upload")
-    head -30 "$ORDERED_SCAN" | while read -r host; do
+    while read -r host; do
         [ -z "$host" ] && continue
-        [[ "$CATCHALL_HOSTS" == *"$host"* ]] && continue
+        grep -qxF "$host" "$CATCHALL_FILE" 2>/dev/null && continue
         for path in "${PROBE_PATHS[@]}"; do
             U="${host%/}${path}"
             if [ "$(curl -sk -o /dev/null -w "%{http_code}" --max-time 5 "$U")" -eq 200 ]; then
@@ -238,7 +239,7 @@ if ! skip_has upload; then
                 verify_upload_poc "$U"
             fi
         done
-    done
+    done < <(head -30 "$ORDERED_SCAN")
 fi
 
 # ── Check 2: SQL Injection ──────────────────────────────────────────────
@@ -476,13 +477,28 @@ if ! skip_has saml; then
 
     while IFS= read -r host; do
         [ -z "$host" ] && continue
+        # Establish a baseline (status + body hash) for a random nonexistent path on
+        # this host first — a host that returns the same status/body for every path
+        # (SPA catchall, or a blanket-403 WAF gate) would otherwise make every SAML
+        # probe below look like a "found" endpoint.
+        BASELINE_PATH="/nonexistent_baseline_$(date +%s%N)"
+        BASELINE_CODE=$(curl -sk -o /tmp/.saml_baseline_body -w "%{http_code}" --max-time 5 \
+            "${host}${BASELINE_PATH}" 2>/dev/null || echo "0")
+        BASELINE_HASH=$(md5sum /tmp/.saml_baseline_body 2>/dev/null | awk '{print $1}')
+        rm -f /tmp/.saml_baseline_body
+
         for SAML_PATH in "/saml/login" "/sso/saml" "/auth/saml" "/api/auth/saml" \
                          "/login/saml" "/saml/acs" "/saml/metadata" "/adfs/ls" \
                          "/.well-known/openid-configuration"; do
-            CODE=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 5 \
+            CODE=$(curl -sk -o /tmp/.saml_probe_body -w "%{http_code}" --max-time 5 \
                 "${host}${SAML_PATH}" 2>/dev/null || echo "0")
             case "$CODE" in
                 200|301|302|403)
+                    PROBE_HASH=$(md5sum /tmp/.saml_probe_body 2>/dev/null | awk '{print $1}')
+                    rm -f /tmp/.saml_probe_body
+                    if [ "$CODE" = "$BASELINE_CODE" ] && [ "$PROBE_HASH" = "$BASELINE_HASH" ]; then
+                        continue  # identical to the host's baseline (any-path) response — not a real endpoint
+                    fi
                     log_vuln "[SAML] Endpoint found (HTTP $CODE): ${host}${SAML_PATH}"
                     echo "[INFORMATIONAL] [SAML-ENDPOINT] ${host}${SAML_PATH} | HTTP $CODE" >> "$FINDINGS_DIR/saml/endpoints.txt"
                     ;;

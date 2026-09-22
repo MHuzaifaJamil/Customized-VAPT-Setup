@@ -1,6 +1,6 @@
 ---
 name: web2-recon
-description: Web2 recon pipeline — subdomain enumeration (subfinder, Chaos API, assetfinder), live host discovery (dnsx, httpx), URL crawling (katana, waybackurls, gau), directory fuzzing (ffuf), JS analysis (LinkFinder, SecretFinder), continuous monitoring (new subdomain alerts, JS change detection, GitHub commit watch). Use when starting recon on any web2 target or when asked about asset discovery, subdomain enum, or attack surface mapping.
+description: Web2 recon pipeline — subdomain enumeration (subfinder, Chaos API, assetfinder), live host discovery (dnsx, httpx), URL crawling (katana, waybackurls, gau), directory fuzzing (ffuf), JS analysis (LinkFinder, SecretFinder, deobfuscating packed string-array JS bundles), source disclosure & extraction (exposed .git/.svn/.hg/.DS_Store dumping, backup/temp file fuzzing, php://filter source read, env/config leak table, turning a recovered dump into a bug), continuous monitoring (new subdomain alerts, JS change detection, GitHub commit watch). Use when starting recon on any web2 target or when asked about asset discovery, subdomain enum, or attack surface mapping.
 ---
 
 # WEB2 RECON PIPELINE
@@ -187,6 +187,43 @@ python3 ~/tools/LinkFinder/linkfinder.py -i "https://target.com" -d -o cli
 deactivate
 ```
 
+### Deobfuscating Packed String-Array JS
+
+A common obfuscation pattern (webpack-based obfuscators, several commercial
+JS-protection tools, and hybrid mobile-app JS bundles — see `mobile-pentest`
+for the mobile-specific case) hides every string literal — API paths,
+domains, header names — behind a big array plus a decode function, so a
+plain grep for `https://` or `/api/` finds nothing. The bundle still
+contains the same endpoints; they're just not readable as text.
+
+Recognize it: a huge array literal near the top of the file (thousands of
+short strings, often base64/hex-looking), plus a small decode function
+taking an index and calling it everywhere instead of using literals
+directly, plus a self-invoking function near the array that looks like it's
+rotating or reordering the array before anything else runs.
+
+```
+1. Extract the string array itself (the `var _0x1234 = [...]` or equivalent) verbatim.
+2. Find the decode function — it takes (index, key) or just (index), and
+   internally does some combination of array lookup + base64 decode + a
+   stream cipher (RC4 is common) or simple XOR.
+3. Find the rotation/self-invoking function near the array — it usually
+   reorders the array once at load time before any decode call is valid.
+   Extraction has to include this piece or every decoded index is wrong.
+4. Reassemble the array + decoder + rotation function as a small standalone
+   Node.js script (strip everything else), then call the decoder in a loop
+   over every valid index and dump `index -> plaintext` to a lookup table.
+5. Grep the ORIGINAL bundle for decode-function call sites
+   (`_0x1234(0x1a2)` etc.), substitute each index via your lookup table,
+   and you have the real endpoint list, header names, and any embedded
+   config values in plain text.
+```
+
+If step 3 errors on syntax (e.g. "unexpected token") when isolated, the
+rotation IIFE is usually part of a larger comma-expression or chained
+statement — extract by matching its actual closing token in context rather
+than assuming a clean function boundary.
+
 ---
 
 ## DIRECTORY FUZZING
@@ -282,7 +319,7 @@ curl -sI https://target.com | grep -iE "server|x-powered-by|x-aspnet|x-runtime|x
 | Laravel | Mass assignment ($fillable) | IDOR (Eloquent, no ownership) |
 | Express (Node.js) | Prototype pollution | Path traversal + debug surface (`/_debug`, `/__debug__`) → web2-vuln-classes "Error Disclosure / Debug Endpoints" |
 | Spring Boot | Actuator endpoints → web2-vuln-classes "Error Disclosure / Debug Endpoints" for full surface | SSTI (Thymeleaf) |
-| ASP.NET | ViewState deserialization (if encrypted, also test padding-oracle path → web2-vuln-classes **Padding Oracle & Crypto Misuse**) | Open redirect (ReturnUrl) |
+| ASP.NET | ViewState deserialization | Open redirect (ReturnUrl) |
 | Next.js | SSRF via Server Actions + `/_next/data/` / `/_next/static/chunks/` → web2-vuln-classes "Error Disclosure / Debug Endpoints" | Open redirect via redirect() |
 | GraphQL | Introspection → auth bypass on mutations | IDOR via node(id:) |
 | WordPress | Plugin SQLi | REST API auth bypass |

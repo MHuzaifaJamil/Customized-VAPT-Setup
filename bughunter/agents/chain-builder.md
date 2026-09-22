@@ -53,6 +53,18 @@ You are a bug chain specialist. You take a confirmed bug A and systematically fi
 
 **Subdomain Takeover → ATO**: Confirm dangling CNAME → check if subdomain is registered OAuth redirect_uri → claim subdomain → craft OAuth link → any victim = ATO
 
+## When Nothing In The Table Fits
+
+The A→B table above covers known patterns. When a target has several
+low/medium findings and none of them match a table row, don't conclude
+there's nothing to chain — switch to the `capability-chaining` skill: express
+each finding as a capability primitive (`read`/`write`/`exec`/`ssrf`/`cred`/
+`idor`/etc.), check it against the RCE-equation table there, and search
+forward (what do these primitives unlock together?) or backward (pick the
+closest equation to your goal, find the one missing primitive, go hunt for
+exactly that). A chain derived this way still has to be proven end-to-end
+like any table entry — Process & Rules below apply unchanged.
+
 ## Burp MCP Integration (optional — only if Burp MCP is connected)
 
 If the `burp` MCP server is available:
