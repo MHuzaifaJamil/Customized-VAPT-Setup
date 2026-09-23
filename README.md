@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <b>AI-powered bug bounty hunting — recon to report, in your terminal.</b>
+  <b>AI-powered bug bounty hunting — recon to report, in your terminal.
+  dev is cooking </b>
   <br/>
   <a href="#what-is-this">What Is This</a>
   ·
