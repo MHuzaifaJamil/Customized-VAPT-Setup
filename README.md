@@ -5,6 +5,7 @@
 <p align="center">
   <b>AI-powered bug bounty hunting — recon to report, in your terminal.
     
+  Agentic Bug Hunter is now officially on robinhood.
   dev is cooking </b>
   <br/>
   <a href="#what-is-this">What Is This</a>
