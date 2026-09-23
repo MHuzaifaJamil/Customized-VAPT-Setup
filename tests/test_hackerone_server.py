@@ -20,7 +20,7 @@ from server import (
 
 class TestGraphQLRequest:
 
-    @patch("server.urllib.request.urlopen")
+    @patch("server.safe_urlopen")
     def test_success(self, mock_urlopen):
         mock_resp = MagicMock()
         mock_resp.read.return_value = json.dumps({"data": {"ok": True}}).encode()
@@ -31,7 +31,7 @@ class TestGraphQLRequest:
         result = _graphql_request("{ test }")
         assert result["data"]["ok"] is True
 
-    @patch("server.urllib.request.urlopen")
+    @patch("server.safe_urlopen")
     def test_graphql_errors_raise(self, mock_urlopen):
         mock_resp = MagicMock()
         mock_resp.read.return_value = json.dumps({
@@ -44,7 +44,7 @@ class TestGraphQLRequest:
         with pytest.raises(HackerOneAPIError, match="GraphQL errors"):
             _graphql_request("{ bad_query }")
 
-    @patch("server.urllib.request.urlopen")
+    @patch("server.safe_urlopen")
     def test_http_error(self, mock_urlopen):
         mock_urlopen.side_effect = HTTPError(
             url="https://hackerone.com/graphql",
@@ -55,7 +55,7 @@ class TestGraphQLRequest:
             _graphql_request("{ test }")
         assert exc_info.value.status_code == 429
 
-    @patch("server.urllib.request.urlopen")
+    @patch("server.safe_urlopen")
     def test_network_error(self, mock_urlopen):
         mock_urlopen.side_effect = URLError("timed out")
         with pytest.raises(HackerOneAPIError, match="Network error"):
