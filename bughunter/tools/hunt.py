@@ -55,18 +55,16 @@ def _normalize_argv(argv):
 MAX_CIDR_HOSTS = 254
 
 def detect_target_type(target: str) -> str:
-    """Return 'list', 'cidr', 'ip', or 'domain'.
+    """Return 'list', 'local', 'cidr', 'ip', or 'domain'.
 
-    'list' = path to a readable file of pre-resolved hosts (one per line).
-    Used for programs without wildcard scope where subdomain enum is wasted.
+    'list'  = path to a readable file of pre-resolved hosts (one per line).
+    'local' = loopback / RFC-1918 / *.local — no public subdomain enum.
+    Delegates to tools.target_normalize so the shell, engine.py and hunt.py all
+    classify a target identically (it normalizes scheme/port first, so
+    'http://10.0.0.5:3000/' is 'local', not 'domain').
     """
-    if os.path.isfile(target):
-        return "list"
-    try:
-        net = ipaddress.ip_network(target, strict=False)
-        return "cidr" if net.num_addresses > 1 else "ip"
-    except ValueError:
-        return "domain"
+    from tools.target_normalize import detect_target_type as _dtt
+    return _dtt(target)
 
 
 def expand_cidr(cidr: str, max_hosts: int = MAX_CIDR_HOSTS) -> list[str]:
@@ -179,16 +177,23 @@ def log(level, msg):
 
 
 def run_cmd(cmd, cwd=None, timeout=600):
-    """Run a shell command and return (success, output).
+    """Run a command and return (success, output).
+
+    `cmd` should be an argv LIST (executed with shell=False) whenever any part
+    is user/target-derived — that is injection-safe. A plain string is still
+    accepted (shell=True) for callers that need shell builtins like
+    `command -v` with fully hardcoded arguments; never pass interpolated
+    untrusted input as a string.
 
     Uses process groups (os.setsid) so that on timeout the entire child tree
     is killed via os.killpg, preventing orphan processes from accumulating
     during long-running hunts.
     """
+    use_shell = isinstance(cmd, str)
     proc = None
     try:
         proc = subprocess.Popen(
-            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            cmd, shell=use_shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, cwd=cwd, preexec_fn=os.setsid,
         )
         stdout, _ = proc.communicate(timeout=timeout)
@@ -200,7 +205,7 @@ def run_cmd(cmd, cwd=None, timeout=600):
             except OSError:
                 proc.kill()
             proc.wait()
-        return False, f"Command timed out after {timeout}s: {cmd[:120]}"
+        return False, f"Command timed out after {timeout}s: {str(cmd)[:120]}"
     except Exception as e:
         if proc is not None:
             try:
@@ -268,7 +273,7 @@ def setup_wordlists():
             continue
 
         log("info", f"Downloading {name}...")
-        success, output = run_cmd(f'curl -sL "{url}" -o "{filepath}"')
+        success, output = run_cmd(["curl", "-sL", url, "-o", filepath])
         if success and os.path.getsize(filepath) > 100:
             lines = sum(1 for _ in open(filepath))
             log("ok", f"Downloaded {name} ({lines} entries)")
@@ -315,8 +320,8 @@ def run_recon(domain, quick=False, scope_lock=False):
 
     # Detect target type and pass to recon_engine.sh
     target_type = detect_target_type(domain)
-    if target_type in ("ip", "cidr", "list"):
-        scope_lock = True  # IPs/CIDRs/pre-resolved lists never need subdomain enum
+    if target_type in ("ip", "cidr", "list", "local"):
+        scope_lock = True  # IPs/CIDRs/lists/local hosts never need subdomain enum
         log("info", f"Target type: {target_type.upper()} — subdomain enum skipped")
         if target_type == "cidr":
             try:
@@ -340,22 +345,27 @@ def run_recon(domain, quick=False, scope_lock=False):
                 return False
             log("info", f"Domain list {domain} → {n} host(s) to scan")
 
-    scope_env  = "SCOPE_LOCK=1 " if scope_lock else ""
-    type_env   = f'TARGET_TYPE="{target_type}" '
-
-    # Inject auth env vars (if any) so the bash helper picks them up.
+    # Inject auth env vars (if any) so the bash helper picks them up. Config is
+    # passed through the environment, never interpolated into a shell string:
+    # `domain` is user-controlled, so a shell=True command with "{domain}" was a
+    # command-injection vector (e.g. domain = 'a";id;"'). Use an argv list with
+    # shell=False so the target can never break out into shell syntax.
     child_env = os.environ.copy()
+    child_env["TARGET_TYPE"] = target_type
+    if scope_lock:
+        child_env["SCOPE_LOCK"] = "1"
     if _AUTH_SESSION is not None:
         _AUTH_SESSION.export_to_env(child_env)
         if not _AUTH_SESSION.is_empty():
             log("info", _AUTH_SESSION.describe())
 
+    cmd = ["bash", script, domain]
+    if quick_flag:
+        cmd.append(quick_flag)
+
     # Run with live output
     try:
-        proc = subprocess.Popen(
-            f'{scope_env}{type_env}bash "{script}" "{domain}" {quick_flag}',
-            shell=True, cwd=BASE_DIR, env=child_env,
-        )
+        proc = subprocess.Popen(cmd, shell=False, cwd=BASE_DIR, env=child_env)
         proc.wait(timeout=3600)  # 60 min timeout (CIDR ranges can be large)
         return proc.returncode == 0
     except subprocess.TimeoutExpired:
@@ -393,7 +403,7 @@ def ingest_lead_board(domain):
 
     log("info", f"Ingesting lead board for {domain}...")
     ok, out = run_cmd(
-        f'python3 "{script}" ingest "{domain}" --recon-dir "{recon_dir}"',
+        ["python3", script, "ingest", domain, "--recon-dir", recon_dir],
         timeout=120,
     )
     if out.strip():
@@ -402,7 +412,7 @@ def ingest_lead_board(domain):
         log("warn", f"lead_board ingest returned non-zero for {domain}")
         return False
 
-    ok2, out2 = run_cmd(f'python3 "{script}" next "{domain}"', timeout=30)
+    ok2, out2 = run_cmd(["python3", script, "next", domain], timeout=30)
     if out2.strip():
         log("info", "Top untouched lead:")
         print(out2.rstrip())
@@ -460,7 +470,7 @@ def run_eol_check(domain):
 
     tech = ",".join(pairs[:20])
     log("info", f"EOL check: {tech}")
-    ok, out = run_cmd(f'python3 "{script}" --tech "{tech}"', timeout=60)
+    ok, out = run_cmd(["python3", script, "--tech", tech], timeout=60)
     if out.strip():
         print(out.rstrip())
     return ok
@@ -551,17 +561,18 @@ def run_vuln_scan(domain, quick=False):
 
     log("info", f"Running vulnerability scanner on {domain}...")
     script = os.path.join(TOOLS_DIR, "vuln_scanner.sh")
-    quick_flag = "--quick" if quick else ""
 
     child_env = os.environ.copy()
     if _AUTH_SESSION is not None:
         _AUTH_SESSION.export_to_env(child_env)
 
+    # argv list + shell=False: recon_dir embeds the user-controlled domain, so a
+    # shell string would be a command-injection vector (domain = 'a";id;"').
+    cmd = ["bash", script, recon_dir]
+    if quick:
+        cmd.append("--quick")
     try:
-        proc = subprocess.Popen(
-            f'bash "{script}" "{recon_dir}" {quick_flag}',
-            shell=True, cwd=BASE_DIR, env=child_env,
-        )
+        proc = subprocess.Popen(cmd, shell=False, cwd=BASE_DIR, env=child_env)
         proc.wait(timeout=1800)
         return proc.returncode == 0
     except subprocess.TimeoutExpired:
@@ -678,10 +689,11 @@ def run_cve_hunt(domain):
     if _AUTH_SESSION is not None:
         _AUTH_SESSION.export_to_env(child_env)
 
+    # argv list + shell=False — domain is user-controlled (injection-safe).
     try:
         proc = subprocess.Popen(
-            f'bash "{script}" "{domain}"',
-            shell=True, cwd=BASE_DIR, env=child_env,
+            ["bash", script, domain],
+            shell=False, cwd=BASE_DIR, env=child_env,
         )
         proc.wait(timeout=900)
         return proc.returncode == 0
@@ -695,17 +707,17 @@ def run_zero_day_fuzzer(domain, deep=False):
     """Run zero-day fuzzer on a target."""
     log("info", f"Running zero-day fuzzer on {domain}...")
     script = os.path.join(TOOLS_DIR, "zero_day_fuzzer.py")
-    deep_flag = "--deep" if deep else ""
 
-    # Check if we have recon data with live URLs
+    # argv list + shell=False — domain is user-controlled (injection-safe).
     recon_dir = os.path.join(RECON_DIR, domain)
+    cmd = ["python3", script, f"https://{domain}"]
     if os.path.isdir(recon_dir):
-        cmd = f'python3 "{script}" "https://{domain}" --recon-dir "{recon_dir}" {deep_flag}'
-    else:
-        cmd = f'python3 "{script}" "https://{domain}" {deep_flag}'
+        cmd += ["--recon-dir", recon_dir]
+    if deep:
+        cmd.append("--deep")
 
     try:
-        proc = subprocess.Popen(cmd, shell=True, cwd=BASE_DIR)
+        proc = subprocess.Popen(cmd, shell=False, cwd=BASE_DIR)
         proc.wait(timeout=900)
         return proc.returncode == 0
     except subprocess.TimeoutExpired:
