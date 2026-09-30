@@ -132,23 +132,13 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 - `tools/sast_scan.py` — Semgrep rulesets over fetched JS/source, mapped into this toolkit's severity/confidence model
 - `tools/visual_triage.py` — self-contained HTML screenshot gallery for visual triage
 - `tools/eol_check.py` — end-of-life/lifecycle intel from endoflife.date for fingerprint pairs
-- `tools/poc_bundler.py` — PoC evidence bundler (`capture` live via SSRF-guarded `safe_http`, or `from-request` offline from a saved/Burp request); secrets redacted by default. See `/poc`.
-- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` — WAF bypass + soft-block scoring + upload mutation
-<<<<<<< HEAD
-- `tools/bootstrap_arsenal.sh` · `bootstrap_plugins.sh` · `burp_bridge.sh` — this fork's own session-bootstrap and Burp REST-bridge tooling (wired via `.claude/settings.json` SessionStart hooks)
-- Full catalogue: **`tools/README.md`** (~70 tools).
-=======
-- `tools/cors_scanner.py` — CORS misconfig scanner (origin-reflection / null / credentialed / suffix-prefix regex / scheme-downgrade); pure classifier, no deps
-- `tools/crlf_scanner.py` — CRLF / response-splitting + host-header injection with Set-Cookie canary detection (encoded + UTF-8 bypass variants)
-- `tools/nosqli_scanner.py` — NoSQL injection (operator auth-bypass, bracket-syntax, $where time-based blind) with differential + timing classifier
-- `tools/jwt_scanner.py` — offline JWT toolkit: alg:none forgery, RS256→HS256 confusion, HS256 secret crack, static claim analysis (pure stdlib)
-- `tools/oob_listener.py` — out-of-band orchestrator wrapping interactsh-client; payloads + correlation for blind SSRF/XXE/SQLi/RCE/Log4Shell
-- `tools/llm_redteam.py` — LLM red-team corpus runner (prompt-injection/jailbreak/system-prompt-leak/exfil/indirect/guardrail-bypass) with canary detection
 - `tools/poc_bundler.py` — PoC evidence bundler (`capture` live via SSRF-guarded `safe_http`, or `from-request` offline from a saved/Burp request). Emits `request.http`, `response.http`, `repro.sh` (curl), `evidence.har` (HAR 1.2), optional `screenshot.png`, `evidence.md` (report-ready), and `bundle.json` (manifest + response SHA-256) under `findings/<target>-<class>/evidence/<id>/`. Secrets redacted by default (repro.sh uses `$ENV` placeholders); refuses PUT/DELETE/PATCH without `--confirm-unsafe`. See `/poc`.
+- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` — WAF bypass + soft-block scoring + upload mutation
+- `tools/cors_scanner.py` — CORS misconfig scanner (origin-reflection / null / credentialed / suffix-prefix regex / scheme-downgrade); pure classifier, no deps
 - `tools/hunt_dashboard.py` — local web Hunt Dashboard (`serve`/`export`); reads `memory/leads/`, `recon/`, `findings/`, `reports/`, galleries, and `hunt-memory/` into one live view. Pure stdlib, binds to 127.0.0.1, HTML-escapes all recon-derived data, path-traversal-guarded `/file` endpoint. Distinct from `tools/dashboard.py` (the in-terminal ANSI progress TUI). See `/dashboard`.
 - `tools/verifier.py` — the report gate (prove-or-suppress). Independently re-derives a finding from its `poc_bundler` bundle (re-sends via SSRF-guarded `safe_http` with an initial-host guard, checks a confirmation marker in the fresh response headers+body) and decides reportability: PROVEN only if the marker was in the original response AND is still present now; else REFUTED/UNPROVEN/INCONCLUSIVE → suppressed. Records the re-fetched response's SHA + status. `decide()` is a pure, total policy function; only PROVEN ships. Writes `verification.json`; `check`/`sweep`; `--require-proof` exits non-zero for gating; unsafe methods never re-fired without `--confirm-unsafe`; secrets read from env only. Reuses only merged code (poc_bundler). See `/verify`.
-- Full catalogue: **`tools/README.md`** (~50 tools). `hunt.py` auto-ingests leads after recon (`--graphql` / `--cve-hunt` / `--skip-leads` flags).
->>>>>>> upstream/main
+- `tools/bootstrap_arsenal.sh` · `bootstrap_plugins.sh` · `burp_bridge.sh` — this fork's own session-bootstrap and Burp REST-bridge tooling (wired via `.claude/settings.json` SessionStart hooks)
+- Full catalogue: **`tools/README.md`** (72 tools). `hunt.py` auto-ingests leads after recon (`--graphql` / `--cve-hunt` / `--skip-leads` flags).
 
 ### External tool references
 
