@@ -12,6 +12,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 concurrency:
   group: sync-upstream
@@ -67,9 +68,8 @@ jobs:
           set -e
           if [ $STATUS -ne 0 ]; then
             # Conflicts: commit the conflict-marker state as-is so the diff
-            # is reviewable in a PR, rather than silently guessing a
-            # resolution. Nothing here overwrites main until a human merges
-            # the PR.
+            # is reviewable, rather than silently guessing a resolution.
+            # Nothing here overwrites main until a human merges it in.
             git add -A
             git commit -m "sync: upstream merge with unresolved conflicts — needs manual resolution" --no-verify
             echo "clean=false" >> "$GITHUB_OUTPUT"
@@ -90,21 +90,46 @@ jobs:
         run: |
           git push origin "$SYNC_BRANCH" --force-with-lease
 
-      - name: Open or update PR (conflicts only)
+      - name: Open a PR, or fall back to an issue (conflicts only)
         if: steps.check.outputs.ahead != '0' && steps.merge.outputs.clean == 'false'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Prefer a SYNC_PAT repo secret (a personal access token with repo
+          # scope) if one is ever added — the default GITHUB_TOKEN cannot
+          # create pull requests in a forked repository even when "Allow
+          # GitHub Actions to create and approve pull requests" is enabled;
+          # that setting doesn't lift this specific fork restriction. Until
+          # a PAT is added, this step falls back to opening/updating a
+          # regular issue instead, which isn't restricted the same way, so
+          # you're still notified either way.
+          GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          CONFLICT_FILES=$(git diff --name-only --diff-filter=U main "$SYNC_BRANCH" 2>/dev/null || git log -1 --name-only --pretty=format:"" "$SYNC_BRANCH" | head -50)
+          set +e
+          COMPARE_URL="https://github.com/${{ github.repository }}/compare/main...$SYNC_BRANCH"
           BODY="Upstream (Awarexone/Agentic-Bug-Hunter) has new commits that don't merge cleanly onto your customized main.
 
-          This branch (\`$SYNC_BRANCH\`) contains the merge attempt with unresolved conflict markers left in place — nothing has been guessed or auto-resolved. Review the diff, resolve conflicts, then merge this PR.
+          This branch (\`$SYNC_BRANCH\`) contains the merge attempt with unresolved conflict markers left in place — nothing has been guessed or auto-resolved. Review the diff, resolve conflicts, then merge.
 
-          Upstream range: \`main..upstream/main\`"
-          EXISTING=$(gh pr list --head "$SYNC_BRANCH" --json number --jq '.[0].number' || true)
-          if [ -z "$EXISTING" ]; then
-            gh pr create --title "Sync with upstream (conflicts need review)" --body "$BODY" --base main --head "$SYNC_BRANCH"
+          Upstream range: \`main..upstream/main\`
+          Compare: $COMPARE_URL"
+
+          EXISTING_PR=$(gh pr list --head "$SYNC_BRANCH" --json number --jq '.[0].number' 2>/dev/null)
+          if [ -n "$EXISTING_PR" ]; then
+            if gh pr edit "$EXISTING_PR" --body "$BODY" 2>/tmp/pr_err; then
+              echo "Updated existing PR #$EXISTING_PR"
+              exit 0
+            fi
+            cat /tmp/pr_err
+          elif gh pr create --title "Sync with upstream (conflicts need review)" --body "$BODY" --base main --head "$SYNC_BRANCH" 2>/tmp/pr_err; then
+            exit 0
           else
-            gh pr edit "$EXISTING" --body "$BODY"
-            echo "Updated existing PR #$EXISTING"
+            cat /tmp/pr_err
+          fi
+
+          # PR path failed (most likely the fork-token restriction above) —
+          # fall back to a plain issue so the sync is still visible.
+          EXISTING_ISSUE=$(gh issue list --search "\"Sync with upstream (conflicts need review)\" in:title" --json number --jq '.[0].number' 2>/dev/null)
+          if [ -n "$EXISTING_ISSUE" ]; then
+            gh issue comment "$EXISTING_ISSUE" --body "$BODY"
+          else
+            gh issue create --title "Sync with upstream (conflicts need review)" --body "$BODY"
           fi
