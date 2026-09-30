@@ -499,7 +499,7 @@ if ! skip_has saml; then
         # this host first — a host that returns the same status/body for every path
         # (SPA catchall, or a blanket-403 WAF gate) would otherwise make every SAML
         # probe below look like a "found" endpoint.
-        BASELINE_PATH="/nonexistent_baseline_$(date +%s%N)"
+        BASELINE_PATH="/nonexistent_baseline_$(_now_ns)"
         BASELINE_CODE=$(curl -sk -o /tmp/.saml_baseline_body -w "%{http_code}" --max-time 5 \
             "${host}${BASELINE_PATH}" 2>/dev/null || echo "0")
         BASELINE_HASH=$(md5sum /tmp/.saml_baseline_body 2>/dev/null | awk '{print $1}')
