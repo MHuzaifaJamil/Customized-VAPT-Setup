@@ -16,6 +16,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `skills/web3-audit/` | 10 smart contract bug classes, closure discipline for ruling candidates in/out, Foundry PoC template, pre-dive kill signals |
 | `skills/meme-coin-audit/` | Meme coin rug pull detection, token authority checks, bonding curve exploits, LP attacks |
 | `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi report templates, CVSS 3.1, human tone |
+<<<<<<< HEAD
 | `skills/triage-validation/` | Closure discipline (confirmed/ruled_out/open_proof_gap), 7-Question Gate, 4 gates, never-submit list, conditionally valid table, severity calibration |
 | `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails, pitfalls learned from live tests |
 | `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile for hidden endpoints + secrets, deeplink/exported-activity injection, WebView bridge, SSL pinning bypass |
@@ -27,6 +28,15 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
 | `skills/argus/` | Six automated scanners for high-value web + LLM bug classes — CORS, CRLF/host-header, NoSQLi, JWT attacks, OOB confirmation (blind SSRF/XXE/SQLi/RCE/Log4Shell), LLM red-team corpus |
 | `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, JS deobfuscation basics |
+=======
+| `skills/triage-validation/` | 7-Question Gate, 4 gates, never-submit list, conditionally valid table |
+| `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails |
+| `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile, deeplink injection, WebView bridge |
+| `skills/cicd-security/` | CI/CD pipeline hunting — GitHub Actions injection, secret exfil, self-hosted runner poisoning |
+| `skills/graphql-audit/` | GraphQL hunting — introspection, field suggestions, batching DoS, IDOR via aliasing, injection |
+| `skills/mcp-server-audit/` | MCP server audit — tool poisoning, param→sink injection, missing approval gates, secret leaks, rug-pull/confused-deputy, transport config |
+| `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, impersonation, bucket takeover, secrets harvest, impact proof |
+>>>>>>> upstream/main
 
 ### Commands (40 slash commands)
 
