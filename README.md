@@ -72,21 +72,6 @@
   · <a href="https://fluxionai.world/model-plaza">Model Plaza</a>
 </p>
 
-<p align="center">
-  <a href="https://www.infistar.cc/register?aff=6KMC28FN&ref_source=link">
-    <img src="assets/infistar.jpg" alt="Sponsored by Infistar.cc — One-Stop Global LLM API Platform" width="720"/>
-  </a>
-</p>
-
-<p align="center">
-  <b>Sponsored by <a href="https://www.infistar.cc/register?aff=6KMC28FN&ref_source=link">Infistar.cc</a></b><br/>
-  <sub>One API key for the AI hunting pipeline. One OpenAI-compatible API for multiple models, with unified billing.</sub>
-</p>
-
-<p align="center">
-  <a href="https://www.infistar.cc/register?aff=6KMC28FN&ref_source=link"><b>Get $5 bonus credit →</b></a>
-</p>
-
 ---
 
 ## Get started (30 seconds)
