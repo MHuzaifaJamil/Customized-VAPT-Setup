@@ -27,6 +27,8 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
 | `skills/argus/` | Six automated scanners for high-value web + LLM bug classes — CORS, CRLF/host-header, NoSQLi, JWT attacks, OOB confirmation (blind SSRF/XXE/SQLi/RCE/Log4Shell), LLM red-team corpus |
 | `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, JS deobfuscation basics |
+| `skills/mcp-server-audit/` | MCP server audit — tool poisoning, param→sink injection, missing approval gates, secret leaks, rug-pull/confused-deputy, transport config |
+| `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, impersonation, bucket takeover, secrets harvest, impact proof |
 
 ### Commands (40 slash commands)
 

@@ -25,8 +25,10 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 | `skills/whitebox-code-recon/` | Source-first recon for engagements with code access — architecture/entry-point/schema mapping, then backward taint-hunts per vuln class before live testing |
 | `skills/capability-chaining/` | Derive novel exploit chains when no known pattern fits — capability primitives (read/write/exec/ssrf/cred/idor), RCE-as-equation table, forward/backward state-space search |
 | `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
-| `skills/argus/` | Six automated scanners for high-value web + LLM bug classes — CORS, CRLF/host-header, NoSQLi, JWT attacks, OOB confirmation (blind SSRF/XXE/SQLi/RCE/Log4Shell), LLM red-team corpus |
+| `skills/argus/` | **Argus** (all-seeing scanner suite) — CORS, CRLF/host-header, NoSQL injection, JWT (alg:none/confusion/crack), OOB blind-bug confirmation (interactsh), LLM red-team corpus |
 | `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, JS deobfuscation basics |
+| `skills/mcp-server-audit/` | MCP server security — tool poisoning, param→sink injection (path/cmd/SSRF/SQL), missing approval gates, result-channel secret leaks, rug-pull/confused-deputy, transport config |
+| `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, STS/impersonation, bucket takeover, secrets harvest, proving impact |
 
 ### Commands (40 slash commands)
 
