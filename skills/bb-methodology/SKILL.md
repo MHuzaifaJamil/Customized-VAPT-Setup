@@ -228,7 +228,11 @@ python3 tools/lead_board.py next target.com
 # Route in plain language: "GraphQL endpoint → skills/graphql-audit"
 # touch status when you start / kill / report a lead
 ```
+<<<<<<< HEAD
 (`tools/hunt.py` runs ingest + EOL automatically unless `--skip-leads`.)
+=======
+(`hunt.py` runs ingest + EOL automatically unless `--skip-leads`.)
+>>>>>>> upstream/main
 
 ### Phase 2: MAPPING & ANALYSIS
 
@@ -403,6 +407,7 @@ Every 20 minutes ask yourself: **"Am I making progress?"**
 | Discovery: XSS | `kxss` -> `dalfox` | Filter (which params reflect?) -> scan (only reflective params) |
 | Discovery: SQLi | `ghauri` | Modern blind SQLi on ID-like parameters |
 | Discovery: SSRF | `interactsh-client` | Self-hosted OOB listener for blind SSRF/XXE/RCE |
+<<<<<<< HEAD
 | Discovery: WAF | `wafw00f` → `tools/bypass_403.sh` → `tools/waf_encoder.py` → `tools/waf_response_analyzer.py` | Fingerprint → soft-block aware bypass → encoded variants → score response |
 | Exploit: 403 | `tools/bypass_403.sh` / `byp4xx` | Soft-block (200+block body) aware; verdict: bypassed/needs_review/blocked |
 | Exploit: Upload | `tools/multipart_mutator.py --file shell --field f` | Parser-confusion multipart variants |
@@ -446,6 +451,15 @@ or any other skill in this repo — use this repo's own skills for anything
 they already cover, and reach for `cybersecurity-skills` only for the gap
 above (post-initial-access, internal/AD, compliance-audit work) that this
 toolkit doesn't carry itself.
+=======
+| Discovery: WAF | `wafw00f` → `tools/bypass_403.sh` → `tools/waf_encoder.py` → `waf_response_analyzer.py` | Fingerprint → soft-block aware bypass → encoded variants → score response |
+| Exploit: 403 | `tools/bypass_403.sh` / `byp4xx` | Soft-block (200+block body) aware; verdict: bypassed/needs_review/blocked |
+| Exploit: Upload | `tools/multipart_mutator.py --file shell --field f` | Parser-confusion multipart variants |
+| Exploit: Takeover | `tools/takeover_scanner.sh` / `subzy` | CNAME against vulnerable services |
+| Exploit: Cloud | `tools/cloud_recon.sh` + `aws` CLI | Scan bucket permissions -> extract metadata credentials |
+| Exploit: Secrets | `tools/secrets_hunter.sh` / `trufflehog --only-verified` | Only verified working keys (no false positives) |
+| Orchestrate | `python3 tools/hunt.py --target T` | Recon → lead ingest → EOL → scan (add `--graphql` / `--cve-hunt` as needed) |
+>>>>>>> upstream/main
 
 ### Session End Checklist
 

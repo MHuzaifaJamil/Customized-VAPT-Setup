@@ -1,9 +1,16 @@
 ---
 name: web2-vuln-classes
+<<<<<<< HEAD
 description: Complete reference for 32 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass (with a backward-taint "sufficient guard" procedure per horizontal/vertical/context category and an authz-specific false-positive list), XSS, SSRF (11 IP bypass techniques, plus a sink taxonomy by mechanism/outcome and a 7-step checklist), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10 agentic framework), API misconfig (mass assignment with ORM-specific bypasses, JWT attacks, prototype pollution with Node RCE gadgets, CORS), ATO taxonomy (9 paths), SSTI (Jinja2/Twig/Freemarker/ERB/Spring), subdomain takeover, cloud/infra misconfigs, HTTP smuggling (CL.TE/TE.CL/H2.CL), cache poisoning, MFA bypass (7 patterns), SAML attacks (XSW/comment injection/signature stripping), error disclosure / debug endpoints (stack trace regex per framework, chain templates), CSS injection (attribute-selector exfiltration, opacity clickjacking, @import), LFI / file inclusion -> RCE (php://filter source disclosure, iconv filter-chain RCE with no upload, log/environ poisoning, .user.ini/.htaccess auto_prepend, data:// + expect:// wrappers, session inclusion, traversal bypass table), insecure deserialization (PHP __wakeup bypass / phar:// POP chains, Java ysoserial CommonsCollections gadgets + magic bytes, Python pickle __reduce__ + signed-cookie forgery, Node node-serialize), broken function-level authorization (BFLA — actor x action matrix, transport/verb drift, gateway header trust), NoSQL injection (MongoDB operator injection + $where/$function SSJS, Redis/Elasticsearch/DynamoDB/Cassandra/CouchDB/Neo4j), semantic confusion (parser/normalization differentials, Spring4Shell-class field overloading), header injection / response splitting (CRLF, mail header injection), XXE (injection-point inventory + escalation chain, payloads cross-referenced to security-arsenal), WebSocket security (CSWSH, auth-once-trust-forever message handling), dependency confusion / supply chain (callback-only PoC discipline, npm/pip/Maven/RubyGems variants), padding oracle & crypto misuse (PadBuster, ASP.NET ViewState-to-RCE, ECB/weak-hash quick wins). Use when hunting a specific vuln class or studying what makes bugs pay.
 ---
 
 # WEB2 BUG CLASSES — 32 Classes
+=======
+description: Complete reference for 26 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass, XSS (postMessage), SSRF (11 IP bypass techniques), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10, MCP/RAG attacks), API misconfig (mass assignment, JWT, prototype pollution, CORS), ATO (9 paths), SSTI, subdomain takeover, cloud misconfig, HTTP smuggling, cache poisoning, MFA bypass (7 patterns), SAML attacks, error disclosure, CSS injection, LFI/RCE, insecure deserialization, dependency confusion, padding oracle. Use when hunting a specific vuln class or studying what makes bugs pay.
+---
+
+# WEB2 BUG CLASSES — 26 Classes
+>>>>>>> upstream/main
 
 Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 
@@ -20,6 +27,7 @@ Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 > The MFA workflow-skip and SAML signature-stripping probes intentionally
 > stay **unauthenticated** even when a session is loaded — that's the
 > attack premise.
+<<<<<<< HEAD
 >
 > **Session context** — when a target has more than two roles (free/paid
 > tiers, org owner/member/guest, multiple tenant accounts), keep a running
@@ -29,6 +37,8 @@ Root cause, pattern, bypass table, chaining opportunity, real paid examples.
 > from your XSS pass is the same map your IDOR pass needs, and a gap you
 > notice in it ("I never tried the guest role against `/api/export`") is
 > itself a lead.
+=======
+>>>>>>> upstream/main
 
 ---
 
@@ -351,6 +361,7 @@ http://localhost:8080     # Admin panel
 
 **WAF bypass for SSRF**: If WAF blocks `127.0.0.1`/`169.254.169.254`, try `2130706433` (decimal), `0x7f000001` (hex), `[::1]` (IPv6), `[::ffff:127.0.0.1]` (IPv4-mapped), `127.0.0.1.nip.io` (DNS rebind), or `127。0。0。1` (full-width period U+3002). Run payload through `tools/waf_encoder.py "<payload>" --class generic`.
 
+<<<<<<< HEAD
 ### SSRF Sink Taxonomy
 
 Classify by **mechanism** (how attacker-controlled data reaches the outbound
@@ -401,6 +412,8 @@ blocked before you invest time bypassing it):
        — this determines both your evidence and your severity claim.
 ```
 
+=======
+>>>>>>> upstream/main
 ---
 
 ## 5. BUSINESS LOGIC
@@ -805,7 +818,11 @@ Leaking the system prompt is **Informational on its own** — escalate only if i
 The model's plumbing leaks its own credentials and provider config — directly monetizable (LLMjacking: stolen keys run up the victim's inference bill) and a pivot into the victim's cloud.
 
 - **Where keys leak:** system-prompt extraction (above); client-side JS bundles / source maps (`grep -RniE 'sk-[A-Za-z0-9]{20,}|sk-ant-|AIza[0-9A-Za-z_-]{35}|hf_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}'` over the recon JS — also run `/secrets-hunt --js-bundle`); verbose error/debug endpoints (see Error Disclosure / Debug Endpoints); a `fetch`/`http` MCP tool coerced into hitting the provider's local proxy or `169.254.169.254` (see SSRF class).
+<<<<<<< HEAD
 - **Verify before claiming impact (don't run up the victim's bill):** a single low-cost `models.list`/balance call proves the key is *accepted* — but that alone doesn't prove it's actually being checked, since some endpoints answer 200 regardless. Add the matched-twin control from `rules/hunting.md` Rule 17: corrupt a few middle characters of the same key (never the `sk-`/provider prefix) and confirm that copy gets rejected. Real-accepted + twin-rejected is the proof; `git-dumper` an exposed `.git` to recover keys from history. LLMjacking via leaked cloud creds (e.g. AWS Bedrock-hosted models) has been observed costing victims tens of thousands of dollars/day — cite the *pattern*, not a fabricated number.
+=======
+- **Verify before claiming impact (don't run up the victim's bill):** a single low-cost `models.list`/balance call proves the key is live; `git-dumper` an exposed `.git` to recover keys from history. LLMjacking via leaked cloud creds (e.g. AWS Bedrock-hosted models) has been observed costing victims tens of thousands of dollars/day — cite the *pattern*, not a fabricated number.
+>>>>>>> upstream/main
 - **Submittable when:** key is live and belongs to the target (or its provider account). A revoked/demo key = N/A. Mirrors the Hugging Face leaked-token disclosures (1,600+ live tokens found in public repos) — chase the *target's* keys, not third parties'.
 
 ---
@@ -1814,6 +1831,7 @@ __wakeup-bypassed PHP object reaching __toString file read (no command exec)    
 Deserialization sink confirmed but NO gadget on classpath / blind w/ no OOB proof  N/A — not submittable until you land code exec or OOB callback
 ```
 > Deserialization is one of the few classes where a single request is plausibly Critical — but **only with a working PoC**. A `rO0AB` blob or an `unserialize()` grep hit with no demonstrated gadget execution is N/A. Land OOB (Collaborator/interactsh callback) or command output, or kill it. Where the encrypted blob also leaks a padding oracle, see the Padding Oracle & Crypto Misuse class for the ViewState/forge-the-blob path.
+<<<<<<< HEAD
 
 ---
 
@@ -2183,11 +2201,19 @@ Origin correctly validated + auth re-checked per message        N/A
 > When an org's build pulls from **both** a private registry and the public one, an attacker who publishes a public package with the **same name + a higher version** can get their code executed inside the org's CI/dev machines. Alex Birsan's 2021 research made **$130k+ across 35 companies** (Apple, Microsoft, PayPal, Netflix, Uber, Tesla) this way — and it is still live: Microsoft Security documented 33 malicious npm packages abusing it in May 2026.
 >
 > **The entire bug is "can your code RIGHT NOW execute on their infra?"** — a DNS/HTTP callback from their network is the proof. No callback = no bug. This class has the hardest ethical line in this skill: **PoC fires a callback ONLY, never a real payload.**
+=======
+## 25. DEPENDENCY CONFUSION / SUPPLY CHAIN  📦
+
+> When an org's build pulls from **both** a private registry and the public one, an attacker who publishes a public package with the **same name + a higher version** can get their code executed inside the org's CI/dev machines. Alex Birsan's 2021 research made **$130k+ across 35 companies** (Apple, Microsoft, PayPal, Netflix, Uber, Tesla) this way — and it is still live: Microsoft Security documented 33 malicious npm packages abusing it in May 2026.
+>
+> **The entire bug is "can your code RIGHT NOW execute on their infra?"** — a DNS/HTTP callback from their network is the proof. No callback = no bug. This class has the hardest ethical line in the skill: **PoC fires a callback ONLY, never a real payload.**
+>>>>>>> upstream/main
 
 ### Root Cause
 The package-manager resolver prefers **highest version across all configured registries** instead of pinning name→registry origin.
 
 ```bash
+<<<<<<< HEAD
 # VULNERABLE — internal pkg "acme-auth-utils" lives only on the private registry,
 # but the resolver also checks public npm. Attacker publishes acme-auth-utils@99.0.0
 # to public npm → resolver sees 99.0.0 > internal 1.4.2 → installs the attacker's.
@@ -2348,6 +2374,12 @@ Real payload used instead of a benign callback                             = STO
 
 Cheaper variant when machineKey is leaked elsewhere (web.config exposure via path traversal, `/elmah.axd`, `/trace.axd`, `.git/` exposure): skip PadBuster, jump straight to ysoserial.net. `web2-recon`'s Source Disclosure & Extraction section covers finding a leaked `web.config`/machineKey directly.
 
+=======
+
+## 26. PADDING ORACLE & CRYPTO MISUSE
+> Apps encrypt session data, settings, or state into cookies / hidden fields / URL params to make them tamper-proof. When the **decryption** path leaks whether padding is valid (via differential responses), an attacker without the key can decrypt **and forge** arbitrary plaintexts. ASP.NET ViewState, Rails session cookies, and home-grown CBC-encrypted cookies remain common targets. Also covers ECB block-repetition and weak-hash quick-wins.
+
+>>>>>>> upstream/main
 ### Identifying Padding Oracle Candidates
 | Signal | What it means |
 |---|---|

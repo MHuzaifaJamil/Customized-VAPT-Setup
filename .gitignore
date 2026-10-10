@@ -12,6 +12,7 @@ config.json
 secrets.txt
 api_keys.txt
 .private/
+<<<<<<< HEAD
 target_config.yaml
 
 # Personal editor / tool config, not project content
@@ -20,6 +21,8 @@ target_config.yaml
 
 # Live/undisclosed recon artifacts and session captures — never commit
 .playwright-mcp/
+=======
+>>>>>>> upstream/main
 
 # Nested local clones / sub-repos (not tracked)
 Agentic-Bug-Hunter/
@@ -61,8 +64,11 @@ nmap-output/
 memory/leads/
 dist/
 build/
+<<<<<<< HEAD
 
 # Real employer/client infrastructure details — never commit
 theharvester.json
 theharvester.xml
 cloudflare-doc1.png
+=======
+>>>>>>> upstream/main

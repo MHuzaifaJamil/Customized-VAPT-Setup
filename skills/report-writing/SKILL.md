@@ -35,12 +35,17 @@ Minimum files:
 findings/<target-or-program>-<bug-class>/
 ├── hackerone-report.md       # or bugcrowd-report.md / intigriti-report.md / immunefi-report.md
 ├── submission-notes.md       # final checklist, references, caveats, next action
+<<<<<<< HEAD
 └── evidence/                 # screenshots, curl output, response bodies, replay.sh when available
+=======
+└── evidence/                 # screenshots, curl output, response bodies when available
+>>>>>>> upstream/main
 ```
 
 If `tools/validate.py` already wrote `submission-notes.md`, append/update it
 instead of creating a duplicate.
 
+<<<<<<< HEAD
 ### Reproduction Capsule (evidence/replay.sh)
 
 Prose "Steps to Reproduce" asks the reader to trust your narration of what
@@ -72,6 +77,8 @@ capsule for a finding you haven't actually run it against — the script has
 to be the real reproduction, not a plausible-looking one written from
 memory.
 
+=======
+>>>>>>> upstream/main
 ---
 
 ## TITLE FORMULA
