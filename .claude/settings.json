@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "hooks": {
+<<<<<<< HEAD
     "SessionStart": [
       {
         "hooks": [
@@ -19,6 +20,8 @@
         ]
       }
     ],
+=======
+>>>>>>> upstream/main
     "Stop": [
       {
         "hooks": [
@@ -31,6 +34,7 @@
         ]
       }
     ]
+<<<<<<< HEAD
   },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
@@ -43,5 +47,7 @@
         "repo": "mukul975/Anthropic-Cybersecurity-Skills"
       }
     }
+=======
+>>>>>>> upstream/main
   }
 }

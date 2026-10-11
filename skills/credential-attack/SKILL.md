@@ -1,6 +1,10 @@
 ---
 name: credential-attack
+<<<<<<< HEAD
 description: Password spray methodology for bug bounty — when to do it vs web-vuln hunting, the wordlist-gen + breach-check + osint-employees + spray pipeline, mode selection (http-form / oauth / o365 / okta), rate-limit + lockout tactics, BBP legal guardrails, success detection, the spray → authenticated /hunt chain pattern, and phishing-based MFA-bypass techniques (AiTM reverse-proxy, OAuth device-code) that require separate authorization beyond a spray-only scope. Use when assessing whether credential attack is worth running on a target, picking the right mode, or recovering from common pitfalls.
+=======
+description: Password spray methodology for bug bounty — when to do it vs web-vuln hunting, the wordlist-gen + breach-check + osint-employees + spray pipeline, mode selection (http-form / oauth / o365 / okta), rate-limit + lockout tactics, BBP legal guardrails, success detection, and the spray → authenticated /hunt chain pattern. Use when assessing whether credential attack is worth running on a target, picking the right mode, or recovering from common pitfalls.
+>>>>>>> upstream/main
 ---
 
 # CREDENTIAL ATTACK PIPELINE
@@ -220,6 +224,7 @@ The spray-only finding alone is **usually rejected** by mature BBPs (they treat 
 
 ---
 
+<<<<<<< HEAD
 ## BEYOND SPRAY: PHISHING-BASED MFA BYPASS (Separate Authorization Required)
 
 Password spray stops at MFA — a correct password with a live 2FA prompt is
@@ -255,6 +260,8 @@ phishing, treat "spray hit MFA" as the end of that branch and report the
 MFA-protected account as the finding (or lack of one) — don't improvise
 into phishing because spray alone didn't get through.
 
+=======
+>>>>>>> upstream/main
 ## LEGAL GUARDRAILS
 
 Before running `/spray` against ANY target, verify:

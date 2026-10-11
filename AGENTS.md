@@ -4,13 +4,18 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 ## What's Here
 
+<<<<<<< HEAD
 ### Skills (19 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+=======
+### Skills (13 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+>>>>>>> upstream/main
 
 | Skill | Domain |
 |---|---|
 | `skills/bug-bounty/` | Master workflow — recon to report, all vuln classes, LLM testing, chains |
 | `skills/bb-methodology/` | **Hunting mindset + 5-phase non-linear workflow + tool routing + session discipline** |
 | `skills/web2-recon/` | Subdomain enum, live host discovery, URL crawling, nuclei |
+<<<<<<< HEAD
 | `skills/web2-vuln-classes/` | 32 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI, BFLA, NoSQLi, semantic confusion, header injection, XXE, WebSocket security, dependency confusion, padding oracle/crypto misuse) |
 | `skills/security-arsenal/` | Payloads, bypass tables, gf patterns, always-rejected list |
 | `skills/web3-audit/` | 10 smart contract bug classes, closure discipline for ruling candidates in/out, Foundry PoC template, pre-dive kill signals |
@@ -31,6 +36,22 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, impersonation, bucket takeover, secrets harvest, impact proof |
 
 ### Commands (40 slash commands)
+=======
+| `skills/web2-vuln-classes/` | 21 bug classes with bypass tables (SSRF, open redirect, file upload, Agentic AI) |
+| `skills/security-arsenal/` | Payloads, bypass tables, gf patterns, always-rejected list |
+| `skills/web3-audit/` | 10 smart contract bug classes, Foundry PoC template, pre-dive kill signals |
+| `skills/meme-coin-audit/` | Meme coin rug pull detection, token authority checks, bonding curve exploits, LP attacks |
+| `skills/report-writing/` | H1/Bugcrowd/Intigriti/Immunefi report templates, CVSS 3.1, human tone |
+| `skills/triage-validation/` | 7-Question Gate, 4 gates, never-submit list, conditionally valid table |
+| `skills/credential-attack/` | Password spray methodology — when/why, 4-stage pipeline, mode selection, lockout tactics, legal guardrails |
+| `skills/mobile-pentest/` | Android/iOS app pentest — runtime-first proxy workflow, APK/IPA decompile, deeplink injection, WebView bridge |
+| `skills/cicd-security/` | CI/CD pipeline hunting — GitHub Actions injection, secret exfil, self-hosted runner poisoning |
+| `skills/graphql-audit/` | GraphQL hunting — introspection, field suggestions, batching DoS, IDOR via aliasing, injection |
+| `skills/mcp-server-audit/` | MCP server audit — tool poisoning, param→sink injection, missing approval gates, secret leaks, rug-pull/confused-deputy, transport config |
+| `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, impersonation, bucket takeover, secrets harvest, impact proof |
+
+### Commands (slash commands)
+>>>>>>> upstream/main
 
 > **Note:** All commands are prefixed to avoid conflicts with Codex's built-in commands.
 > `/resume` is a reserved Codex command — use `/pickup` to continue a previous hunt.
@@ -60,6 +81,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/bypass-403` | `/bypass-403 <url>` — try header/method/encoding tricks against a 403/401 |
 | `/arsenal` | `/arsenal [tool]` — list installed external tools or get an install hint |
 | `/scan-cves` | `/scan-cves <host>` — focused nuclei CVE sweep (high/critical) + optional log4j-scan |
+<<<<<<< HEAD
 | `/wordlist-gen` | `/wordlist-gen <target>` — company-specific password wordlist (cewler + hashcat); requires `--with-credential-attack` |
 | `/osint-employees` | `/osint-employees <target>` — employee names + emails (theHarvester + username-anarchy, opt-in LinkedIn); requires `--with-credential-attack` |
 | `/breach-check` | `/breach-check <wordlist>` — HIBP k-anonymity rank wordlist by real-world breach count |
@@ -77,6 +99,13 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 | `/sast` | `/sast <path>` — Semgrep rulesets over fetched JS/source |
 | `/screenshot` | `/screenshot -l urls.txt -o shots/` — self-contained HTML screenshot gallery for visual triage |
 | `/poc` | `/poc capture <url> [-H ...] \| from-request req.txt [--response resp.txt]` — reproducible PoC evidence bundle (request/response, curl, HAR, screenshot, report-ready evidence.md); secrets redacted by default |
+=======
+| `/wordlist-gen` | `/wordlist-gen <target>` — company-specific password wordlist; requires `--with-credential-attack` |
+| `/osint-employees` | `/osint-employees <target>` — employee names + emails; requires `--with-credential-attack` |
+| `/breach-check` | `/breach-check <wordlist>` — HIBP k-anonymity rank wordlist by breach count |
+| `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards |
+| `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit |
+>>>>>>> upstream/main
 
 ### Agents (9 specialized agents)
 
@@ -94,6 +123,7 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 
 - `rules/hunting.md` — 17 critical hunting rules
 - `rules/reporting.md` — report quality rules
+<<<<<<< HEAD
 - `rules/vapt_report_format.md` — mandatory VAPT client PDF report format (cover page, sections, code blocks, prohibited content)
 
 ### Tools (Python/shell — in `bughunter/tools/`)
@@ -136,10 +166,27 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 - `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` — WAF bypass + soft-block scoring + upload mutation
 - `tools/bootstrap_arsenal.sh` · `bootstrap_plugins.sh` · `burp_bridge.sh` — this fork's own session-bootstrap and Burp REST-bridge tooling (wired via `.claude/settings.json` SessionStart hooks)
 - Full catalogue: **`tools/README.md`** (~70 tools).
+=======
+
+### Tools (Python/shell — in `tools/`)
+
+See **`tools/README.md`** for the full ~50-tool catalogue. Highlights:
+
+- `tools/hunt.py` — master orchestrator (auto lead-board ingest + EOL after recon; `--graphql` / `--cve-hunt` / `--zero-day`)
+- `tools/lead_board.py` — persistent recon→skill lead ledger (`ingest` / `show` / `next` / `touch`)
+- `tools/recon_engine.sh` · `vuln_scanner.sh` · `validate.py` · `scope_checker.py`
+- `tools/graphql_audit.sh` · `cicd_scanner.sh` · `cve_scan.sh` · `eol_check.py`
+- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` · `bypass_403.sh`
+- `tools/external_arsenal.sh` — installed-tool registry (~50 tools); `_have <tool>` gate
+- `tools/secrets_hunter.sh` · `takeover_scanner.sh` · `cloud_recon.sh` · `param_discovery.sh`
+- Credential attack (opt-in): `wordlist_engine.sh` · `osint_employees.sh` · `breach_checker.py` · `spray_orchestrator.sh`
+- Web3: `token_scanner.py`
+>>>>>>> upstream/main
 
 ### External tool references
 
 - `wordlists/REFERENCES.md` — pointers to SecLists / OneListForAll / fuzz4bounty / PayloadsAllTheThings
+<<<<<<< HEAD
 - `skills/security-arsenal/REFERENCES.md` — methodology, writeup archives, dorks, key-verification, AI-security skill repos
 - `skills/security-arsenal/METHODOLOGY_CHEATSHEET.md` — per-vuln quick-check tables distilled from HowToHunt + HolyTips + AllAboutBugBounty + KingOfBugBountyTips
 
@@ -151,12 +198,28 @@ This repo is an agent-portable bug bounty plugin for professional hunting across
 - `mcp/caido-mcp-client/` — Caido proxy integration
 
 ### Hunt Memory (in `bughunter/memory/`)
+=======
+- `skills/security-arsenal/REFERENCES.md` — methodology, writeup archives, dorks, key-verification
+- `skills/security-arsenal/METHODOLOGY_CHEATSHEET.md` — per-vuln quick-check tables
+
+### MCP Integrations (in `mcp/`)
+
+- `mcp/burp-mcp-client/` — Burp Suite proxy integration
+- `mcp/hackerone-mcp/` — HackerOne public API (Hacktivity, program stats, policy)
+
+### Hunt Memory (in `memory/`)
+>>>>>>> upstream/main
 
 - `memory/pattern_db.py` — cross-target pattern learning
 - `memory/audit_log.py` — request audit log, rate limiter, circuit breaker
 - `memory/rotation.py` — size-based JSONL rotation (10MB cap, keep 3 backups), auto-fired on append
+<<<<<<< HEAD
 - `memory/schemas.py` — schema validation for all data (v2: research/contribution event tracking)
 - `memory/hunt_journal.py` · `research_case.py` — structured hunt journal and research-case tracking
+=======
+- `memory/schemas.py` — schema validation for all data
+- `memory/leads/<target>.jsonl` — lead board ledger (via `lead_board.py`)
+>>>>>>> upstream/main
 
 ## Start Here
 
@@ -194,6 +257,7 @@ Install for another harness:
 4. KILL weak findings fast — N/A hurts your validity ratio
 5. 5-minute rule — nothing after 5 min = move on
 6. **LEAD BOARD — never lose a lead.** After recon, run `lead_board.py ingest <target>` + `show`, and route each finding to its `hunt-*` skill in plain language ("GraphQL endpoint → hunt-graphql"). When starting/killing/reporting a lead, `touch` its status. The hunter focuses on one lead at a time; the board remembers the rest so none is forgotten. Surface stale high-priority leads unprompted.
+<<<<<<< HEAD
 7. NEVER redact evidence in a report, no matter how sensitive — see VAPT Standard §1.5
 8. **NEVER publish an Artifact unless the user explicitly asks for one.** Write files to disk only. Do not call the Artifact tool proactively.
 
@@ -202,3 +266,5 @@ Install for another harness:
 Full spec: `rules/vapt_report_format.md` — the enforced format for every client-facing VAPT PDF report (myco.io, buypass.ai, and any future engagement): tone/typography, cover page + footer HTML/CSS, running footer, section/page-break rules, the six section playbooks, prohibited content, legacy formats to avoid, the informational-findings register, HTML retention, dark code-evidence-block spec, pre-render grep checks, and the canonical reference template. Read it in full before generating or editing any client VAPT report — do not improvise report formatting from memory.
 
 Critical Rule #7 above (never redact evidence) is §1.5 of that file.
+=======
+>>>>>>> upstream/main

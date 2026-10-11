@@ -1,6 +1,10 @@
 # Commands
 
+<<<<<<< HEAD
 40 slash commands installed into `~/.claude/commands/` by `install.sh`.
+=======
+33 slash commands installed into `~/.claude/commands/` by `install.sh`.
+>>>>>>> upstream/main
 
 ## Core Workflow
 | Command | What It Does |
@@ -10,13 +14,20 @@
 | `/validate` | 7-Question Gate + 4 pre-submission gates on the current finding |
 | `/report` | Submission-ready report for H1 · Bugcrowd · Intigriti · Immunefi |
 | `/autopilot` | Autonomous loop: scope → recon → hunt → validate → report |
+<<<<<<< HEAD
 | `/diff-review` | Diff-scoped security review of a PR/commit/branch |
+=======
+>>>>>>> upstream/main
 
 ## Recon & Enumeration
 `/surface` `/scope-aggregate` `/cloud-recon` `/param-discover` `/secrets-hunt` `/takeover` `/scan-cves` `/bypass-403`
 
 ## Vulnerability Scanners
+<<<<<<< HEAD
 `/graphql-audit` `/cors` `/crlf` `/nosqli` `/jwt-scan` `/oob` `/llm-redteam` `/domxss` `/portscan` `/sast` `/screenshot`
+=======
+`/graphql-audit` `/cors` `/crlf` `/nosqli` `/jwt-scan` `/oob` `/llm-redteam`
+>>>>>>> upstream/main
 
 | Command | What It Does |
 |:---|:---|
@@ -26,10 +37,13 @@
 | `/jwt-scan` | JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline) |
 | `/oob` | Out-of-band confirm of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh) |
 | `/llm-redteam` | LLM red-team corpus — injection, jailbreak, prompt leak, exfil |
+<<<<<<< HEAD
 | `/domxss` | Headless-browser DOM XSS confirmation — only reports when a canary actually executes |
 | `/portscan` | Non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP) the HTTP-only pipeline misses |
 | `/sast` | Semgrep rulesets over fetched JS/source, mapped into the toolkit's severity/confidence model |
 | `/screenshot` | Self-contained HTML screenshot gallery for fast visual triage across live hosts |
+=======
+>>>>>>> upstream/main
 
 ## Smart Contract
 `/web3-audit` `/token-scan`
@@ -37,10 +51,13 @@
 ## Credential Attack
 `/wordlist-gen` `/osint-employees` `/breach-check` `/spray`
 
+<<<<<<< HEAD
 ## Evidence
 | Command | What It Does |
 |:---|:---|
 | `/poc` | Reproducible PoC evidence bundle (request/response, curl, HAR, screenshot, report-ready evidence.md); secrets redacted by default |
 
+=======
+>>>>>>> upstream/main
 ## Session & Utility
 `/pickup` `/intel` `/chain` `/scope` `/triage` `/remember` `/memory-gc` `/arsenal`
