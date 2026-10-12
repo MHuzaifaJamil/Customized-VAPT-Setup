@@ -59,6 +59,7 @@ nmap-output/
 
 # Runtime lead-board ledgers (per-target, regenerated on each hunt)
 memory/leads/
+**/memory/leads/
 dist/
 build/
 

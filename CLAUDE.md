@@ -4,7 +4,7 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 
 ## What's Here
 
-### Skills (19 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
+### Skills (21 domains — load with `/bug-bounty`, `/web2-recon`, `/token-scan`, etc.)
 
 | Skill | Domain |
 |---|---|
@@ -26,11 +26,11 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 | `skills/capability-chaining/` | Derive novel exploit chains when no known pattern fits — capability primitives (read/write/exec/ssrf/cred/idor), RCE-as-equation table, forward/backward state-space search |
 | `skills/opt-in-advanced-techniques/` | ⚠️ **Opt-in only, not default** — broad-scope engagement framing, red-team anti-forensics (requires specific written authorization), narrow product-specific exploit patterns. Use only when explicitly invoked or an engagement's SOW/ROE explicitly authorizes it |
 | `skills/argus/` | **Argus** (all-seeing scanner suite) — CORS, CRLF/host-header, NoSQL injection, JWT (alg:none/confusion/crack), OOB blind-bug confirmation (interactsh), LLM red-team corpus |
-| `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, JS deobfuscation basics |
+| `skills/client-reverse/` | Client-side request-signing / anti-bot token reversal — recover a sign/hmac/nonce field just enough to replay a request outside the client, packet-first staging, fetch/XHR hooking, JS deobfuscation basics |
 | `skills/mcp-server-audit/` | MCP server security — tool poisoning, param→sink injection (path/cmd/SSRF/SQL), missing approval gates, result-channel secret leaks, rug-pull/confused-deputy, transport config |
 | `skills/cloud-pentest/` | Post-access cloud exploitation (AWS/GCP/Azure) — IAM enum + privesc, IMDS metadata creds, STS/impersonation, bucket takeover, secrets harvest, proving impact |
 
-### Commands (40 slash commands)
+### Commands (42 slash commands)
 
 > **Note:** All commands are prefixed to avoid conflicts with Claude Code's built-in commands.
 > `/resume` is a reserved Claude Code command — use `/pickup` to continue a previous hunt.
@@ -66,12 +66,12 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 | `/spray` | `/spray <url> --mode http-form\|oauth\|o365\|okta --users <f> --passes <f>` — password spray with hard guards (typed-host confirm, lockout warn, audit log) |
 | `/graphql-audit` | `/graphql-audit <url>` — full GraphQL audit: introspection, batching DoS, IDOR, injection, alias bomb, graphw00f fingerprint |
 | `/diff-review` | `/diff-review [PR#\|sha\|base...head]` — diff-scoped security review of a PR/commit/branch, not a full repo audit |
-| `/cors` | `/cors <url>` — CORS misconfig: origin reflection, null-origin, credentialed read, regex bypass |
-| `/crlf` | `/crlf <url>` — CRLF/response-splitting + host-header injection (Set-Cookie canary) |
-| `/nosqli` | `/nosqli <url>` — NoSQL injection: operator auth-bypass, `$where` time-based blind |
-| `/jwt-scan` | `/jwt-scan <token>` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline) |
-| `/oob` | `/oob <url>` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh) |
-| `/llm-redteam` | `/llm-redteam <endpoint>` — LLM red-team corpus: injection, jailbreak, prompt leak, exfil |
+| `/cors` | `/cors <url>` — CORS misconfig scanner: arbitrary-origin reflection, null-origin, credential exposure, suffix/prefix regex bypass |
+| `/crlf` | `/crlf <url> [--host-header]` — CRLF/response-splitting + host-header injection (Set-Cookie canary, reset poisoning) |
+| `/nosqli` | `/nosqli --login <url> --user-field <f> --pass-field <f>` — NoSQL injection: operator auth-bypass, `$where` time-based blind |
+| `/jwt-scan` | `/jwt-scan <token> [--analyze\|--alg-none\|--confuse\|--crack]` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline) |
+| `/oob` | `/oob --payloads <oob-domain>` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh correlation) |
+| `/llm-redteam` | `/llm-redteam --url <chat-endpoint>` — LLM red-team corpus: prompt-injection, jailbreak, system-prompt leak, exfil, indirect injection |
 | `/domxss` | `/domxss "<url>" [--params q,name]` — headless-browser DOM XSS confirmation, only reports on actual execution |
 | `/portscan` | `/portscan <host>` — non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP) |
 | `/sast` | `/sast <path>` — Semgrep rulesets over fetched JS/source |
@@ -101,7 +101,7 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 ### Tools (Python/shell — in `bughunter/tools/`)
 
 - `tools/hunt.py` — master orchestrator (auto lead-board ingest + EOL after recon; `--graphql` / `--cve-hunt` / `--zero-day` flags)
-- `tools/lead_board.py` — persistent recon→skill lead ledger (`ingest`/`show`/`next`/`touch`/`add`). See **Critical Rule 6**.
+- `tools/lead_board.py` — persistent per-target lead ledger that routes every recon observation to the right `hunt-*` skill and tracks its status so no lead is forgotten (`memory/leads/<target>.jsonl`). `ingest` parses recon output and routes 30+ signal types (IDOR/SSRF/GraphQL/OAuth/SAML/LLM/source-leak/tech-stack/nuclei) to skills; `show` lists untouched-first and flags stale high-priority leads; `next` returns the single top lead; `touch` marks a lead investigating/killed/reported (re-ingest preserves status). See **Critical Rule 6**.
 - `tools/recon_engine.sh` — subdomain + URL discovery (optional `nuclei` phase, theHarvester + dnsrecon passive OSINT)
 - `tools/vuln_scanner.sh` — XSS/SQLi/SSTI/MFA/SAML probe pipeline (SAML probing baselines against a random nonexistent path first, so a catchall/blanket-403 host can't fake a "found" endpoint)
 - `tools/validate.py` — 4-gate finding validator
@@ -123,20 +123,19 @@ This repo is a Claude Code plugin for professional bug bounty hunting across Hac
 - `tools/breach_checker.py` — HIBP k-anonymity wordlist enrichment; ranks passwords by breach count (no API key, free)
 - `tools/spray_orchestrator.sh` — password spray with typed-hostname guard + lockout warning + audit log; modes: http-form / oauth / o365 / okta (TREVOR); requires `--with-credential-attack` for TREVOR modes
 - `tools/graphql_audit.sh` — 7-phase GraphQL audit: introspection + schema dump, graphw00f fingerprint, clairvoyance field discovery, batching DoS, alias bomb, gqlmap injection, graphql-cop checklist
-- `tools/cors_scanner.py` — CORS misconfig: origin reflection, null-origin, credentialed read, regex bypass
-- `tools/crlf_scanner.py` — CRLF/response-splitting + host-header injection (Set-Cookie canary)
-- `tools/nosqli_scanner.py` — NoSQL injection: operator auth-bypass, `$where` time-based blind
-- `tools/jwt_scanner.py` — JWT alg:none, RS256→HS256 confusion, weak-secret crack (offline)
-- `tools/oob_listener.py` — out-of-band confirmation of blind SSRF/XXE/SQLi/RCE/Log4Shell (interactsh)
-- `tools/llm_redteam.py` — LLM red-team corpus: injection, jailbreak, prompt leak, exfil
+- `tools/eol_check.py` — end-of-life/lifecycle intel from endoflife.date for fingerprint pairs (auto-run by `hunt.py` after recon)
+- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` — WAF bypass + soft-block scoring + upload mutation
+- `tools/cors_scanner.py` — CORS misconfig scanner (origin-reflection / null / credentialed / suffix-prefix regex / scheme-downgrade); pure classifier, no deps
+- `tools/crlf_scanner.py` — CRLF / response-splitting + host-header injection with Set-Cookie canary detection (encoded + UTF-8 bypass variants)
+- `tools/nosqli_scanner.py` — NoSQL injection (operator auth-bypass, bracket-syntax, $where time-based blind) with differential + timing classifier
+- `tools/jwt_scanner.py` — offline JWT toolkit: alg:none forgery, RS256→HS256 confusion, HS256 secret crack, static claim analysis (pure stdlib)
+- `tools/oob_listener.py` — out-of-band orchestrator wrapping interactsh-client; payloads + correlation for blind SSRF/XXE/SQLi/RCE/Log4Shell
+- `tools/llm_redteam.py` — LLM red-team corpus runner (prompt-injection/jailbreak/system-prompt-leak/exfil/indirect/guardrail-bypass) with canary detection
 - `tools/dom_xss_harness.py` — headless-browser DOM XSS confirmation, only reports on actual execution
 - `tools/port_scanner.py` — non-HTTP service discovery (SSH, DBs, Redis, Docker API, RDP)
 - `tools/sast_scan.py` — Semgrep rulesets over fetched JS/source, mapped into this toolkit's severity/confidence model
 - `tools/visual_triage.py` — self-contained HTML screenshot gallery for visual triage
-- `tools/eol_check.py` — end-of-life/lifecycle intel from endoflife.date for fingerprint pairs
 - `tools/poc_bundler.py` — PoC evidence bundler (`capture` live via SSRF-guarded `safe_http`, or `from-request` offline from a saved/Burp request). Emits `request.http`, `response.http`, `repro.sh` (curl), `evidence.har` (HAR 1.2), optional `screenshot.png`, `evidence.md` (report-ready), and `bundle.json` (manifest + response SHA-256) under `findings/<target>-<class>/evidence/<id>/`. Secrets redacted by default (repro.sh uses `$ENV` placeholders); refuses PUT/DELETE/PATCH without `--confirm-unsafe`. See `/poc`.
-- `tools/waf_encoder.py` · `waf_response_analyzer.py` · `multipart_mutator.py` — WAF bypass + soft-block scoring + upload mutation
-- `tools/cors_scanner.py` — CORS misconfig scanner (origin-reflection / null / credentialed / suffix-prefix regex / scheme-downgrade); pure classifier, no deps
 - `tools/hunt_dashboard.py` — local web Hunt Dashboard (`serve`/`export`); reads `memory/leads/`, `recon/`, `findings/`, `reports/`, galleries, and `hunt-memory/` into one live view. Pure stdlib, binds to 127.0.0.1, HTML-escapes all recon-derived data, path-traversal-guarded `/file` endpoint. Distinct from `tools/dashboard.py` (the in-terminal ANSI progress TUI). See `/dashboard`.
 - `tools/verifier.py` — the report gate (prove-or-suppress). Independently re-derives a finding from its `poc_bundler` bundle (re-sends via SSRF-guarded `safe_http` with an initial-host guard, checks a confirmation marker in the fresh response headers+body) and decides reportability: PROVEN only if the marker was in the original response AND is still present now; else REFUTED/UNPROVEN/INCONCLUSIVE → suppressed. Records the re-fetched response's SHA + status. `decide()` is a pure, total policy function; only PROVEN ships. Writes `verification.json`; `check`/`sweep`; `--require-proof` exits non-zero for gating; unsafe methods never re-fired without `--confirm-unsafe`; secrets read from env only. Reuses only merged code (poc_bundler). See `/verify`.
 - `tools/bootstrap_arsenal.sh` · `bootstrap_plugins.sh` · `burp_bridge.sh` — this fork's own session-bootstrap and Burp REST-bridge tooling (wired via `.claude/settings.json` SessionStart hooks)
