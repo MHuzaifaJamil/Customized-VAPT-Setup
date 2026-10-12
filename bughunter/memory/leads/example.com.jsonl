@@ -1,1 +1,0 @@
-{"id": "lb-bbb636", "target": "example.com", "skill": "hunt-sqli", "priority": "high", "signal": "run_recon candidate", "why": "manually added", "evidence": "critical injectable finding on /login", "source": "manual", "status": "new", "note": "", "created": "2026-10-12T09:50:15Z", "last_seen": "2026-10-12T09:50:15Z", "seen_count": 1}
