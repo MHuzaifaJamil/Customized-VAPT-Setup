@@ -49,11 +49,7 @@ Full pipeline: Recon -> Learn -> Hunt -> Validate -> Report. One skill for every
 15. **ONE-HOUR RULE** -- stuck on one target for an hour with no progress? SWITCH CONTEXT
 16. **TWO-EYE APPROACH** -- combine systematic testing (checklist) with anomaly detection (watch for unexpected behavior)
 17. **T-SHAPED KNOWLEDGE** -- go DEEP in one area and BROAD across everything else
-<<<<<<< HEAD
 18. **LEAD BOARD — never lose a lead** -- after recon run `python3 tools/lead_board.py ingest <target>` + `show` + `next`. Route each signal to its skill ("GraphQL → graphql-audit"). `touch` when starting/killing/reporting. Focus on one lead; the board remembers the rest. Surface stale high-priority leads unprompted.
-=======
-18. **LEAD BOARD — never lose a lead** -- after recon run `python3 tools/lead_board.py ingest <target>` + `show` + `next`. Route each signal to its skill ("GraphQL → hunt-graphql"). `touch` when starting/killing/reporting. Focus on one lead; the board remembers the rest. Surface stale high-priority leads unprompted.
->>>>>>> upstream/main
 
 > **For the full hunting methodology** — 5-phase non-linear workflow, developer psychology framework, session discipline, tool routing by phase, and Wide/Deep route selection — see **`skills/bb-methodology/SKILL.md`**.
 >

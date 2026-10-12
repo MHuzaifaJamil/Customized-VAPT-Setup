@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "hooks": {
-<<<<<<< HEAD
     "SessionStart": [
       {
         "hooks": [
@@ -20,21 +19,18 @@
         ]
       }
     ],
-=======
->>>>>>> upstream/main
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "[ -f tools/memory_gc.py ] && python3 -m tools.memory_gc --rotate >/dev/null 2>&1 || true",
+            "command": "[ -f bughunter/tools/memory_gc.py ] && python3 -m bughunter.tools.memory_gc --rotate >/dev/null 2>&1 || true",
             "timeout": 30,
             "async": true
           }
         ]
       }
     ]
-<<<<<<< HEAD
   },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
@@ -47,7 +43,5 @@
         "repo": "mukul975/Anthropic-Cybersecurity-Skills"
       }
     }
-=======
->>>>>>> upstream/main
   }
 }
