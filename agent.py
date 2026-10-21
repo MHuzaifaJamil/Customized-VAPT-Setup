@@ -44,6 +44,7 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 import traceback
 from datetime import datetime
@@ -1255,6 +1256,55 @@ class ReActAgent:
         ]
         return "\n".join(ctx_parts)
 
+    QUIT_WORDS = ("/quit", "/stop", "exit", "quit")
+
+    @staticmethod
+    def _classify_steering_line(line: str) -> tuple[str, str]:
+        """Pure helper so the stdin-thread logic is unit-testable without a
+        real tty/Ollama client. Returns (kind, text): kind is 'quit', 'blank'
+        or 'bump'."""
+        msg = line.strip()
+        if not msg:
+            return "blank", ""
+        if msg.lower() in ReActAgent.QUIT_WORDS:
+            return "quit", msg
+        return "bump", msg
+
+    def _start_steering_thread(self) -> None:
+        """Read operator messages from stdin in the background so the hunt can
+        be steered — like Claude Code — from the same terminal it's running
+        in, instead of needing a second `agent.py --bump` invocation.
+        Typed lines are written to the existing bump file; `_check_bump()`
+        (already polled every step) picks them up before the next LLM call.
+        """
+        if not self.bump_file or not sys.stdin.isatty():
+            return
+
+        def _reader():
+            print(f"{DIM}[Agent] Steering: type guidance + Enter any time "
+                  f"(picked up before the next step). '/quit' stops the hunt.{NC}", flush=True)
+            while not self.done:
+                try:
+                    line = sys.stdin.readline()
+                except Exception:
+                    return
+                if line == "":  # stdin closed
+                    return
+                kind, msg = self._classify_steering_line(line)
+                if kind == "blank":
+                    continue
+                if kind == "quit":
+                    self._quit_requested = True
+                    print(f"{YELLOW}[Agent] Stop requested — finishing after the current step.{NC}",
+                          flush=True)
+                    return
+                Path(self.bump_file).write_text(msg)
+                print(f"{CYAN}[you] {msg}{NC}", flush=True)
+
+        self._quit_requested = False
+        t = threading.Thread(target=_reader, daemon=True)
+        t.start()
+
     def _check_bump(self) -> str | None:
         """Check if operator has injected guidance via bump file."""
         if not self.bump_file or not os.path.isfile(self.bump_file):
@@ -1445,8 +1495,10 @@ class ReActAgent:
             ],
         )
 
+        self._start_steering_thread()
+
         for i in range(self.max_steps):
-            if self.done:
+            if self.done or getattr(self, "_quit_requested", False):
                 break
 
             obs = self.step()
@@ -1603,6 +1655,74 @@ def _build_context_for_langgraph(domain: str, memory: HuntMemory) -> str:
 #  Public entry point  (called by hunt.py --agent)
 # ──────────────────────────────────────────────────────────────────────────────
 
+def _parse_hunt_request(text: str, model: str | None = None) -> dict:
+    """Turn a free-form operator request — e.g. 'Hunt myco.io. Check
+    grounds.myco.io, here are test accounts, check privilege escalation
+    issues' — into structured hunt parameters, using the local Ollama model
+    to do the extraction. Falls back to a plain domain regex if the model
+    or JSON parsing fails, so --chat degrades gracefully without Ollama.
+    """
+    m = re.search(r"\b([a-z0-9-]+(?:\.[a-z0-9-]+)+\.[a-z]{2,})\b", text, re.IGNORECASE)
+    fallback_domain = m.group(1).lower() if m else None
+
+    parsed = {
+        "domain":  fallback_domain,
+        "scope":   [fallback_domain] if fallback_domain else [],
+        "exclude": [],
+        "cookie":  "",
+        "note":    text.strip(),
+    }
+
+    if not _OLLAMA_OK:
+        return parsed
+
+    try:
+        client    = _ollama_lib.Client(host=OLLAMA_HOST)
+        use_model = model or (_pick_model() if _BRAIN_OK else None)
+        if not use_model:
+            available = [mm.model for mm in client.list().models]
+            use_model = available[0] if available else None
+        if not use_model:
+            return parsed
+
+        system = (
+            "Extract bug-bounty hunt parameters from the operator's request below. "
+            "Reply with ONLY a JSON object, no prose, exactly matching this shape: "
+            '{"domain": "<primary target domain, no scheme/path>", '
+            '"scope": ["<in-scope domain/wildcard patterns>"], '
+            '"exclude": ["<explicitly out-of-scope patterns, if any>"], '
+            '"cookie": "<a session cookie string if one was given, else empty>", '
+            '"note": "<everything else useful: test accounts, credentials, what to focus on>"}'
+        )
+        resp = client.chat(
+            model=use_model,
+            messages=[{"role": "system", "content": system},
+                      {"role": "user", "content": text}],
+            options={"temperature": 0.0, "num_predict": 400},
+        )
+        content = resp.get("message", {}).get("content", "")
+        jm = re.search(r"\{.*\}", content, re.DOTALL)
+        if jm:
+            data = json.loads(jm.group(0))
+            if data.get("domain"):
+                parsed["domain"] = data["domain"].strip().lower()
+            if data.get("scope"):
+                parsed["scope"] = [s for s in data["scope"] if s]
+            if data.get("exclude"):
+                parsed["exclude"] = [s for s in data["exclude"] if s]
+            if data.get("cookie"):
+                parsed["cookie"] = data["cookie"]
+            if data.get("note"):
+                parsed["note"] = data["note"]
+            if not parsed["scope"] and parsed["domain"]:
+                parsed["scope"] = [parsed["domain"]]
+    except Exception as e:
+        print(f"{YELLOW}[Chat] Couldn't parse with the model ({e}) — "
+              f"using plain-text fallback.{NC}", flush=True)
+
+    return parsed
+
+
 def run_agent_hunt(
     domain: str,
     *,
@@ -1615,6 +1735,7 @@ def run_agent_hunt(
     resume_session_id: str | None = None,
     use_langgraph: bool = False,
     scope_checker: "ScopeChecker | None" = None,
+    initial_note: str = "",
 ) -> dict:
     """
     Main entry point for agent-driven autonomous hunting.
@@ -1644,6 +1765,12 @@ def run_agent_hunt(
     # to be set to just below — both mark "now" at hunt start.
     hunt_start_time = time.time()
     memory     = HuntMemory(session_file)
+    if initial_note:
+        # Same mechanism as a mid-run bump, just seeded before step 1 so the
+        # agent starts already knowing the operator's scope/test-account/focus
+        # notes instead of needing to be steered into them after the fact.
+        memory.working_memory += f"\n\n[OPERATOR GUIDANCE] {initial_note}"
+        memory.save()
     dispatcher = ToolDispatcher(
         domain, memory,
         scope_lock=scope_lock,
@@ -1726,9 +1853,16 @@ Examples:
   python3 agent.py --target example.com --langgraph
   python3 agent.py --target example.com --resume SESSION_ID
   python3 agent.py --list-models
+  python3 agent.py --chat
+      Hunt myco.io
+      Check grounds.myco.io, here are test accounts, check privilege
+      escalation issues
+      (blank line to submit)
 """
     )
     parser.add_argument("--target",      required=False, help="Domain to hunt")
+    parser.add_argument("--chat",        action="store_true",
+                        help="Describe the hunt in plain English instead of flags")
     parser.add_argument("--time",        type=float, default=2.0, help="Time budget in hours (default 2)")
     parser.add_argument("--max-steps",   type=int,   default=20,  help="Max ReAct iterations (default 20)")
     parser.add_argument("--cookie",      type=str,   default="",  help="Session cookie for POST discovery")
@@ -1747,6 +1881,47 @@ Examples:
                         help="Inject operator guidance mid-run: --bump SESSION_DIR 'message'",
                         nargs=2, metavar=("SESSION_DIR", "MESSAGE"))
     args = parser.parse_args()
+    chat_note = ""
+
+    if args.chat:
+        print(f"{BOLD}Describe the hunt — target, scope, test accounts, what to focus on.{NC}")
+        print(f"{DIM}End with a blank line (or Ctrl+D):{NC}\n")
+        lines: list[str] = []
+        try:
+            while True:
+                line = input()
+                if line == "":
+                    break
+                lines.append(line)
+        except EOFError:
+            pass
+        text = "\n".join(lines).strip()
+        if not text:
+            print(f"{RED}Nothing entered — exiting.{NC}")
+            return
+
+        parsed = _parse_hunt_request(text, model=args.model)
+        if not parsed["domain"]:
+            print(f"{RED}Couldn't find a target domain in that — try again, "
+                  f"or use --target directly.{NC}")
+            return
+
+        print(f"\n{GREEN}[Chat] Understood:{NC}")
+        print(f"  Target:  {parsed['domain']}")
+        print(f"  Scope:   {', '.join(parsed['scope']) or parsed['domain']}")
+        if parsed["exclude"]:
+            print(f"  Exclude: {', '.join(parsed['exclude'])}")
+        if parsed["cookie"]:
+            print(f"  Cookie:  (provided)")
+        if parsed["note"]:
+            print(f"  Notes:   {parsed['note']}")
+        print()
+
+        args.target        = parsed["domain"]
+        args.cookie         = parsed["cookie"] or args.cookie
+        args.domain         = parsed["scope"] or [parsed["domain"]]
+        args.exclude_domain = parsed["exclude"]
+        chat_note           = parsed["note"]
 
     if args.list_models:
         if not _OLLAMA_OK:
@@ -1801,6 +1976,7 @@ Examples:
         resume_session_id=args.resume,
         use_langgraph=args.langgraph,
         scope_checker=scope_checker,
+        initial_note=chat_note,
     )
 
     print(f"\n{BOLD}{'═'*60}{NC}")
