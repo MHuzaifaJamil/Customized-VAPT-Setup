@@ -13,6 +13,15 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  # Required whenever upstream's own merge range touches a file under
+  # .github/workflows/ (e.g. their tests.yml) -- without this, GitHub
+  # rejects the push with "refusing to allow a GitHub App to create or
+  # update workflow ... without `workflows` permission", even though
+  # `contents: write` already covers every other file in the repo.
+  # Confirmed live: 12+ consecutive daily sync failures (2026-10-23
+  # through 2026-11-03) with exactly this error on `git push origin
+  # sync/upstream`.
+  workflows: write
 
 concurrency:
   group: sync-upstream
