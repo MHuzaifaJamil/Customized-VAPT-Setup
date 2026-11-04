@@ -112,6 +112,21 @@ jobs:
 
       - name: Open a PR, or fall back to an issue (conflicts only)
         if: steps.check.outputs.ahead != '0' && steps.merge.outputs.clean == 'false'
+        # 2026-11-04: confirmed live that GITHUB_TOKEN can create neither a
+        # PR nor an issue in this fork ("Resource not accessible by
+        # integration" on both createPullRequest and createIssue), even
+        # with issues enabled on the repo and issues: write granted above
+        # -- the same class of hard, non-PAT-bypassable fork restriction
+        # this step's own comment already documents for PR creation, now
+        # confirmed to cover issue creation here too. The actual sync
+        # (merge, workflow-file exclusion, branch push) already succeeded
+        # by the time this step runs -- it's a best-effort notification
+        # on top of completed, real work, not the sync itself failing, so
+        # its failure must not fail the whole job and trigger a false
+        # "sync failed" signal. Add a SYNC_PAT repo secret to make this
+        # step actually succeed; until then, the pushed sync/upstream
+        # branch itself remains the real, authoritative notification.
+        continue-on-error: true
         env:
           # Prefer a SYNC_PAT repo secret (a personal access token with repo
           # scope) if one is ever added — the default GITHUB_TOKEN cannot
@@ -163,6 +178,11 @@ jobs:
 
       - name: Notify if workflow files were excluded from a clean sync
         if: steps.check.outputs.ahead != '0' && steps.merge.outputs.clean == 'true' && steps.workflows.outputs.excluded == 'true'
+        # Same best-effort-notification reasoning as the step above: main
+        # is already successfully updated by the time this runs, so a
+        # failure here (same GITHUB_TOKEN-in-fork issue-creation
+        # restriction) must not fail the job.
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
         run: |
