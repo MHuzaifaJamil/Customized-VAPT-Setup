@@ -13,15 +13,13 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
-  # Required whenever upstream's own merge range touches a file under
-  # .github/workflows/ (e.g. their tests.yml) -- without this, GitHub
-  # rejects the push with "refusing to allow a GitHub App to create or
-  # update workflow ... without `workflows` permission", even though
-  # `contents: write` already covers every other file in the repo.
-  # Confirmed live: 12+ consecutive daily sync failures (2026-10-23
-  # through 2026-11-03) with exactly this error on `git push origin
-  # sync/upstream`.
-  workflows: write
+  # 2026-11-03: there is NO "workflows" key in GitHub's permissions:
+  # schema at all (confirmed live: adding one makes the whole file
+  # unparseable -- "failed to parse workflow: Unexpected value
+  # 'workflows'"). Pushing a change to .github/workflows/* is a hard,
+  # non-overridable GITHUB_TOKEN restriction -- it cannot be granted via
+  # this block under any key, full stop. See "Exclude .github/workflows/
+  # changes" below for the actual fix.
 
 concurrency:
   group: sync-upstream
@@ -86,6 +84,19 @@ jobs:
             echo "clean=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Exclude .github/workflows/ changes (GITHUB_TOKEN can never push these)
+        if: steps.check.outputs.ahead != '0'
+        id: workflows
+        run: |
+          if git diff --quiet main -- .github/workflows/; then
+            echo "excluded=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "excluded=true" >> "$GITHUB_OUTPUT"
+            git diff --name-only main -- .github/workflows/ > /tmp/excluded_workflow_files.txt
+            git checkout main -- .github/workflows/
+            git commit -m "sync: exclude .github/workflows/ changes -- GITHUB_TOKEN can never push these; review upstream's changes manually (see the follow-up issue)" --no-verify --allow-empty
+          fi
+
       - name: Fast-forward main directly (clean merge only)
         if: steps.check.outputs.ahead != '0' && steps.merge.outputs.clean == 'true'
         run: |
@@ -111,6 +122,7 @@ jobs:
           # regular issue instead, which isn't restricted the same way, so
           # you're still notified either way.
           GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+          WORKFLOWS_EXCLUDED: ${{ steps.workflows.outputs.excluded }}
         run: |
           set +e
           COMPARE_URL="https://github.com/${{ github.repository }}/compare/main...$SYNC_BRANCH"
@@ -120,6 +132,12 @@ jobs:
 
           Upstream range: \`main..upstream/main\`
           Compare: $COMPARE_URL"
+
+          if [ "$WORKFLOWS_EXCLUDED" = "true" ]; then
+            BODY="$BODY
+
+          **Note:** upstream also changed file(s) under \`.github/workflows/\` in this range. Those changes were excluded from \`$SYNC_BRANCH\` automatically — GITHUB_TOKEN can never push a workflow-file change, by GitHub's own design, regardless of what's granted in this workflow's \`permissions:\` block. Review and apply upstream's workflow changes manually if you want them."
+          fi
 
           EXISTING_PR=$(gh pr list --head "$SYNC_BRANCH" --json number --jq '.[0].number' 2>/dev/null)
           if [ -n "$EXISTING_PR" ]; then
@@ -141,4 +159,19 @@ jobs:
             gh issue comment "$EXISTING_ISSUE" --body "$BODY"
           else
             gh issue create --title "Sync with upstream (conflicts need review)" --body "$BODY"
+          fi
+
+      - name: Notify if workflow files were excluded from a clean sync
+        if: steps.check.outputs.ahead != '0' && steps.merge.outputs.clean == 'true' && steps.workflows.outputs.excluded == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          BODY="The most recent clean sync from upstream (Awarexone/Agentic-Bug-Hunter) excluded file(s) under \`.github/workflows/\` — GITHUB_TOKEN can never push a workflow-file change, by GitHub's own design. \`main\` is otherwise fully up to date with upstream; only the workflow files were left on their prior version. Review upstream's \`.github/workflows/\` changes and apply them manually if wanted."
+
+          EXISTING_ISSUE=$(gh issue list --search "\"Upstream workflow-file changes need manual review\" in:title" --json number --jq '.[0].number' 2>/dev/null)
+          if [ -n "$EXISTING_ISSUE" ]; then
+            gh issue comment "$EXISTING_ISSUE" --body "$BODY"
+          else
+            gh issue create --title "Upstream workflow-file changes need manual review" --body "$BODY"
           fi
